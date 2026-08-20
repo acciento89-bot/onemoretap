@@ -14,7 +14,7 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 - [x] Legacy working name `One More Tap` retired from customer-facing branding.
 - [x] Existing technical bundle/product IDs intentionally retained for continuity.
 
-## Code and CI
+## Code and CI — DONE
 
 - [x] Classic gameplay locked and covered by regression tests.
 - [x] Rewarded continue limited to one use per run.
@@ -30,8 +30,8 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 - [x] No ATT prompt requested by the app itself.
 - [x] Core test baseline: 9/9.
 - [x] Pre-rebrand Xcode 26.2 iOS Simulator build passed with GoogleMobileAds 13.8.0 and GoogleUserMessagingPlatform 3.1.0.
-- [ ] NavoTap rebrand branch CI: Core tests green.
-- [ ] NavoTap rebrand branch CI: iOS Simulator build green.
+- [x] NavoTap rebrand Core tests passed in GitHub Actions run `32409256186`.
+- [x] NavoTap rebrand Xcode 26.2 iOS Simulator build passed in GitHub Actions run `32409256186`.
 
 ## Production product identifiers — LOCKED TECHNICAL IDs
 
@@ -74,4 +74,4 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 
 ## Release blocker rule
 
-Do not submit NavoTap to App Review while any production IAP is missing, any Google sample/test runtime identifier remains, the NavoTap rebrand CI is not green, or physical-device purchase/restore/rewarded-ad testing has not passed.
+Do not submit NavoTap to App Review while any production IAP is missing, any Google sample/test runtime identifier remains, or physical-device purchase/restore/rewarded-ad testing has not passed.
