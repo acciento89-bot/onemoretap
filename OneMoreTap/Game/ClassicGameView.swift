@@ -139,7 +139,7 @@ struct ClassicGameView: View {
       Rectangle()
         .fill(.black.opacity(0.52))
         .ignoresSafeArea()
-        .background(.ultraThinMaterial.opacity(0.15))
+        .background(.ultraThinMaterial)
 
       VStack(spacing: 16) {
         Text("PAUSED")
@@ -168,7 +168,7 @@ struct ClassicGameView: View {
       Rectangle()
         .fill(.black.opacity(0.54))
         .ignoresSafeArea()
-        .background(.ultraThinMaterial.opacity(0.12))
+        .background(.ultraThinMaterial)
 
       VStack(spacing: 0) {
         if controller.isNewBest {
