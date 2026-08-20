@@ -22,6 +22,8 @@ These are implementation identifiers, not customer-facing branding, and must not
 
 **Monetization/release code: COMPLETE and merged to `main`.**
 
+**NavoTap branding pass: COMPLETE and CI-VALIDATED.**
+
 NavoTap includes rotating-orb Classic gameplay, target/perfect zones, combo, score, coins, progressive difficulty, direction reversals, game-over/retry, one rewarded continue per run, conservative interstitials, Remove Ads, cosmetic themes, StoreKit 2 restore/entitlements, UMP consent/privacy-options flow, sound, haptics and local persistence.
 
 ## Product rules locked for Classic
@@ -43,16 +45,6 @@ NavoTap includes rotating-orb Classic gameplay, target/perfect zones, combo, sco
 - Remove Ads disables automatic interstitials only; rewarded continue remains optional.
 - Neon is free; Fire, Galaxy, Retro and All Themes are supported.
 
-## Validation baseline
-
-Before the NavoTap branding pass, the release implementation passed:
-
-- 9/9 core regression tests.
-- Xcode 26.2 iOS Simulator build.
-- GoogleMobileAds 13.8.0 and GoogleUserMessagingPlatform 3.1.0 package resolution.
-
-The NavoTap rebrand must pass the same CI gates before merge.
-
 ## Branding implementation
 
 - Home title: `NAVOTAP`.
@@ -62,6 +54,13 @@ The NavoTap rebrand must pass the same CI gates before merge.
 - Shared Xcode scheme: `NavoTap`.
 - Local StoreKit configuration file: `NavoTap.storekit`.
 - App Store Connect / AdMob documentation uses NavoTap.
+
+## Validation
+
+- Core regression suite: 9/9.
+- NavoTap rebrand GitHub Actions run `32409256186`: Core tests — success.
+- NavoTap rebrand GitHub Actions run `32409256186`: Xcode 26.2 iOS Simulator `Build NavoTap` — success.
+- GoogleMobileAds 13.8.0 and GoogleUserMessagingPlatform 3.1.0 resolve in the iOS build.
 
 ## Remaining external release gates
 
