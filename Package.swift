@@ -11,7 +11,7 @@ let package = Package(
         .target(
             name: "OneMoreTapCore",
             path: "OneMoreTap",
-            exclude: ["Assets.xcassets", "ClassicGameModel.swift", "ClassicGameView.swift", "Haptics.swift", "Info.plist", "OneMoreTapApp.swift", "Shapes.swift", "StatsStore.swift"],
+            exclude: ["Assets.xcassets", "ClassicGameModel.swift", "ClassicGameView.swift", "Haptics.swift", "Info.plist", "Monetization.swift", "OneMoreTapApp.swift", "Shapes.swift", "StatsStore.swift"],
             sources: ["GameCore.swift"]
         ),
         .testTarget(

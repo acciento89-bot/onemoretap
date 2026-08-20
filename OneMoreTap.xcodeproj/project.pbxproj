@@ -15,6 +15,7 @@
 		A10000000000000000000007 /* Shapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* Shapes.swift */; };
 		A10000000000000000000008 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* Assets.xcassets */; };
 		A10000000000000000000009 /* GameCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* GameCoreTests.swift */; };
+		A1000000000000000000000D /* Monetization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000D /* Monetization.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +41,7 @@
 		B1000000000000000000000A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B1000000000000000000000B /* OneMoreTap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneMoreTap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B1000000000000000000000C /* OneMoreTapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneMoreTapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1000000000000000000000D /* Monetization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Monetization.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +69,7 @@
 				B10000000000000000000005 /* StatsStore.swift */,
 				B10000000000000000000006 /* Haptics.swift */,
 				B10000000000000000000007 /* Shapes.swift */,
+				B1000000000000000000000D /* Monetization.swift */,
 				B10000000000000000000008 /* Assets.xcassets */,
 				B1000000000000000000000A /* Info.plist */,
 			);
@@ -151,6 +154,7 @@
 			A10000000000000000000005 /* StatsStore.swift in Sources */,
 			A10000000000000000000006 /* Haptics.swift in Sources */,
 			A10000000000000000000007 /* Shapes.swift in Sources */,
+			A1000000000000000000000D /* Monetization.swift in Sources */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 		I10000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000009 /* GameCoreTests.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */

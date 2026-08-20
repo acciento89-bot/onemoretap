@@ -3,15 +3,19 @@ import SwiftUI
 struct ClassicGameView: View {
     @StateObject private var game = ClassicGameModel()
     @StateObject private var stats = StatsStore()
+    @StateObject private var monetization = MonetizationStore()
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var showHowTo = false
     @State private var showSettings = false
+    @State private var showStore = false
     @State private var flashOpacity = 0.0
     @State private var feedbackText = ""
     @State private var feedbackScale = 0.7
     @State private var recordedGameOver = false
     @State private var isNewBest = false
+
+    private var theme: GameTheme { monetization.selectedTheme }
 
     var body: some View {
         ZStack {
@@ -41,30 +45,33 @@ struct ClassicGameView: View {
         }
         .preferredColorScheme(.dark)
         .animation(.spring(response: 0.36, dampingFraction: 0.86), value: game.phase)
+        .animation(.easeInOut(duration: 0.3), value: theme)
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { game.resume() } else { game.pause() }
         }
         .onChange(of: game.feedbackID) { _, _ in handleFeedback() }
         .sheet(isPresented: $showSettings) { settingsSheet }
+        .sheet(isPresented: $showStore) { OneMoreTapStoreView(store: monetization) }
+        .task { await monetization.start() }
     }
 
     private var background: some View {
         ZStack {
             LinearGradient(
-                colors: [Color(red: 0.025, green: 0.03, blue: 0.07), Color(red: 0.06, green: 0.025, blue: 0.11), .black],
+                colors: [theme.backgroundTop, theme.backgroundMid, .black],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
 
             Circle()
-                .fill(Color.cyan.opacity(0.12))
+                .fill(theme.primary.opacity(0.13))
                 .frame(width: 360, height: 360)
                 .blur(radius: 100)
                 .offset(x: -150, y: -260)
 
             Circle()
-                .fill(Color.purple.opacity(0.12))
+                .fill(theme.secondary.opacity(0.13))
                 .frame(width: 340, height: 340)
                 .blur(radius: 110)
                 .offset(x: 150, y: 280)
@@ -73,8 +80,21 @@ struct ClassicGameView: View {
 
     private var menu: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: 10) {
                 Spacer()
+
+                Button { showStore = true } label: {
+                    Image(systemName: "bag.fill")
+                        .font(.system(size: 17, weight: .semibold))
+                        .frame(width: 46, height: 46)
+                        .background(.ultraThinMaterial, in: Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(theme.primary.opacity(0.2), lineWidth: 1)
+                        )
+                }
+                .accessibilityLabel("Packs")
+
                 Button { showSettings = true } label: {
                     Image(systemName: "gearshape.fill")
                         .font(.system(size: 18, weight: .semibold))
@@ -93,16 +113,22 @@ struct ClassicGameView: View {
                     .font(.system(size: 18, weight: .heavy, design: .rounded))
                     .tracking(7)
                     .foregroundStyle(.white.opacity(0.72))
+
                 Text("TAP")
                     .font(.system(size: 76, weight: .black, design: .rounded))
                     .tracking(-3)
                     .foregroundStyle(
-                        LinearGradient(colors: [.white, .cyan], startPoint: .top, endPoint: .bottom)
+                        LinearGradient(colors: [.white, theme.primary], startPoint: .top, endPoint: .bottom)
                     )
-                    .shadow(color: .cyan.opacity(0.45), radius: 24)
+                    .shadow(color: theme.primary.opacity(0.45), radius: 24)
+
+                Text(theme.name.uppercased())
+                    .font(.system(size: 10, weight: .black, design: .rounded))
+                    .tracking(2.5)
+                    .foregroundStyle(theme.primary.opacity(0.75))
             }
 
-            Spacer().frame(height: 52)
+            Spacer().frame(height: 46)
 
             Button {
                 recordedGameOver = false
@@ -122,10 +148,10 @@ struct ClassicGameView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 62)
                 .background(
-                    LinearGradient(colors: [.white, .cyan.opacity(0.9)], startPoint: .leading, endPoint: .trailing),
+                    LinearGradient(colors: [.white, theme.primary.opacity(0.9)], startPoint: .leading, endPoint: .trailing),
                     in: Capsule()
                 )
-                .shadow(color: .cyan.opacity(0.28), radius: 24, y: 8)
+                .shadow(color: theme.primary.opacity(0.28), radius: 24, y: 8)
             }
             .padding(.horizontal, 38)
 
@@ -177,10 +203,10 @@ struct ClassicGameView: View {
 
                 Text("#\(game.level)")
                     .font(.system(size: 14, weight: .black, design: .rounded))
-                    .foregroundStyle(.cyan)
+                    .foregroundStyle(theme.primary)
                     .frame(width: 58, height: 38)
-                    .background(.cyan.opacity(0.11), in: Capsule())
-                    .overlay(Capsule().stroke(.cyan.opacity(0.2), lineWidth: 1))
+                    .background(theme.primary.opacity(0.11), in: Capsule())
+                    .overlay(Capsule().stroke(theme.primary.opacity(0.22), lineWidth: 1))
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
@@ -199,13 +225,13 @@ struct ClassicGameView: View {
                     .frame(width: 274, height: 274)
 
                 ArcShape(centerAngle: game.targetCenter, width: game.targetWidth)
-                    .stroke(.cyan.opacity(0.20), style: StrokeStyle(lineWidth: 28, lineCap: .round))
+                    .stroke(theme.primary.opacity(0.20), style: StrokeStyle(lineWidth: 28, lineCap: .round))
                     .frame(width: 274, height: 274)
                     .blur(radius: 12)
 
                 ArcShape(centerAngle: game.targetCenter, width: game.targetWidth)
                     .stroke(
-                        LinearGradient(colors: [.cyan, .white, .cyan], startPoint: .leading, endPoint: .trailing),
+                        LinearGradient(colors: [theme.primary, .white, theme.primary], startPoint: .leading, endPoint: .trailing),
                         style: StrokeStyle(lineWidth: 12, lineCap: .round)
                     )
                     .frame(width: 274, height: 274)
@@ -222,12 +248,13 @@ struct ClassicGameView: View {
                             .fill(LinearGradient(colors: [.white.opacity(0.12), .white], startPoint: .bottom, endPoint: .top))
                             .frame(width: 4, height: 112)
                             .offset(y: -56)
+
                         Circle()
                             .fill(.white)
                             .frame(width: 18, height: 18)
                             .offset(y: -135)
                             .shadow(color: .white.opacity(0.85), radius: 8)
-                            .shadow(color: .cyan.opacity(0.55), radius: 18)
+                            .shadow(color: theme.primary.opacity(0.58), radius: 18)
                     }
                     .rotationEffect(.degrees(angle))
                 }
@@ -251,8 +278,8 @@ struct ClassicGameView: View {
 
                 Text(feedbackText)
                     .font(.system(size: 24, weight: .black, design: .rounded))
-                    .foregroundStyle(feedbackText == "PERFECT" ? .cyan : .white)
-                    .shadow(color: .cyan.opacity(0.5), radius: 14)
+                    .foregroundStyle(feedbackText == "PERFECT" ? theme.primary : .white)
+                    .shadow(color: theme.primary.opacity(0.5), radius: 14)
                     .scaleEffect(feedbackScale)
                     .opacity(feedbackText.isEmpty ? 0 : 1)
                     .offset(y: -200)
@@ -282,13 +309,13 @@ struct ClassicGameView: View {
             Text(isNewBest ? "NEW BEST" : "GAME OVER")
                 .font(.system(size: 14, weight: .black, design: .rounded))
                 .tracking(4)
-                .foregroundStyle(isNewBest ? .cyan : .white.opacity(0.5))
+                .foregroundStyle(isNewBest ? theme.primary : .white.opacity(0.5))
 
             Text("\(game.score)")
                 .font(.system(size: 86, weight: .black, design: .rounded))
                 .minimumScaleFactor(0.6)
                 .foregroundStyle(.white)
-                .shadow(color: isNewBest ? .cyan.opacity(0.35) : .clear, radius: 24)
+                .shadow(color: isNewBest ? theme.primary.opacity(0.35) : .clear, radius: 24)
                 .padding(.top, 6)
 
             Text("LEVEL \(game.level)")
@@ -334,7 +361,7 @@ struct ClassicGameView: View {
                 ZStack {
                     Circle().stroke(.white.opacity(0.1), lineWidth: 16).frame(width: 150, height: 150)
                     ArcShape(centerAngle: 60, width: 62)
-                        .stroke(.cyan, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                        .stroke(theme.primary, style: StrokeStyle(lineWidth: 10, lineCap: .round))
                         .frame(width: 150, height: 150)
                     Capsule().fill(.white).frame(width: 4, height: 58).offset(y: -29).rotationEffect(.degrees(48))
                     Circle().fill(.white).frame(width: 15, height: 15).offset(y: -74).rotationEffect(.degrees(48))
@@ -344,7 +371,7 @@ struct ClassicGameView: View {
                     Text("ONE RULE")
                         .font(.system(size: 13, weight: .black, design: .rounded))
                         .tracking(4)
-                        .foregroundStyle(.cyan)
+                        .foregroundStyle(theme.primary)
                     Text("Tap inside the glow.")
                         .font(.system(size: 25, weight: .black, design: .rounded))
                     Text("Hit the bright center for PERFECT.\nMiss once and the run is over.")
@@ -372,6 +399,7 @@ struct ClassicGameView: View {
                 Section("Feedback") {
                     Toggle("Haptics", isOn: $stats.hapticsEnabled)
                 }
+
                 Section("Classic stats") {
                     LabeledContent("Best score", value: "\(stats.bestScore)")
                     LabeledContent("Best level", value: "\(stats.bestLevel)")
@@ -379,6 +407,20 @@ struct ClassicGameView: View {
                     LabeledContent("Perfect hits", value: "\(stats.perfects)")
                     LabeledContent("Total score", value: "\(stats.totalScore)")
                 }
+
+                Section("Packs") {
+                    LabeledContent("Theme", value: theme.name)
+                    LabeledContent("Regular ads", value: monetization.adsRemoved ? "Removed" : "Enabled")
+                    Button("Open packs") {
+                        showSettings = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) { showStore = true }
+                    }
+                    Button("Restore purchases") {
+                        Task { await monetization.restore() }
+                    }
+                    .disabled(monetization.isLoading)
+                }
+
                 Section {
                     Button("Show tutorial") {
                         showSettings = false
@@ -414,16 +456,25 @@ struct ClassicGameView: View {
 
     private func handleFeedback() {
         guard let grade = game.lastGrade else { return }
+
         if stats.hapticsEnabled { Haptics.play(grade) }
         if grade == .perfect { stats.recordPerfect() }
 
         feedbackText = grade == .perfect ? "PERFECT" : (grade == .hit ? "HIT" : "MISS")
         feedbackScale = 0.65
-        withAnimation(.spring(response: 0.22, dampingFraction: 0.55)) { feedbackScale = 1.08 }
-        withAnimation(.easeOut(duration: 0.16)) { flashOpacity = grade == .miss ? 0.09 : 0.035 }
+
+        withAnimation(.spring(response: 0.22, dampingFraction: 0.55)) {
+            feedbackScale = 1.08
+        }
+
+        withAnimation(.easeOut(duration: 0.16)) {
+            flashOpacity = grade == .miss ? 0.09 : 0.035
+        }
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.14) {
             withAnimation(.easeOut(duration: 0.25)) { flashOpacity = 0 }
         }
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.48) {
             withAnimation(.easeOut(duration: 0.18)) { feedbackText = "" }
         }
