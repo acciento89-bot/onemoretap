@@ -1,3 +1,4 @@
+import CoreGraphics
 import SpriteKit
 import UIKit
 
@@ -211,7 +212,10 @@ final class ClassicScene: SKScene {
       dot.strokeColor = .clear
       let theta = CGFloat(index) / 26.0 * .pi * 2 + CGFloat.random(in: -0.12...0.12)
       let radius = CGFloat.random(in: 185...330)
-      dot.position = CGPoint(x: cos(theta) * radius, y: sin(theta) * radius)
+      dot.position = CGPoint(
+        x: CoreGraphics.cos(theta) * radius,
+        y: CoreGraphics.sin(theta) * radius
+      )
       dot.zPosition = -5
       addChild(dot)
     }
@@ -269,7 +273,10 @@ final class ClassicScene: SKScene {
 
   private func updateMarkerPosition() {
     let radians = CGFloat(currentAngle * .pi / 180)
-    markerNode.position = CGPoint(x: cos(radians) * orbitRadius, y: sin(radians) * orbitRadius)
+    markerNode.position = CGPoint(
+      x: CoreGraphics.cos(radians) * orbitRadius,
+      y: CoreGraphics.sin(radians) * orbitRadius
+    )
   }
 
   private func pulseStart() {
@@ -311,7 +318,9 @@ final class ClassicScene: SKScene {
       let angle = CGFloat(index) / CGFloat(count) * .pi * 2 + CGFloat.random(in: -0.18...0.18)
       let distance = CGFloat.random(in: perfect ? 34...58 : 22...38)
       let destination = CGPoint(
-        x: origin.x + cos(angle) * distance, y: origin.y + sin(angle) * distance)
+        x: origin.x + CoreGraphics.cos(angle) * distance,
+        y: origin.y + CoreGraphics.sin(angle) * distance
+      )
       particle.run(
         .sequence([
           .group([
