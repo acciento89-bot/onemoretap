@@ -1,4 +1,4 @@
-# One More Tap
+# NavoTap
 
 A fast, one-finger iPhone arcade game built with SwiftUI + SpriteKit.
 
@@ -34,9 +34,9 @@ Development builds use Google's official public test ad identifiers. Production 
 
 ## Build
 
-Open `OneMoreTap.xcodeproj`, select the `OneMoreTap` scheme, resolve Swift packages, and run on an iPhone or iPhone Simulator.
+Open `OneMoreTap.xcodeproj`, select the `NavoTap` scheme, resolve Swift packages, and run on an iPhone or iPhone Simulator.
 
-The project uses bundle identifier `com.kamilunavo.onemoretap`. Set the Apple Development Team in Xcode before installing on a physical device or archiving.
+The project currently keeps the technical bundle identifier `com.kamilunavo.onemoretap` and the existing StoreKit product IDs for continuity. These identifiers are not customer-facing and are intentionally not renamed as part of the NavoTap branding pass.
 
 ## Test
 
@@ -45,8 +45,8 @@ cd OneMoreTapCore
 swift test
 ```
 
-CI also builds the iOS app for the Simulator with code signing disabled.
+CI also builds the NavoTap iOS target for the Simulator with code signing disabled.
 
 ## Status
 
-Classic is locked and complete. The monetization implementation is on `feat/monetization-shell`; production store/ad configuration and physical-device/TestFlight QA remain release gates.
+Classic and the monetization implementation are merged to `main`. NavoTap is the locked customer-facing product name. Production store/ad configuration and physical-device/TestFlight QA remain release gates.

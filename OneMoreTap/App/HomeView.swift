@@ -14,7 +14,7 @@ struct HomeView: View {
           logo
             .padding(.top, 18)
 
-          Text("ONE MORE TAP")
+          Text("NAVOTAP")
             .font(.system(size: 38, weight: .black, design: .rounded))
             .tracking(2.2)
             .foregroundStyle(.white)

@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct OneMoreTapApp: App {
+struct NavoTapApp: App {
   @StateObject private var profile = PlayerProfile()
   @StateObject private var store = StoreService()
   @StateObject private var ads = AdService()
