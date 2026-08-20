@@ -25,7 +25,7 @@
 		A10000000000000000000003 /* ThemeCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* ThemeCatalog.swift */; };
 		A10000000000000000000004 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* ShopView.swift */; };
 		A10000000000000000000005 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = A40000000000000000000001 /* GoogleMobileAds */; };
-		A10000000000000000000006 /* UserMessagingPlatform in Frameworks */ = {isa = PBXBuildFile; productRef = A40000000000000000000002 /* UserMessagingPlatform */; };
+		A10000000000000000000006 /* GoogleUserMessagingPlatform in Frameworks */ = {isa = PBXBuildFile; productRef = A40000000000000000000002 /* GoogleUserMessagingPlatform */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,7 +54,7 @@
 /* Begin PBXFrameworksBuildPhase section */
 		7561BFB015D8F536760CB671 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
 			A10000000000000000000005 /* GoogleMobileAds in Frameworks */,
-			A10000000000000000000006 /* UserMessagingPlatform in Frameworks */,
+			A10000000000000000000006 /* GoogleUserMessagingPlatform in Frameworks */,
 		); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 
@@ -78,7 +78,7 @@
 			buildRules = ();
 			dependencies = ();
 			name = OneMoreTap;
-			packageProductDependencies = (A40000000000000000000001 /* GoogleMobileAds */, A40000000000000000000002 /* UserMessagingPlatform */);
+			packageProductDependencies = (A40000000000000000000001 /* GoogleMobileAds */, A40000000000000000000002 /* GoogleUserMessagingPlatform */);
 			productName = OneMoreTap;
 			productReference = 38A007151ABE87CC01A5B6E9 /* OneMoreTap.app */;
 			productType = "com.apple.product-type.application";
@@ -136,7 +136,7 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		A40000000000000000000001 /* GoogleMobileAds */ = {isa = XCSwiftPackageProductDependency; package = A30000000000000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */; productName = GoogleMobileAds; };
-		A40000000000000000000002 /* UserMessagingPlatform */ = {isa = XCSwiftPackageProductDependency; package = A30000000000000000000002 /* XCRemoteSwiftPackageReference "swift-package-manager-google-user-messaging-platform" */; productName = UserMessagingPlatform; };
+		A40000000000000000000002 /* GoogleUserMessagingPlatform */ = {isa = XCSwiftPackageProductDependency; package = A30000000000000000000002 /* XCRemoteSwiftPackageReference "swift-package-manager-google-user-messaging-platform" */; productName = GoogleUserMessagingPlatform; };
 /* End XCSwiftPackageProductDependency section */
 
 	};
