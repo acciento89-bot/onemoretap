@@ -1,4 +1,4 @@
-# One More Tap — Monetization Pass
+# NavoTap — Monetization Pass
 
 ## Implemented
 
@@ -14,7 +14,7 @@
 - Theme selection persisted through `PlayerProfile`.
 - Themes applied to home UI and SpriteKit Classic arena.
 
-## Store product IDs
+## Store product IDs — technical IDs retained
 
 | Product | Type | ID |
 | --- | --- | --- |
@@ -23,6 +23,8 @@
 | Galaxy Theme | Non-consumable | `com.kamilunavo.onemoretap.theme.galaxy` |
 | Retro Theme | Non-consumable | `com.kamilunavo.onemoretap.theme.retro` |
 | All Themes | Non-consumable | `com.kamilunavo.onemoretap.theme.all` |
+
+These IDs predate the NavoTap customer-facing name and are intentionally retained for StoreKit continuity.
 
 ## Development ad configuration
 
@@ -34,9 +36,8 @@ The repository intentionally uses Google's public test identifiers during develo
 
 ## Release configuration still required
 
-- Production AdMob app ID + ad units.
+- Production AdMob app ID + ad units for NavoTap.
 - AdMob Privacy & Messaging consent message.
-- Full current SKAdNetwork identifier list.
-- App Store Connect IAP creation and metadata.
+- App Store Connect IAP creation and metadata under NavoTap.
 - Final App Privacy disclosure review.
 - Physical-device and TestFlight QA.
