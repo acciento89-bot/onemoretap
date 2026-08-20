@@ -6,7 +6,9 @@ Last updated: 2026-08-20
 
 **Classic mode: COMPLETE and locked.**
 
-**Monetization shell: IMPLEMENTED on `feat/monetization-shell`, pending iOS CI/device QA and production store/ad configuration.**
+**Monetization/release code: COMPLETE on `feat/monetization-shell`.**
+
+The code-side release gates have passed, including 9/9 core tests and a full iOS Simulator build on GitHub Actions with Xcode 26.2, GoogleMobileAds 13.8.0 and GoogleUserMessagingPlatform 3.1.0. Remaining blockers are account/device operations that require App Store Connect, AdMob, production signing or a physical iPhone/TestFlight.
 
 Classic remains the gameplay foundation: rotating orb, target arc, one-tap hit detection, perfect zone, combo, score, coins, progressive difficulty, late-run direction reversals, miss/game-over, instant retry, pause/resume, background handling, local best score/settings persistence, sound, haptics and polished visual feedback.
 
@@ -34,7 +36,7 @@ Classic remains the gameplay foundation: rotating orb, target arc, one-tap hit d
 - Free Neon theme plus Fire, Galaxy and Retro cosmetic packs; an All Themes bundle is supported.
 - Selected theme persists locally and recolors the shell and Classic arena without changing gameplay geometry.
 
-## Product identifiers
+## Product identifiers — LOCKED
 
 - `com.kamilunavo.onemoretap.removeads`
 - `com.kamilunavo.onemoretap.theme.fire`
@@ -46,11 +48,20 @@ Classic remains the gameplay foundation: rotating orb, target arc, one-tap hit d
 
 - Google Mobile Ads SDK via Swift Package Manager.
 - Google User Messaging Platform (UMP) via Swift Package Manager.
-- Consent information is refreshed on app launch; required consent form is presented before ad requests.
+- Consent information is refreshed on app launch; required consent form is presented before intentional ad requests.
 - A Privacy Options entry point appears in the shop when UMP requires one.
-- Development currently uses Google's official iOS sample AdMob app ID and test rewarded/interstitial unit IDs.
-- Production AdMob app/unit IDs must replace the test IDs before release.
-- App Store privacy disclosures must be reviewed once the production ad configuration is final.
+- Development uses Google's official iOS sample AdMob app ID and official rewarded/interstitial test IDs.
+- The current Google SKAdNetwork identifier list was synced into `Info.plist` on 2026-08-20.
+- The app does not request ATT authorization itself. Add an ATT prompt only if a future production configuration actually introduces tracking that requires it.
+- Production AdMob app/unit IDs must replace every sample/test ID before release.
+- App Store privacy disclosures must be completed against the final production Mobile Ads configuration.
+
+## StoreKit testing
+
+- `OneMoreTap/Resources/OneMoreTap.storekit` contains all five non-consumable products for local StoreKit testing.
+- The shared Debug launch scheme enables that StoreKit configuration.
+- Local test prices are not production prices and are never uploaded as App Store pricing.
+- Purchase, cancellation, restore and entitlement flows can therefore be exercised locally before App Store Connect products exist.
 
 ## Visual direction
 
@@ -61,13 +72,14 @@ Dark premium arcade presentation with theme-driven energy colors, white high-con
 - SwiftUI app shell.
 - SpriteKit Classic scene.
 - `OneMoreTapCore` pure Swift rules package.
-- Core tests now include rewarded-continue state restoration in addition to hit quality, angular wrapping, game-over, reset, combo bonus and difficulty progression.
+- Core tests include rewarded-continue state restoration plus hit quality, angular wrapping, game-over, reset, combo bonus and difficulty progression.
 - Local persistence via UserDefaults.
 - StoreKit 2 purchase/entitlement service.
 - Google Mobile Ads rewarded + interstitial service with UMP consent gate.
 - Shop UI, restore purchases, Remove Ads and cosmetic theme selection.
-- Explicit Info.plist contains the development AdMob application ID and initial SKAdNetwork entries.
+- Explicit `Info.plist` contains the development AdMob app ID and current Google SKAdNetwork identifiers.
 - Shared Xcode scheme and CI workflow are included.
+- CI uses Xcode 26.2 for the current Google Ads SDK requirements and `actions/checkout@v6`.
 
 ## Regression gates
 
@@ -86,21 +98,24 @@ Dark premium arcade presentation with theme-driven energy colors, white high-con
 13. Paid themes remain cosmetic only.
 14. No ad request is intentionally started until the UMP consent state permits ads.
 
-## Validation completed locally
+## Validation completed
 
-- `swift test --package-path OneMoreTapCore`: 9/9 Swift Testing tests pass.
-- `swift-format lint --recursive OneMoreTap OneMoreTapCore`: clean.
-- `swiftc -frontend -parse` for all app Swift source files: clean syntax parse.
-- `plutil -lint OneMoreTap.xcodeproj/project.pbxproj`: project file syntax OK.
-- `Info.plist` parses successfully.
+- Local: `swift test --package-path OneMoreTapCore` — 9/9 tests pass.
+- Local: `swift-format lint --recursive OneMoreTap OneMoreTapCore` — clean.
+- Local: Swift source syntax parse — clean.
+- Local: Xcode project and `Info.plist` syntax checks — clean.
+- GitHub Actions run `32406813188`: Core tests — success.
+- GitHub Actions run `32406813188`: iOS Simulator build with Xcode 26.2 and resolved Google packages — success.
+- The final branch head must remain green after release-documentation/CI-hygiene commits before merge.
 
-## Remaining release gates
+## Remaining external release gates
 
-1. iOS Simulator build on GitHub Actions/Xcode with Swift Package resolution.
-2. Create the five non-consumable products in App Store Connect and set pricing/localization/review metadata.
-3. Create the production AdMob app, rewarded unit and interstitial unit; replace sample IDs.
-4. Configure AdMob Privacy & Messaging consent message for EEA/UK/Switzerland and verify the privacy-options flow.
-5. Sync the full current Google SKAdNetwork identifier list before App Store submission.
-6. Update App Store privacy answers for the final Mobile Ads configuration.
-7. Physical iPhone QA: purchase, restore, rewarded continue, ad dismissal/failure, Remove Ads, theme persistence, background/foreground and rapid retry.
-8. TestFlight release candidate.
+These cannot be completed from the current GitHub-only release tooling and require the corresponding account/device:
+
+1. App Store Connect: create the five locked non-consumable IAPs, production pricing/localization and App Review metadata.
+2. AdMob: create the production iOS app plus rewarded and interstitial ad units; replace all sample/test IDs.
+3. AdMob Privacy & Messaging: configure the production UMP message and verify privacy options.
+4. App Store Connect: complete App Privacy answers for the final Mobile Ads configuration.
+5. Apple signing: archive/upload a release candidate to TestFlight.
+6. Physical iPhone QA: purchase, restore, rewarded continue, ad dismissal/failure, Remove Ads, theme persistence, background/foreground and rapid retry.
+7. Submit only after `docs/RELEASE_CHECKLIST.md` is fully satisfied.
