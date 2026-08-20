@@ -8,8 +8,8 @@ final class AdService: NSObject, ObservableObject, FullScreenContentDelegate {
   @Published private(set) var privacyOptionsRequired = false
   @Published private(set) var adsInitialized = false
 
-  private let rewardedUnitID = "ca-app-pub-3940256099942544/1712485313"
-  private let interstitialUnitID = "ca-app-pub-3940256099942544/4411468910"
+  private let rewardedUnitID = "ca-app-pub-8944085355624754/7162618768"
+  private let interstitialUnitID = "ca-app-pub-8944085355624754/3694930864"
 
   private var rewardedAd: RewardedAd?
   private var interstitialAd: InterstitialAd?
