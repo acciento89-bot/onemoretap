@@ -1,0 +1,144 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BE2CCC24EBE475913BD333CB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 0811584B416F7F90211563E7 /* PrivacyInfo.xcprivacy */; };
+		F2D3388208C1BAA818B6D5CA /* OneMoreTapApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED00C8B343C94F586BC206A1 /* OneMoreTapApp.swift */; };
+		F651B59CBC2A0F1FD6E2996C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11B3A51A75DF032636011A21 /* RootView.swift */; };
+		C2C5494F6D4FAB14ADCD1A64 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C7EC03E69EE74E0BC60406 /* HomeView.swift */; };
+		39271B323A1F10025A1AEC54 /* ClassicGameController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5C054C1E2590BD60DA86EB /* ClassicGameController.swift */; };
+		443A2B7785448F683227A240 /* ClassicScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB5038F4A3BE9FFD4673BD4 /* ClassicScene.swift */; };
+		71B123A7A7507BC3035BEF8E /* ClassicGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F834FD05451C9543C5892912 /* ClassicGameView.swift */; };
+		90E6DBE61EC4962B8246877F /* PlayerProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5029F9CFDE134E9F2D994334 /* PlayerProfile.swift */; };
+		B2D14E027C70BB2CA535683B /* FeedbackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B2EAB645C8424CE57D11E3 /* FeedbackManager.swift */; };
+		3F55DDBA8717BE82E8D4AAD9 /* ClassicGameEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B87832378165A0481D49F39 /* ClassicGameEngine.swift */; };
+		685720CA24816E8F7EBC508A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4A3F8338671BD8BE775EA54A /* Assets.xcassets */; };
+		12E0759BA2E0CBD3EC6B5578 /* hit.wav in Resources */ = {isa = PBXBuildFile; fileRef = 16F579255E4569970344FA97 /* hit.wav */; };
+		41B19081A026C7B0385552B7 /* perfect.wav in Resources */ = {isa = PBXBuildFile; fileRef = D91962EC3E29EB79C2C46D49 /* perfect.wav */; };
+		45365389D249B40A2B0B9E6C /* fail.wav in Resources */ = {isa = PBXBuildFile; fileRef = 535E37A89C22697A6DA5FB4A /* fail.wav */; };
+		A10000000000000000000001 /* StoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* StoreService.swift */; };
+		A10000000000000000000002 /* AdService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* AdService.swift */; };
+		A10000000000000000000003 /* ThemeCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* ThemeCatalog.swift */; };
+		A10000000000000000000004 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* ShopView.swift */; };
+		A10000000000000000000005 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = A40000000000000000000001 /* GoogleMobileAds */; };
+		A10000000000000000000006 /* GoogleUserMessagingPlatform in Frameworks */ = {isa = PBXBuildFile; productRef = A40000000000000000000002 /* GoogleUserMessagingPlatform */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0811584B416F7F90211563E7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = ../PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		ED00C8B343C94F586BC206A1 /* OneMoreTapApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneMoreTapApp.swift; sourceTree = "<group>"; };
+		11B3A51A75DF032636011A21 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		18C7EC03E69EE74E0BC60406 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		9B5C054C1E2590BD60DA86EB /* ClassicGameController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicGameController.swift; sourceTree = "<group>"; };
+		1AB5038F4A3BE9FFD4673BD4 /* ClassicScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicScene.swift; sourceTree = "<group>"; };
+		F834FD05451C9543C5892912 /* ClassicGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicGameView.swift; sourceTree = "<group>"; };
+		5029F9CFDE134E9F2D994334 /* PlayerProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProfile.swift; sourceTree = "<group>"; };
+		F3B2EAB645C8424CE57D11E3 /* FeedbackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackManager.swift; sourceTree = "<group>"; };
+		2B87832378165A0481D49F39 /* ClassicGameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicGameEngine.swift; sourceTree = "<group>"; };
+		4A3F8338671BD8BE775EA54A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		16F579255E4569970344FA97 /* hit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = hit.wav; sourceTree = "<group>"; };
+		D91962EC3E29EB79C2C46D49 /* perfect.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = perfect.wav; sourceTree = "<group>"; };
+		535E37A89C22697A6DA5FB4A /* fail.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = fail.wav; sourceTree = "<group>"; };
+		38A007151ABE87CC01A5B6E9 /* OneMoreTap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneMoreTap.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A20000000000000000000001 /* StoreService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreService.swift; sourceTree = "<group>"; };
+		A20000000000000000000002 /* AdService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdService.swift; sourceTree = "<group>"; };
+		A20000000000000000000003 /* ThemeCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeCatalog.swift; sourceTree = "<group>"; };
+		A20000000000000000000004 /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
+		A20000000000000000000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ../Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7561BFB015D8F536760CB671 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (
+			A10000000000000000000005 /* GoogleMobileAds in Frameworks */,
+			A10000000000000000000006 /* GoogleUserMessagingPlatform in Frameworks */,
+		); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6CFC827E67DCAE34C72B9CED = {isa = PBXGroup; children = (1DF401F405384E02A0BF02D3 /* OneMoreTap */, F53F5819D96C89B8ADBB36B2 /* OneMoreTapCore */, 021F2B7F3E0C61452C987484 /* Products */); sourceTree = "<group>"; };
+		1DF401F405384E02A0BF02D3 /* OneMoreTap */ = {isa = PBXGroup; children = (E5DE80EEAE9E20485315F646 /* App */, C2CB15F68E37BAEE7F746D40 /* Game */, A50000000000000000000001 /* Monetization */, AF3CDF94CD2E501E179699D2 /* Services */, F6F69D390CCBC9ED0A008C32 /* Resources */, 4A3F8338671BD8BE775EA54A /* Assets.xcassets */); path = OneMoreTap; sourceTree = "<group>"; };
+		E5DE80EEAE9E20485315F646 /* App */ = {isa = PBXGroup; children = (ED00C8B343C94F586BC206A1 /* OneMoreTapApp.swift */, 11B3A51A75DF032636011A21 /* RootView.swift */, 18C7EC03E69EE74E0BC60406 /* HomeView.swift */); path = App; sourceTree = "<group>"; };
+		C2CB15F68E37BAEE7F746D40 /* Game */ = {isa = PBXGroup; children = (9B5C054C1E2590BD60DA86EB /* ClassicGameController.swift */, 1AB5038F4A3BE9FFD4673BD4 /* ClassicScene.swift */, F834FD05451C9543C5892912 /* ClassicGameView.swift */); path = Game; sourceTree = "<group>"; };
+		A50000000000000000000001 /* Monetization */ = {isa = PBXGroup; children = (A20000000000000000000003 /* ThemeCatalog.swift */, A20000000000000000000001 /* StoreService.swift */, A20000000000000000000002 /* AdService.swift */, A20000000000000000000004 /* ShopView.swift */); path = Monetization; sourceTree = "<group>"; };
+		AF3CDF94CD2E501E179699D2 /* Services */ = {isa = PBXGroup; children = (5029F9CFDE134E9F2D994334 /* PlayerProfile.swift */, F3B2EAB645C8424CE57D11E3 /* FeedbackManager.swift */); path = Services; sourceTree = "<group>"; };
+		F6F69D390CCBC9ED0A008C32 /* Resources */ = {isa = PBXGroup; children = (A20000000000000000000005 /* Info.plist */, 0811584B416F7F90211563E7 /* PrivacyInfo.xcprivacy */, 16F579255E4569970344FA97 /* hit.wav */, D91962EC3E29EB79C2C46D49 /* perfect.wav */, 535E37A89C22697A6DA5FB4A /* fail.wav */); path = Resources/Sounds; sourceTree = "<group>"; };
+		F53F5819D96C89B8ADBB36B2 /* OneMoreTapCore */ = {isa = PBXGroup; children = (2B87832378165A0481D49F39 /* ClassicGameEngine.swift */); path = OneMoreTapCore/Sources/OneMoreTapCore; sourceTree = "<group>"; };
+		021F2B7F3E0C61452C987484 /* Products */ = {isa = PBXGroup; children = (38A007151ABE87CC01A5B6E9 /* OneMoreTap.app */); name = Products; sourceTree = "<group>"; };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0E8A3AD980EC179856012B7E /* OneMoreTap */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E631DC8803DAA0784D7E8DD2 /* Build configuration list for PBXNativeTarget "OneMoreTap" */;
+			buildPhases = (BCE16DD0260827ECF338C787 /* Sources */, 7561BFB015D8F536760CB671 /* Frameworks */, 0189424A5A60FED329FA868E /* Resources */);
+			buildRules = ();
+			dependencies = ();
+			name = OneMoreTap;
+			packageProductDependencies = (A40000000000000000000001 /* GoogleMobileAds */, A40000000000000000000002 /* GoogleUserMessagingPlatform */);
+			productName = OneMoreTap;
+			productReference = 38A007151ABE87CC01A5B6E9 /* OneMoreTap.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		98F54143AB4E86B28C3AFEE0 /* Project object */ = {isa = PBXProject; attributes = {BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 2600; LastUpgradeCheck = 2600; TargetAttributes = {0E8A3AD980EC179856012B7E = {CreatedOnToolsVersion = 26.0; }; }; }; buildConfigurationList = 45DEA8368E74E8D36B2EC1B0 /* Build configuration list for PBXProject "OneMoreTap" */; compatibilityVersion = "Xcode 16.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base); mainGroup = 6CFC827E67DCAE34C72B9CED; packageReferences = (A30000000000000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */, A30000000000000000000002 /* XCRemoteSwiftPackageReference "swift-package-manager-google-user-messaging-platform" */); productRefGroup = 021F2B7F3E0C61452C987484 /* Products */; projectDirPath = ""; projectRoot = ""; targets = (0E8A3AD980EC179856012B7E /* OneMoreTap */); };
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0189424A5A60FED329FA868E /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (
+			BE2CCC24EBE475913BD333CB /* PrivacyInfo.xcprivacy in Resources */,
+			685720CA24816E8F7EBC508A /* Assets.xcassets in Resources */,
+			12E0759BA2E0CBD3EC6B5578 /* hit.wav in Resources */,
+			41B19081A026C7B0385552B7 /* perfect.wav in Resources */,
+			45365389D249B40A2B0B9E6C /* fail.wav in Resources */,
+		); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BCE16DD0260827ECF338C787 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			F2D3388208C1BAA818B6D5CA /* OneMoreTapApp.swift in Sources */,
+			F651B59CBC2A0F1FD6E2996C /* RootView.swift in Sources */,
+			C2C5494F6D4FAB14ADCD1A64 /* HomeView.swift in Sources */,
+			39271B323A1F10025A1AEC54 /* ClassicGameController.swift in Sources */,
+			443A2B7785448F683227A240 /* ClassicScene.swift in Sources */,
+			71B123A7A7507BC3035BEF8E /* ClassicGameView.swift in Sources */,
+			90E6DBE61EC4962B8246877F /* PlayerProfile.swift in Sources */,
+			B2D14E027C70BB2CA535683B /* FeedbackManager.swift in Sources */,
+			3F55DDBA8717BE82E8D4AAD9 /* ClassicGameEngine.swift in Sources */,
+			A10000000000000000000001 /* StoreService.swift in Sources */,
+			A10000000000000000000002 /* AdService.swift in Sources */,
+			A10000000000000000000003 /* ThemeCatalog.swift in Sources */,
+			A10000000000000000000004 /* ShopView.swift in Sources */,
+		); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		5E8ACABCCBE1DB5D311988C9 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; SWIFT_VERSION = 6.0; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SDKROOT = iphoneos; DEBUG_INFORMATION_FORMAT = dwarf; GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)"); ONLY_ACTIVE_ARCH = YES; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; }; name = Debug; };
+		F84FD35CA8548076F2B51EDF /* Release */ = {isa = XCBuildConfiguration; buildSettings = {CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; SWIFT_VERSION = 6.0; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SDKROOT = iphoneos; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; SWIFT_COMPILATION_MODE = wholemodule; SWIFT_OPTIMIZATION_LEVEL = "-O"; VALIDATE_PRODUCT = YES; }; name = Release; };
+		96F032C02E8A3FC1B0365FA6 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 2; ENABLE_TESTABILITY = YES; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = OneMoreTap/Resources/Info.plist; MARKETING_VERSION = 0.2.0; OTHER_LDFLAGS = ("$(inherited)", "-ObjC"); PRODUCT_BUNDLE_IDENTIFIER = com.kamilunavo.onemoretap; PRODUCT_NAME = "$(TARGET_NAME)"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SUPPORTS_MACCATALYST = NO; SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; }; name = Debug; };
+		5BDD486E465E20A146951F86 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 2; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = OneMoreTap/Resources/Info.plist; MARKETING_VERSION = 0.2.0; OTHER_LDFLAGS = ("$(inherited)", "-ObjC"); PRODUCT_BUNDLE_IDENTIFIER = com.kamilunavo.onemoretap; PRODUCT_NAME = "$(TARGET_NAME)"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SUPPORTS_MACCATALYST = NO; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_VERSION = 6.0; TARGETED_DEVICE_FAMILY = 1; }; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		45DEA8368E74E8D36B2EC1B0 /* Build configuration list for PBXProject "OneMoreTap" */ = {isa = XCConfigurationList; buildConfigurations = (5E8ACABCCBE1DB5D311988C9 /* Debug */, F84FD35CA8548076F2B51EDF /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		E631DC8803DAA0784D7E8DD2 /* Build configuration list for PBXNativeTarget "OneMoreTap" */ = {isa = XCConfigurationList; buildConfigurations = (96F032C02E8A3FC1B0365FA6 /* Debug */, 5BDD486E465E20A146951F86 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A30000000000000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git"; requirement = {kind = upToNextMajorVersion; minimumVersion = 13.7.0; }; };
+		A30000000000000000000002 /* XCRemoteSwiftPackageReference "swift-package-manager-google-user-messaging-platform" */ = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git"; requirement = {kind = upToNextMajorVersion; minimumVersion = 3.1.0; }; };
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A40000000000000000000001 /* GoogleMobileAds */ = {isa = XCSwiftPackageProductDependency; package = A30000000000000000000001 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */; productName = GoogleMobileAds; };
+		A40000000000000000000002 /* GoogleUserMessagingPlatform */ = {isa = XCSwiftPackageProductDependency; package = A30000000000000000000002 /* XCRemoteSwiftPackageReference "swift-package-manager-google-user-messaging-platform" */; productName = GoogleUserMessagingPlatform; };
+/* End XCSwiftPackageProductDependency section */
+
+	};
+	rootObject = 98F54143AB4E86B28C3AFEE0 /* Project object */;
+}
