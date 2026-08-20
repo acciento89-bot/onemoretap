@@ -30,6 +30,9 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 - [x] Core test baseline: 9/9.
 - [x] NavoTap rebrand Core tests passed in GitHub Actions.
 - [x] NavoTap rebrand Xcode 26.2 iOS Simulator build passed in GitHub Actions.
+- [x] App Store privacy setup matrix documented in `docs/APP_STORE_PRIVACY_SETUP.md`.
+- [x] Guarded TestFlight workflow added at `.github/workflows/testflight.yml` for NavoTap 0.2.0 (2).
+- [x] Release signing config added at `Config/Signing.xcconfig` using the same Apple team as the proven KeepMeter upload workflow.
 
 ## Production product identifiers — LOCKED TECHNICAL IDs
 
@@ -47,7 +50,7 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 - [ ] Confirm production prices and availability for all five IAPs.
 - [ ] Add App Review screenshots/notes for each IAP.
 - [ ] Add all first non-consumable IAPs to the first app-version review submission.
-- [ ] Complete App Privacy after the final production ad/consent configuration is verified.
+- [ ] Complete App Privacy using `docs/APP_STORE_PRIVACY_SETUP.md` and verify against the final Xcode privacy report.
 
 ## AdMob
 
@@ -64,8 +67,10 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 
 ## Device / TestFlight — REQUIRED
 
-- [ ] Archive with production Apple signing.
-- [ ] Upload a NavoTap release candidate to TestFlight.
+- [x] Guarded GitHub TestFlight upload workflow prepared for NavoTap 0.2.0 (2).
+- [ ] Confirm repository secrets `ASC_ISSUER_ID`, `ASC_KEY_ID`, and `ASC_PRIVATE_KEY_B64` exist for the NavoTap repository.
+- [ ] Run the workflow manually from `main` with confirmation phrase `UPLOAD_NAVOTAP_0_2_0_BUILD_2`.
+- [ ] Confirm archive/sign/upload succeeds and build appears in App Store Connect/TestFlight.
 - [ ] Fresh-install consent flow on a physical iPhone.
 - [ ] Classic good/perfect/miss, difficulty, pause, background/foreground and rapid retry.
 - [ ] Rewarded Continue success, dismissal, failure/no-fill and second-use prevention.
