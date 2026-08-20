@@ -1,0 +1,251 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* OneMoreTapApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* OneMoreTapApp.swift */; };
+		A10000000000000000000002 /* ClassicGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* ClassicGameView.swift */; };
+		A10000000000000000000003 /* ClassicGameModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000003 /* ClassicGameModel.swift */; };
+		A10000000000000000000004 /* GameCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* GameCore.swift */; };
+		A10000000000000000000005 /* StatsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000005 /* StatsStore.swift */; };
+		A10000000000000000000006 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000006 /* Haptics.swift */; };
+		A10000000000000000000007 /* Shapes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* Shapes.swift */; };
+		A10000000000000000000008 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* Assets.xcassets */; };
+		A10000000000000000000009 /* GameCoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* GameCoreTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C10000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D10000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E10000000000000000000001;
+			remoteInfo = OneMoreTap;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		B10000000000000000000001 /* OneMoreTapApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneMoreTapApp.swift; sourceTree = "<group>"; };
+		B10000000000000000000002 /* ClassicGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicGameView.swift; sourceTree = "<group>"; };
+		B10000000000000000000003 /* ClassicGameModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicGameModel.swift; sourceTree = "<group>"; };
+		B10000000000000000000004 /* GameCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameCore.swift; sourceTree = "<group>"; };
+		B10000000000000000000005 /* StatsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsStore.swift; sourceTree = "<group>"; };
+		B10000000000000000000006 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
+		B10000000000000000000007 /* Shapes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shapes.swift; sourceTree = "<group>"; };
+		B10000000000000000000008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B10000000000000000000009 /* GameCoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameCoreTests.swift; sourceTree = "<group>"; };
+		B1000000000000000000000A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B1000000000000000000000B /* OneMoreTap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OneMoreTap.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1000000000000000000000C /* OneMoreTapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OneMoreTapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F10000000000000000000001 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		F10000000000000000000002 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		G10000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				G10000000000000000000002 /* OneMoreTap */,
+				G10000000000000000000003 /* OneMoreTapTests */,
+				G10000000000000000000004 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		G10000000000000000000002 /* OneMoreTap */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000001 /* OneMoreTapApp.swift */,
+				B10000000000000000000002 /* ClassicGameView.swift */,
+				B10000000000000000000003 /* ClassicGameModel.swift */,
+				B10000000000000000000004 /* GameCore.swift */,
+				B10000000000000000000005 /* StatsStore.swift */,
+				B10000000000000000000006 /* Haptics.swift */,
+				B10000000000000000000007 /* Shapes.swift */,
+				B10000000000000000000008 /* Assets.xcassets */,
+				B1000000000000000000000A /* Info.plist */,
+			);
+			path = OneMoreTap;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000003 /* OneMoreTapTests */ = {
+			isa = PBXGroup;
+			children = (B10000000000000000000009 /* GameCoreTests.swift */,);
+			path = OneMoreTapTests;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000004 /* Products */ = {
+			isa = PBXGroup;
+			children = (B1000000000000000000000B /* OneMoreTap.app */, B1000000000000000000000C /* OneMoreTapTests.xctest */,);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E10000000000000000000001 /* OneMoreTap */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = H10000000000000000000001 /* Build configuration list for PBXNativeTarget "OneMoreTap" */;
+			buildPhases = (I10000000000000000000001 /* Sources */, F10000000000000000000001 /* Frameworks */, J10000000000000000000001 /* Resources */,);
+			buildRules = ();
+			dependencies = ();
+			name = OneMoreTap;
+			productName = OneMoreTap;
+			productReference = B1000000000000000000000B /* OneMoreTap.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E10000000000000000000002 /* OneMoreTapTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = H10000000000000000000002 /* Build configuration list for PBXNativeTarget "OneMoreTapTests" */;
+			buildPhases = (I10000000000000000000002 /* Sources */, F10000000000000000000002 /* Frameworks */, J10000000000000000000002 /* Resources */,);
+			buildRules = ();
+			dependencies = (K10000000000000000000001 /* PBXTargetDependency */,);
+			name = OneMoreTapTests;
+			productName = OneMoreTapTests;
+			productReference = B1000000000000000000000C /* OneMoreTapTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D10000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					E10000000000000000000001 = {CreatedOnToolsVersion = 16.0;};
+					E10000000000000000000002 = {CreatedOnToolsVersion = 16.0; TestTargetID = E10000000000000000000001;};
+				};
+			};
+			buildConfigurationList = H10000000000000000000003 /* Build configuration list for PBXProject "OneMoreTap" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base,);
+			mainGroup = G10000000000000000000001;
+			productRefGroup = G10000000000000000000004 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (E10000000000000000000001 /* OneMoreTap */, E10000000000000000000002 /* OneMoreTapTests */,);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		J10000000000000000000001 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000008 /* Assets.xcassets in Resources */,); runOnlyForDeploymentPostprocessing = 0; };
+		J10000000000000000000002 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		I10000000000000000000001 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+			A10000000000000000000001 /* OneMoreTapApp.swift in Sources */,
+			A10000000000000000000002 /* ClassicGameView.swift in Sources */,
+			A10000000000000000000003 /* ClassicGameModel.swift in Sources */,
+			A10000000000000000000004 /* GameCore.swift in Sources */,
+			A10000000000000000000005 /* StatsStore.swift in Sources */,
+			A10000000000000000000006 /* Haptics.swift in Sources */,
+			A10000000000000000000007 /* Shapes.swift in Sources */,
+		); runOnlyForDeploymentPostprocessing = 0; };
+		I10000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000009 /* GameCoreTests.swift in Sources */,); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		K10000000000000000000001 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = E10000000000000000000001 /* OneMoreTap */; targetProxy = C10000000000000000000001 /* PBXContainerItemProxy */; };
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		L10000000000000000000001 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+			ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+			CODE_SIGN_STYLE = Automatic;
+			CURRENT_PROJECT_VERSION = 1;
+			DEVELOPMENT_TEAM = "";
+			GENERATE_INFOPLIST_FILE = NO;
+			INFOPLIST_FILE = OneMoreTap/Info.plist;
+			IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+			MARKETING_VERSION = 1.0.0;
+			PRODUCT_BUNDLE_IDENTIFIER = com.kamilunavo.onemoretap;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+			SUPPORTS_MACCATALYST = NO;
+			SWIFT_EMIT_LOC_STRINGS = YES;
+			SWIFT_VERSION = 5.0;
+			TARGETED_DEVICE_FAMILY = "1,2";
+		}; name = Debug; };
+		L10000000000000000000002 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+			ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+			CODE_SIGN_STYLE = Automatic;
+			CURRENT_PROJECT_VERSION = 1;
+			DEVELOPMENT_TEAM = "";
+			GENERATE_INFOPLIST_FILE = NO;
+			INFOPLIST_FILE = OneMoreTap/Info.plist;
+			IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+			MARKETING_VERSION = 1.0.0;
+			PRODUCT_BUNDLE_IDENTIFIER = com.kamilunavo.onemoretap;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+			SUPPORTS_MACCATALYST = NO;
+			SWIFT_COMPILATION_MODE = wholemodule;
+			SWIFT_EMIT_LOC_STRINGS = YES;
+			SWIFT_VERSION = 5.0;
+			TARGETED_DEVICE_FAMILY = "1,2";
+		}; name = Release; };
+		L10000000000000000000003 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+			BUNDLE_LOADER = "$(TEST_HOST)";
+			CODE_SIGN_STYLE = Automatic;
+			GENERATE_INFOPLIST_FILE = YES;
+			IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+			PRODUCT_BUNDLE_IDENTIFIER = com.kamilunavo.onemoretap.tests;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SWIFT_VERSION = 5.0;
+			TARGETED_DEVICE_FAMILY = "1,2";
+			TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OneMoreTap.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/OneMoreTap";
+		}; name = Debug; };
+		L10000000000000000000004 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+			BUNDLE_LOADER = "$(TEST_HOST)";
+			CODE_SIGN_STYLE = Automatic;
+			GENERATE_INFOPLIST_FILE = YES;
+			IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+			PRODUCT_BUNDLE_IDENTIFIER = com.kamilunavo.onemoretap.tests;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SWIFT_VERSION = 5.0;
+			TARGETED_DEVICE_FAMILY = "1,2";
+			TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OneMoreTap.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/OneMoreTap";
+		}; name = Release; };
+		L10000000000000000000005 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+			ALWAYS_SEARCH_USER_PATHS = NO;
+			CLANG_ENABLE_MODULES = YES;
+			CLANG_ENABLE_OBJC_ARC = YES;
+			DEBUG_INFORMATION_FORMAT = dwarf;
+			ENABLE_TESTABILITY = YES;
+			GCC_C_LANGUAGE_STANDARD = gnu17;
+			GCC_OPTIMIZATION_LEVEL = 0;
+			ONLY_ACTIVE_ARCH = YES;
+			SDKROOT = iphoneos;
+			SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+		}; name = Debug; };
+		L10000000000000000000006 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+			ALWAYS_SEARCH_USER_PATHS = NO;
+			CLANG_ENABLE_MODULES = YES;
+			CLANG_ENABLE_OBJC_ARC = YES;
+			DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+			GCC_C_LANGUAGE_STANDARD = gnu17;
+			SDKROOT = iphoneos;
+			SWIFT_COMPILATION_MODE = wholemodule;
+			VALIDATE_PRODUCT = YES;
+		}; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		H10000000000000000000001 /* Build configuration list for PBXNativeTarget "OneMoreTap" */ = {isa = XCConfigurationList; buildConfigurations = (L10000000000000000000001 /* Debug */, L10000000000000000000002 /* Release */,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		H10000000000000000000002 /* Build configuration list for PBXNativeTarget "OneMoreTapTests" */ = {isa = XCConfigurationList; buildConfigurations = (L10000000000000000000003 /* Debug */, L10000000000000000000004 /* Release */,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		H10000000000000000000003 /* Build configuration list for PBXProject "OneMoreTap" */ = {isa = XCConfigurationList; buildConfigurations = (L10000000000000000000005 /* Debug */, L10000000000000000000006 /* Release */,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = D10000000000000000000001 /* Project object */;
+}
