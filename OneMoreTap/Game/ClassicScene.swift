@@ -51,7 +51,13 @@ final class ClassicScene: SKScene {
 
   func startNewRun() {
     removeAllActions()
+    ringNode.removeAllActions()
+    targetNode.removeAllActions()
+    perfectNode.removeAllActions()
+    markerNode.removeAllActions()
+    instructionNode.removeAllActions()
     for child in children where child.name == "burst" || child.name == "floatingText" {
+      child.removeAllActions()
       child.removeFromParent()
     }
     engine.reset()
@@ -65,6 +71,10 @@ final class ClassicScene: SKScene {
     instructionNode.alpha = 1
     instructionNode.text = "TAP THE TARGET"
     markerNode.alpha = 1
+    markerNode.setScale(1)
+    ringNode.alpha = 1
+    targetNode.alpha = 1
+    perfectNode.alpha = 1
     updateTargetPath()
     updateMarkerPosition()
     pulseStart()
