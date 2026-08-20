@@ -1,45 +1,49 @@
-# NavoTap — Production Configuration Replacement Map
+# NavoTap — Production AdMob Configuration
 
 Last updated: 2026-08-20
 
-Do not ship the development identifiers listed below. NavoTap keeps the existing technical source paths and bundle/product IDs for continuity.
+NavoTap keeps the existing technical source paths and bundle/product IDs for continuity. Production AdMob identifiers were supplied by the publisher and inserted on `feat/production-admob`.
 
-## AdMob app ID
+## Production AdMob app ID
 
 File: `OneMoreTap/Resources/Info.plist`
 
-Development value:
+`ca-app-pub-8944085355624754~4792390111`
 
-`ca-app-pub-3940256099942544~1458002511`
-
-Replace with:
-
-`<PRODUCTION_ADMOB_APP_ID_FOR_NAVOTAP_IOS>`
-
-## Rewarded Continue ad unit
+## Production Rewarded Continue ad unit
 
 File: `OneMoreTap/Monetization/AdService.swift`
 
-Development value:
+`ca-app-pub-8944085355624754/7162618768`
 
-`ca-app-pub-3940256099942544/1712485313`
+Purpose: optional rewarded Continue after a failed Classic run.
 
-Replace with the production unit ID for:
-
-`NavoTap iOS - Rewarded Continue`
-
-## Interstitial Restart ad unit
+## Production Interstitial Restart ad unit
 
 File: `OneMoreTap/Monetization/AdService.swift`
 
-Development value:
+`ca-app-pub-8944085355624754/3694930864`
 
-`ca-app-pub-3940256099942544/4411468910`
+Purpose: conservative restart cadence (#4, then #7/#10/...).
 
-Replace with the production unit ID for:
+## Privacy / consent URL
 
-`NavoTap iOS - Interstitial Restart`
+Dedicated NavoTap privacy policy:
+
+`https://kamilunavo.com/navotap/privacy`
+
+German alias:
+
+`https://kamilunavo.com/navotap/datenschutz`
+
+The Kamilunavo website also publishes the AdMob seller declaration at:
+
+`https://kamilunavo.com/app-ads.txt`
+
+Expected Google seller line:
+
+`google.com, pub-8944085355624754, DIRECT, f08c47fec0942fa0`
 
 ## Verification before archive
 
-Search the repository for `ca-app-pub-3940256099942544`. A production release candidate must contain none of the Google sample app/ad IDs in runtime configuration.
+A production release candidate must contain none of Google's sample runtime identifiers (`ca-app-pub-3940256099942544...`). Development testing against live production ad units must use Google's supported test-device/test-mode mechanisms rather than intentionally generating production ad traffic.
