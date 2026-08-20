@@ -49,7 +49,7 @@ final class StoreService: ObservableObject {
 
     do {
       products = try await Product.products(for: MonetizationProducts.all)
-        .sorted { $0.displayPrice < $1.displayPrice }
+        .sorted { $0.price < $1.price }
       await refreshEntitlements()
     } catch {
       lastErrorMessage = "Store products are currently unavailable."
