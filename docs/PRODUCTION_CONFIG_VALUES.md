@@ -1,8 +1,8 @@
-# One More Tap — Production Configuration Replacement Map
+# NavoTap — Production Configuration Replacement Map
 
 Last updated: 2026-08-20
 
-Do not ship the development identifiers listed below. This file records exactly where production values must be inserted after the AdMob account objects exist.
+Do not ship the development identifiers listed below. NavoTap keeps the existing technical source paths and bundle/product IDs for continuity.
 
 ## AdMob app ID
 
@@ -14,7 +14,7 @@ Development value:
 
 Replace with:
 
-`<PRODUCTION_ADMOB_APP_ID_FOR_ONE_MORE_TAP_IOS>`
+`<PRODUCTION_ADMOB_APP_ID_FOR_NAVOTAP_IOS>`
 
 ## Rewarded Continue ad unit
 
@@ -26,7 +26,7 @@ Development value:
 
 Replace with the production unit ID for:
 
-`OMT iOS - Rewarded Continue`
+`NavoTap iOS - Rewarded Continue`
 
 ## Interstitial Restart ad unit
 
@@ -38,7 +38,7 @@ Development value:
 
 Replace with the production unit ID for:
 
-`OMT iOS - Interstitial Restart`
+`NavoTap iOS - Interstitial Restart`
 
 ## Verification before archive
 
