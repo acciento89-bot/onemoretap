@@ -8,6 +8,8 @@ final class ClassicScene: SKScene {
   var soundEnabled = true
   var hapticsEnabled = true
 
+  private var theme: GameThemeID = .neon
+
   private var engine = ClassicGameEngine()
   private let ringNode = SKShapeNode()
   private let targetNode = SKShapeNode()
@@ -80,6 +82,41 @@ final class ClassicScene: SKScene {
     pulseStart()
   }
 
+  func continueRun() {
+    guard engine.reviveAfterMiss() else { return }
+
+    markerNode.removeAllActions()
+    targetNode.removeAllActions()
+    perfectNode.removeAllActions()
+    currentAngle = Double.random(in: 0..<360)
+    targetAngle = Self.randomTargetAngle(avoiding: currentAngle)
+    direction = Bool.random() ? 1 : -1
+    lastUpdateTime = 0
+    hasStartedMoving = true
+    runIsPaused = false
+    isPaused = false
+
+    markerNode.alpha = 1
+    markerNode.setScale(1)
+    targetNode.alpha = 1
+    perfectNode.alpha = 1
+    instructionNode.removeAllActions()
+    instructionNode.text = "CONTINUE"
+    instructionNode.alpha = 1
+    instructionNode.run(.sequence([.wait(forDuration: 0.35), .fadeOut(withDuration: 0.28)]))
+
+    updateTargetPath()
+    updateMarkerPosition()
+    pulseStart()
+  }
+
+  func applyTheme(_ newTheme: GameThemeID) {
+    theme = newTheme
+    targetNode.strokeColor = newTheme.uiPrimary.withAlphaComponent(0.95)
+    markerNode.strokeColor = newTheme.uiPrimary
+    updateTargetPath()
+  }
+
   func setPaused(_ paused: Bool) {
     runIsPaused = paused
     isPaused = paused
@@ -119,7 +156,7 @@ final class ClassicScene: SKScene {
     ringNode.glowWidth = 2
     addChild(ringNode)
 
-    targetNode.strokeColor = UIColor(red: 0.23, green: 0.92, blue: 1.0, alpha: 0.95)
+    targetNode.strokeColor = theme.uiPrimary.withAlphaComponent(0.95)
     targetNode.lineWidth = 14
     targetNode.lineCap = .round
     targetNode.glowWidth = 8
@@ -132,7 +169,7 @@ final class ClassicScene: SKScene {
     addChild(perfectNode)
 
     markerNode.fillColor = .white
-    markerNode.strokeColor = UIColor(red: 0.33, green: 0.95, blue: 1.0, alpha: 1)
+    markerNode.strokeColor = theme.uiPrimary
     markerNode.lineWidth = 3
     markerNode.glowWidth = 7
     markerNode.zPosition = 20
@@ -265,7 +302,7 @@ final class ClassicScene: SKScene {
       let particle = SKShapeNode(circleOfRadius: perfect ? 2.6 : 2.0)
       particle.name = "burst"
       particle.fillColor =
-        index.isMultiple(of: 2) ? .white : UIColor(red: 0.26, green: 0.92, blue: 1, alpha: 1)
+        index.isMultiple(of: 2) ? .white : theme.uiPrimary
       particle.strokeColor = .clear
       particle.position = origin
       particle.zPosition = 30

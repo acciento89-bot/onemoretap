@@ -54,6 +54,14 @@ public struct ClassicGameEngine: Sendable {
     isGameOver = false
   }
 
+  @discardableResult
+  public mutating func reviveAfterMiss() -> Bool {
+    guard isGameOver else { return false }
+    isGameOver = false
+    combo = 0
+    return true
+  }
+
   public func difficulty(forScore score: Int? = nil) -> ClassicDifficulty {
     let value = max(0, score ?? self.score)
     let angularSpeed = min(4.2, 1.35 + Double(value) * 0.045)

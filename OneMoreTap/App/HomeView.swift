@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
   @EnvironmentObject private var profile: PlayerProfile
   let onPlayClassic: () -> Void
+  let onOpenShop: () -> Void
 
   var body: some View {
     GeometryReader { proxy in
@@ -42,7 +43,7 @@ struct HomeView: View {
               .foregroundStyle(Color(red: 0.03, green: 0.025, blue: 0.06))
               .background(
                 LinearGradient(
-                  colors: [Color.cyan, Color(red: 0.62, green: 0.38, blue: 1.0)],
+                  colors: [profile.selectedTheme.primary, profile.selectedTheme.secondary],
                   startPoint: .leading,
                   endPoint: .trailing
                 ),
@@ -67,6 +68,29 @@ struct HomeView: View {
           }
           .padding(.top, 34)
 
+          Button(action: onOpenShop) {
+            HStack(spacing: 9) {
+              Image(systemName: "bag.fill")
+              Text("SHOP & THEMES")
+              Spacer()
+              Text(profile.selectedTheme.title)
+                .foregroundStyle(profile.selectedTheme.primary)
+            }
+            .font(.system(size: 13, weight: .black, design: .rounded))
+            .foregroundStyle(.white.opacity(0.72))
+            .padding(.horizontal, 16)
+            .frame(height: 48)
+            .background(
+              .white.opacity(0.045), in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+            )
+            .overlay {
+              RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(.white.opacity(0.07), lineWidth: 1)
+            }
+          }
+          .buttonStyle(.plain)
+          .padding(.top, 12)
+
           Spacer(minLength: 34)
         }
         .padding(.horizontal, 24)
@@ -84,7 +108,11 @@ struct HomeView: View {
       Circle()
         .trim(from: 0.06, to: 0.70)
         .stroke(
-          AngularGradient(colors: [.cyan, .purple, .cyan], center: .center),
+          AngularGradient(
+            colors: [
+              profile.selectedTheme.primary, profile.selectedTheme.secondary,
+              profile.selectedTheme.primary,
+            ], center: .center),
           style: StrokeStyle(lineWidth: 12, lineCap: .round)
         )
         .rotationEffect(.degrees(-34))
@@ -93,7 +121,7 @@ struct HomeView: View {
         .fill(.white)
         .frame(width: 22, height: 22)
         .offset(x: 52)
-        .shadow(color: .cyan, radius: 12)
+        .shadow(color: profile.selectedTheme.primary, radius: 12)
       Circle()
         .fill(Color.white.opacity(0.05))
         .frame(width: 70, height: 70)

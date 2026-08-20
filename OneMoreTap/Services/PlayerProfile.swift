@@ -9,6 +9,7 @@ final class PlayerProfile: ObservableObject {
     static let soundEnabled = "settings.soundEnabled"
     static let hapticsEnabled = "settings.hapticsEnabled"
     static let hasLaunched = "app.hasLaunched"
+    static let selectedTheme = "cosmetics.selectedTheme"
   }
 
   private let defaults: UserDefaults
@@ -21,11 +22,16 @@ final class PlayerProfile: ObservableObject {
   @Published var hapticsEnabled: Bool {
     didSet { defaults.set(hapticsEnabled, forKey: Key.hapticsEnabled) }
   }
+  @Published var selectedTheme: GameThemeID {
+    didSet { defaults.set(selectedTheme.rawValue, forKey: Key.selectedTheme) }
+  }
 
   init(defaults: UserDefaults = .standard) {
     self.defaults = defaults
     self.bestScore = defaults.integer(forKey: Key.bestScore)
     self.coins = defaults.integer(forKey: Key.coins)
+    self.selectedTheme =
+      GameThemeID(rawValue: defaults.string(forKey: Key.selectedTheme) ?? "") ?? .neon
 
     if defaults.bool(forKey: Key.hasLaunched) {
       self.soundEnabled = defaults.bool(forKey: Key.soundEnabled)

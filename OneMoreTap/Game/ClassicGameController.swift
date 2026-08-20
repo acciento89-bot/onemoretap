@@ -11,6 +11,7 @@ final class ClassicGameController: ObservableObject {
   @Published private(set) var isGameOver = false
   @Published private(set) var isPaused = false
   @Published private(set) var isNewBest = false
+  @Published private(set) var hasUsedContinue = false
 
   let scene: ClassicScene
   private weak var profile: PlayerProfile?
@@ -21,9 +22,14 @@ final class ClassicGameController: ObservableObject {
     configureCallbacks()
   }
 
+  var canUseContinue: Bool {
+    isGameOver && !hasUsedContinue && !runCommitted
+  }
+
   func attach(profile: PlayerProfile) {
     self.profile = profile
     applySettings(from: profile)
+    scene.applyTheme(profile.selectedTheme)
   }
 
   func start() {
@@ -31,6 +37,7 @@ final class ClassicGameController: ObservableObject {
     isGameOver = false
     isPaused = false
     isNewBest = false
+    hasUsedContinue = false
     score = 0
     combo = 0
     coinsEarned = 0
@@ -38,8 +45,28 @@ final class ClassicGameController: ObservableObject {
     scene.startNewRun()
   }
 
-  func retry() {
-    start()
+  func finishRunIfNeeded() {
+    guard !runCommitted, isGameOver, let profile else { return }
+    runCommitted = true
+    isNewBest = profile.completeRun(score: score, coinsEarned: coinsEarned)
+  }
+
+  func continueAfterReward() {
+    guard canUseContinue else { return }
+    hasUsedContinue = true
+    isGameOver = false
+    isPaused = false
+    isNewBest = false
+    combo = 0
+    statusText = "CONTINUE"
+    scene.continueRun()
+
+    Task { @MainActor [weak self] in
+      try? await Task.sleep(for: .milliseconds(700))
+      if self?.statusText == "CONTINUE" {
+        self?.statusText = nil
+      }
+    }
   }
 
   func togglePause() {
@@ -56,6 +83,7 @@ final class ClassicGameController: ObservableObject {
   func syncSettings() {
     guard let profile else { return }
     applySettings(from: profile)
+    scene.applyTheme(profile.selectedTheme)
   }
 
   private func configureCallbacks() {
@@ -68,20 +96,21 @@ final class ClassicGameController: ObservableObject {
       if quality == .perfect {
         Task { @MainActor [weak self] in
           try? await Task.sleep(for: .milliseconds(420))
-          self?.statusText = nil
+          if self?.statusText == "PERFECT" {
+            self?.statusText = nil
+          }
         }
       }
     }
 
     scene.onGameOver = { [weak self] score, coins in
       guard let self, !self.runCommitted else { return }
-      self.runCommitted = true
       self.score = score
       self.coinsEarned = coins
       self.isGameOver = true
       self.isPaused = false
       if let profile = self.profile {
-        self.isNewBest = profile.completeRun(score: score, coinsEarned: coins)
+        self.isNewBest = score > profile.bestScore
       }
     }
   }

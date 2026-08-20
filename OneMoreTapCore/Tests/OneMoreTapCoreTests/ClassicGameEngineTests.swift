@@ -60,3 +60,24 @@ import Testing
   #expect(engine.coinsEarned == 0)
   #expect(!engine.isGameOver)
 }
+
+@Test func reviveKeepsProgressButReopensRun() {
+  var engine = ClassicGameEngine()
+  _ = engine.evaluateTap(markerAngle: 0, targetAngle: 0)
+  let scoreBeforeMiss = engine.score
+  let coinsBeforeMiss = engine.coinsEarned
+  _ = engine.evaluateTap(markerAngle: 180, targetAngle: 0)
+  #expect(engine.isGameOver)
+  let revived = engine.reviveAfterMiss()
+  #expect(revived)
+  #expect(!engine.isGameOver)
+  #expect(engine.combo == 0)
+  #expect(engine.score == scoreBeforeMiss)
+  #expect(engine.coinsEarned == coinsBeforeMiss)
+}
+
+@Test func reviveOnlyWorksAfterMiss() {
+  var engine = ClassicGameEngine()
+  let revived = engine.reviveAfterMiss()
+  #expect(!revived)
+}

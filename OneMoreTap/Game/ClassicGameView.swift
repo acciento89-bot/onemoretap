@@ -3,10 +3,13 @@ import SwiftUI
 
 struct ClassicGameView: View {
   @EnvironmentObject private var profile: PlayerProfile
+  @EnvironmentObject private var store: StoreService
+  @EnvironmentObject private var ads: AdService
   @Environment(\.scenePhase) private var scenePhase
   let onExit: () -> Void
 
   @StateObject private var controller = ClassicGameController()
+  @State private var isPresentingAd = false
 
   init(onExit: @escaping () -> Void) {
     self.onExit = onExit
@@ -15,10 +18,7 @@ struct ClassicGameView: View {
   var body: some View {
     ZStack {
       LinearGradient(
-        colors: [
-          Color(red: 0.018, green: 0.024, blue: 0.052),
-          Color(red: 0.055, green: 0.022, blue: 0.085),
-        ],
+        colors: [profile.selectedTheme.backgroundTop, profile.selectedTheme.backgroundBottom],
         startPoint: .top,
         endPoint: .bottom
       )
@@ -60,9 +60,14 @@ struct ClassicGameView: View {
     }
     .onChange(of: profile.soundEnabled) { _, _ in controller.syncSettings() }
     .onChange(of: profile.hapticsEnabled) { _, _ in controller.syncSettings() }
+    .onChange(of: profile.selectedTheme) { _, _ in controller.syncSettings() }
     .onChange(of: scenePhase) { _, phase in
-      if phase != .active && !controller.isGameOver && !controller.isPaused {
-        controller.togglePause()
+      if phase != .active {
+        if controller.isGameOver {
+          controller.finishRunIfNeeded()
+        } else if !controller.isPaused {
+          controller.togglePause()
+        }
       }
     }
     .statusBarHidden()
@@ -88,7 +93,7 @@ struct ClassicGameView: View {
       HStack(spacing: 7) {
         Image(systemName: "sparkles")
           .font(.system(size: 12, weight: .bold))
-          .foregroundStyle(.cyan)
+          .foregroundStyle(profile.selectedTheme.primary)
         Text("+\(controller.coinsEarned)")
           .font(.system(size: 14, weight: .black, design: .rounded))
           .foregroundStyle(.white.opacity(0.82))
@@ -112,7 +117,7 @@ struct ClassicGameView: View {
         Text("x\(controller.combo) COMBO")
           .font(.system(size: 12, weight: .black, design: .rounded))
           .tracking(1.2)
-          .foregroundStyle(.cyan)
+          .foregroundStyle(profile.selectedTheme.primary)
           .transition(.scale.combined(with: .opacity))
       } else {
         Text("BEST  \(profile.bestScore)")
@@ -149,7 +154,7 @@ struct ClassicGameView: View {
         Button("RESUME") {
           controller.resume()
         }
-        .buttonStyle(PrimaryGameButtonStyle())
+        .buttonStyle(PrimaryGameButtonStyle(theme: profile.selectedTheme))
 
         Button("HOME") {
           controller.resume()
@@ -175,7 +180,7 @@ struct ClassicGameView: View {
           Text("NEW BEST")
             .font(.system(size: 11, weight: .black, design: .rounded))
             .tracking(1.8)
-            .foregroundStyle(.cyan)
+            .foregroundStyle(profile.selectedTheme.primary)
             .padding(.bottom, 8)
         }
 
@@ -189,20 +194,47 @@ struct ClassicGameView: View {
           .foregroundStyle(.white.opacity(0.38))
 
         HStack(spacing: 28) {
-          ResultStat(title: "BEST", value: "\(profile.bestScore)")
+          ResultStat(title: "BEST", value: "\(max(profile.bestScore, controller.score))")
           ResultStat(title: "COINS", value: "+\(controller.coinsEarned)")
         }
-        .padding(.vertical, 28)
+        .padding(.vertical, 24)
+
+        if controller.canUseContinue {
+          Button {
+            isPresentingAd = true
+            ads.showRewardedContinue { rewarded in
+              isPresentingAd = false
+              if rewarded { controller.continueAfterReward() }
+            }
+          } label: {
+            HStack(spacing: 9) {
+              Image(systemName: "play.rectangle.fill")
+              Text(ads.rewardedReady ? "WATCH AD · CONTINUE" : "CONTINUE LOADING")
+            }
+          }
+          .buttonStyle(RewardGameButtonStyle(theme: profile.selectedTheme))
+          .disabled(!ads.rewardedReady || isPresentingAd)
+          .opacity(ads.rewardedReady ? 1 : 0.5)
+          .padding(.bottom, 10)
+        }
 
         Button("ONE MORE TAP") {
-          controller.retry()
+          controller.finishRunIfNeeded()
+          isPresentingAd = true
+          ads.showInterstitialOnRestartIfEligible(adsRemoved: store.adsRemoved) {
+            isPresentingAd = false
+            controller.start()
+          }
         }
-        .buttonStyle(PrimaryGameButtonStyle())
+        .buttonStyle(PrimaryGameButtonStyle(theme: profile.selectedTheme))
+        .disabled(isPresentingAd)
 
         Button("HOME") {
+          controller.finishRunIfNeeded()
           onExit()
         }
         .buttonStyle(SecondaryGameButtonStyle())
+        .disabled(isPresentingAd)
         .padding(.top, 10)
       }
       .padding(26)
@@ -238,6 +270,8 @@ private struct ResultStat: View {
 }
 
 private struct PrimaryGameButtonStyle: ButtonStyle {
+  let theme: GameThemeID
+
   func makeBody(configuration: Configuration) -> some View {
     configuration.label
       .font(.system(size: 16, weight: .black, design: .rounded))
@@ -247,10 +281,30 @@ private struct PrimaryGameButtonStyle: ButtonStyle {
       .frame(height: 56)
       .background(
         LinearGradient(
-          colors: [.cyan, Color(red: 0.63, green: 0.38, blue: 1)], startPoint: .leading,
-          endPoint: .trailing),
+          colors: [theme.primary, theme.secondary], startPoint: .leading, endPoint: .trailing),
         in: RoundedRectangle(cornerRadius: 18, style: .continuous)
       )
+      .scaleEffect(configuration.isPressed ? 0.97 : 1)
+  }
+}
+
+private struct RewardGameButtonStyle: ButtonStyle {
+  let theme: GameThemeID
+
+  func makeBody(configuration: Configuration) -> some View {
+    configuration.label
+      .font(.system(size: 13, weight: .black, design: .rounded))
+      .tracking(0.5)
+      .foregroundStyle(.white)
+      .frame(maxWidth: .infinity)
+      .frame(height: 50)
+      .background(
+        theme.primary.opacity(0.13), in: RoundedRectangle(cornerRadius: 16, style: .continuous)
+      )
+      .overlay {
+        RoundedRectangle(cornerRadius: 16, style: .continuous)
+          .stroke(theme.primary.opacity(0.55), lineWidth: 1)
+      }
       .scaleEffect(configuration.isPressed ? 0.97 : 1)
   }
 }
