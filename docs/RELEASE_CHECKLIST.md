@@ -45,12 +45,9 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 ## App Store Connect
 
 - [x] **NavoTap** exists for bundle ID `com.kamilunavo.onemoretap`.
-- [x] All five Non-Consumable IAPs created. User confirmed creation on 2026-08-20.
-- [ ] Confirm German and English IAP display names/descriptions are complete.
-- [ ] Confirm production prices and availability for all five IAPs.
-- [ ] Add App Review screenshots/notes for each IAP.
-- [ ] Add all first non-consumable IAPs to the first app-version review submission.
-- [ ] Complete App Privacy using `docs/APP_STORE_PRIVACY_SETUP.md` and verify against the final Xcode privacy report.
+- [x] All five Non-Consumable IAPs are configured in App Store Connect. User confirmed complete on 2026-08-20.
+- [x] App Privacy completed in App Store Connect. User confirmed on 2026-08-20.
+- [ ] Add the first Non-Consumable IAPs to the first app-version review submission when the release version/build is selected.
 
 ## AdMob
 
@@ -82,4 +79,4 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 
 ## Release blocker rule
 
-Do not submit NavoTap to App Review while required IAP metadata is missing, the dedicated privacy URL is not live, production ad IDs have not passed device validation, or physical-device purchase/restore/rewarded-ad testing has not passed.
+Do not submit NavoTap to App Review before the first IAPs are attached to the app-version submission, the dedicated privacy URL is live, production ad IDs have passed device validation, and physical-device purchase/restore/rewarded-ad testing has passed.
