@@ -25,13 +25,11 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 - [x] Fire, Galaxy, Retro and All Themes are cosmetic only.
 - [x] UMP consent resolved before intentional ad requests.
 - [x] Privacy-options entry point exposed when UMP requires it.
-- [x] Google development sample/test IDs used during development.
 - [x] Current Google SKAdNetwork identifiers synced on 2026-08-20.
 - [x] No ATT prompt requested by the app itself.
 - [x] Core test baseline: 9/9.
-- [x] Pre-rebrand Xcode 26.2 iOS Simulator build passed with GoogleMobileAds 13.8.0 and GoogleUserMessagingPlatform 3.1.0.
-- [x] NavoTap rebrand Core tests passed in GitHub Actions run `32409256186`.
-- [x] NavoTap rebrand Xcode 26.2 iOS Simulator build passed in GitHub Actions run `32409256186`.
+- [x] NavoTap rebrand Core tests passed in GitHub Actions.
+- [x] NavoTap rebrand Xcode 26.2 iOS Simulator build passed in GitHub Actions.
 
 ## Production product identifiers — LOCKED TECHNICAL IDs
 
@@ -41,24 +39,28 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 - `com.kamilunavo.onemoretap.theme.retro`
 - `com.kamilunavo.onemoretap.theme.all`
 
-## App Store Connect — ACCOUNT ACTION REQUIRED
+## App Store Connect
 
-- [x] Create/select **NavoTap** for bundle ID `com.kamilunavo.onemoretap`.
-- [x] Create all five products above as Non-Consumable IAPs. User confirmed creation on 2026-08-20.
-- [ ] Add German and English display names/descriptions.
-- [ ] Set production prices and availability.
+- [x] **NavoTap** exists for bundle ID `com.kamilunavo.onemoretap`.
+- [x] All five Non-Consumable IAPs created. User confirmed creation on 2026-08-20.
+- [ ] Confirm German and English IAP display names/descriptions are complete.
+- [ ] Confirm production prices and availability for all five IAPs.
 - [ ] Add App Review screenshots/notes for each IAP.
 - [ ] Add all first non-consumable IAPs to the first app-version review submission.
-- [ ] Complete App Privacy after the production ad configuration is final.
+- [ ] Complete App Privacy after the final production ad/consent configuration is verified.
 
-## AdMob — ACCOUNT ACTION REQUIRED
+## AdMob
 
-- [ ] Create production iOS app `NavoTap iOS` for bundle ID `com.kamilunavo.onemoretap`.
-- [ ] Create `NavoTap iOS - Rewarded Continue`.
-- [ ] Create `NavoTap iOS - Interstitial Restart`.
-- [ ] Replace Google sample app ID and test unit IDs.
-- [ ] Configure Privacy & Messaging / UMP for intended regions.
-- [ ] Verify privacy-options flow on device.
+- [x] Production iOS app created; app ID: `ca-app-pub-8944085355624754~4792390111`.
+- [x] Production Rewarded Continue unit created: `ca-app-pub-8944085355624754/7162618768`.
+- [x] Production Interstitial Restart unit created: `ca-app-pub-8944085355624754/3694930864`.
+- [x] Production IDs inserted into the NavoTap release branch.
+- [x] Dedicated privacy policy prepared at `https://kamilunavo.com/navotap/privacy`.
+- [x] `app-ads.txt` prepared for `https://kamilunavo.com/app-ads.txt` with publisher ID `pub-8944085355624754`.
+- [ ] Publish/enable the AdMob European regulations message using the NavoTap privacy URL.
+- [ ] Verify the live privacy-policy URL and app-ads.txt after the Kamilunavo website deploy.
+- [ ] Verify Privacy Options flow on a physical device.
+- [ ] Verify AdMob app/app-ads.txt status after the App Store listing is live and crawlable.
 
 ## Device / TestFlight — REQUIRED
 
@@ -71,8 +73,8 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 - [ ] Remove Ads purchase/relaunch persistence.
 - [ ] Theme purchases, All Themes and selection persistence.
 - [ ] Restore Purchases after reinstall/test-account reset.
-- [ ] Confirm no Google sample IDs remain in release runtime configuration.
+- [ ] Confirm no Google sample runtime IDs remain in the release configuration.
 
 ## Release blocker rule
 
-Do not submit NavoTap to App Review while any required production IAP metadata is missing, any Google sample/test runtime identifier remains, or physical-device purchase/restore/rewarded-ad testing has not passed.
+Do not submit NavoTap to App Review while required IAP metadata is missing, the AdMob consent message is unpublished, the dedicated privacy URL is not live, production ad IDs have not passed CI/device validation, or physical-device purchase/restore/rewarded-ad testing has not passed.
