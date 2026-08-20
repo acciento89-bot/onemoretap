@@ -54,10 +54,10 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 - [x] Production iOS app created; app ID: `ca-app-pub-8944085355624754~4792390111`.
 - [x] Production Rewarded Continue unit created: `ca-app-pub-8944085355624754/7162618768`.
 - [x] Production Interstitial Restart unit created: `ca-app-pub-8944085355624754/3694930864`.
-- [x] Production IDs inserted into the NavoTap release branch.
+- [x] Production IDs inserted into `main` and validated in Actions run `32410958142`.
 - [x] Dedicated privacy policy prepared at `https://kamilunavo.com/navotap/privacy`.
 - [x] `app-ads.txt` prepared for `https://kamilunavo.com/app-ads.txt` with publisher ID `pub-8944085355624754`.
-- [ ] Publish/enable the AdMob European regulations message using the NavoTap privacy URL.
+- [x] AdMob European regulations / UMP message created and published. User confirmed on 2026-08-20.
 - [ ] Verify the live privacy-policy URL and app-ads.txt after the Kamilunavo website deploy.
 - [ ] Verify Privacy Options flow on a physical device.
 - [ ] Verify AdMob app/app-ads.txt status after the App Store listing is live and crawlable.
@@ -77,4 +77,4 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 
 ## Release blocker rule
 
-Do not submit NavoTap to App Review while required IAP metadata is missing, the AdMob consent message is unpublished, the dedicated privacy URL is not live, production ad IDs have not passed CI/device validation, or physical-device purchase/restore/rewarded-ad testing has not passed.
+Do not submit NavoTap to App Review while required IAP metadata is missing, the dedicated privacy URL is not live, production ad IDs have not passed device validation, or physical-device purchase/restore/rewarded-ad testing has not passed.
