@@ -43,11 +43,12 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 
 ## App Store Connect — ACCOUNT ACTION REQUIRED
 
-- [ ] Create/select **NavoTap** for bundle ID `com.kamilunavo.onemoretap`.
-- [ ] Create all five products above as Non-Consumable IAPs.
+- [x] Create/select **NavoTap** for bundle ID `com.kamilunavo.onemoretap`.
+- [x] Create all five products above as Non-Consumable IAPs. User confirmed creation on 2026-08-20.
 - [ ] Add German and English display names/descriptions.
 - [ ] Set production prices and availability.
 - [ ] Add App Review screenshots/notes for each IAP.
+- [ ] Add all first non-consumable IAPs to the first app-version review submission.
 - [ ] Complete App Privacy after the production ad configuration is final.
 
 ## AdMob — ACCOUNT ACTION REQUIRED
@@ -74,4 +75,4 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 
 ## Release blocker rule
 
-Do not submit NavoTap to App Review while any production IAP is missing, any Google sample/test runtime identifier remains, or physical-device purchase/restore/rewarded-ad testing has not passed.
+Do not submit NavoTap to App Review while any required production IAP metadata is missing, any Google sample/test runtime identifier remains, or physical-device purchase/restore/rewarded-ad testing has not passed.
