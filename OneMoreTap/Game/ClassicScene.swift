@@ -83,8 +83,9 @@ final class ClassicScene: SKScene {
     pulseStart()
   }
 
-  func continueRun() {
-    guard engine.reviveAfterMiss() else { return }
+  @discardableResult
+  func continueRun() -> Bool {
+    guard engine.reviveAfterMiss() else { return false }
 
     markerNode.removeAllActions()
     targetNode.removeAllActions()
@@ -109,6 +110,7 @@ final class ClassicScene: SKScene {
     updateTargetPath()
     updateMarkerPosition()
     pulseStart()
+    return true
   }
 
   func applyTheme(_ newTheme: GameThemeID) {
