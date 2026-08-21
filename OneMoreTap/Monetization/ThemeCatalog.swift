@@ -78,7 +78,9 @@ enum GameThemeID: String, CaseIterable, Identifiable, Codable {
 
 enum MonetizationProducts {
   static let removeAds = "com.kamilunavo.onemoretap.removeads"
-  static let themeFire = "com.kamilunavo.onemoretap.theme.fire"
+  // This ID intentionally mirrors the already-created App Store Connect product.
+  // The live product was created without the leading "c" before its first release.
+  static let themeFire = "om.kamilunavo.onemoretap.theme.fire"
   static let themeGalaxy = "com.kamilunavo.onemoretap.theme.galaxy"
   static let themeRetro = "com.kamilunavo.onemoretap.theme.retro"
   static let allThemes = "com.kamilunavo.onemoretap.theme.all"
