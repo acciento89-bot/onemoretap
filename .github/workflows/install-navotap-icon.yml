@@ -1,0 +1,165 @@
+name: Install NavoTap Build 6 Icon
+
+on:
+  push:
+    branches: [fix/navotap-build6-icon]
+    paths:
+      - '.github/workflows/install-navotap-icon.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  install-and-verify:
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Select Xcode 26.2
+        run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
+
+      - name: Generate corrected 1024x1024 RGB NavoTap icon
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import math, struct, zlib
+          from pathlib import Path
+
+          W = H = 1024
+          out = Path('OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png')
+
+          def clamp(v):
+              return max(0, min(255, int(round(v))))
+
+          def smoothstep(a, b, x):
+              if a == b:
+                  return 1.0 if x >= b else 0.0
+              t = max(0.0, min(1.0, (x-a)/(b-a)))
+              return t*t*(3-2*t)
+
+          raw = bytearray()
+          cx = cy = 512.0
+          ring_r = 315.0
+          ring_w = 46.0
+          orb_ang = math.radians(-48)
+          orb_x = cx + ring_r * math.cos(orb_ang)
+          orb_y = cy + ring_r * math.sin(orb_ang)
+
+          for y in range(H):
+              raw.append(0)
+              ny = (y-cy)/512.0
+              for x in range(W):
+                  nx = (x-cx)/512.0
+                  radial = min(1.0, math.sqrt(nx*nx + ny*ny))
+                  # deep navy/indigo background with subtle center glow
+                  glow = max(0.0, 1.0-radial)
+                  r = 8 + 15*glow
+                  g = 12 + 18*glow
+                  b = 30 + 34*glow
+
+                  dx, dy = x-cx, y-cy
+                  d = math.hypot(dx, dy)
+                  ring_dist = abs(d-ring_r)
+                  ring_alpha = 1.0 - smoothstep(ring_w*0.45, ring_w*0.65, ring_dist)
+                  if ring_alpha > 0:
+                      ang = (math.degrees(math.atan2(dy, dx)) + 360.0) % 360.0
+                      # cyan base ring, purple/magenta target arc on upper-right
+                      tr, tg, tb = 41, 224, 255
+                      if ang >= 292 or ang <= 22:
+                          tr, tg, tb = 183, 74, 255
+                      r = r*(1-ring_alpha) + tr*ring_alpha
+                      g = g*(1-ring_alpha) + tg*ring_alpha
+                      b = b*(1-ring_alpha) + tb*ring_alpha
+
+                  # bright orbiting orb with cyan glow
+                  od = math.hypot(x-orb_x, y-orb_y)
+                  oa = 1.0 - smoothstep(42, 76, od)
+                  if oa > 0:
+                      r = r*(1-oa) + 235*oa
+                      g = g*(1-oa) + 252*oa
+                      b = b*(1-oa) + 255*oa
+
+                  # central tap target: white core + cyan/purple halo
+                  cd = math.hypot(dx, dy)
+                  halo = 1.0 - smoothstep(70, 142, cd)
+                  if halo > 0:
+                      mix = max(0.0, min(1.0, (x-(cx-140))/280.0))
+                      hr = 86*(1-mix) + 185*mix
+                      hg = 219*(1-mix) + 75*mix
+                      hb = 255
+                      a = halo*0.72
+                      r = r*(1-a) + hr*a
+                      g = g*(1-a) + hg*a
+                      b = b*(1-a) + hb*a
+                  core = 1.0 - smoothstep(0, 54, cd)
+                  if core > 0:
+                      r = r*(1-core) + 248*core
+                      g = g*(1-core) + 251*core
+                      b = b*(1-core) + 255*core
+
+                  # small inner dot for strong recognition at 60px
+                  dot = 1.0 - smoothstep(15, 29, cd)
+                  if dot > 0:
+                      r = r*(1-dot) + 22*dot
+                      g = g*(1-dot) + 34*dot
+                      b = b*(1-dot) + 64*dot
+
+                  raw.extend((clamp(r), clamp(g), clamp(b)))
+
+          def chunk(kind, data):
+              return struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind+data) & 0xffffffff)
+
+          png = bytearray(b'\x89PNG\r\n\x1a\n')
+          png += chunk(b'IHDR', struct.pack('>IIBBBBB', W, H, 8, 2, 0, 0, 0))
+          png += chunk(b'IDAT', zlib.compress(bytes(raw), 9))
+          png += chunk(b'IEND', b'')
+          out.write_bytes(png)
+          print(f'wrote {out} ({len(png)} bytes)')
+          PY
+
+      - name: Validate corrected source icon
+        run: bash ci/check-app-icon.sh OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png source
+
+      - name: Build unsigned Release archive
+        run: |
+          set -euo pipefail
+          rm -rf "$RUNNER_TEMP/NavoTapBuild6Icon.xcarchive"
+          xcodebuild \
+            -project OneMoreTap.xcodeproj \
+            -scheme NavoTap \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/NavoTapBuild6Icon.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            archive
+
+      - name: Validate compiled Release AppIcons
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/NavoTapBuild6Icon.xcarchive/Products/Applications/NavoTap.app"
+          test -d "$APP"
+          COUNT=0
+          while IFS= read -r ICON; do
+            [ -n "$ICON" ] || continue
+            COUNT=$((COUNT + 1))
+            bash ci/check-app-icon.sh "$ICON" "archive:$ICON"
+          done < <(find "$APP" -maxdepth 1 -type f -name 'AppIcon*.png' | sort)
+          test "$COUNT" -gt 0 || { echo '::error title=AppIcon::No compiled AppIcon PNG found'; exit 1; }
+          echo "✓ corrected NavoTap icon survived Release asset compilation ($COUNT renditions)"
+
+      - name: Commit corrected icon to fix branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'acciento89-bot'
+          git config user.email 'acciento89@gmail.com'
+          git add OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png
+          if git diff --cached --quiet; then
+            echo 'Icon already matches generated corrected artwork.'
+            exit 0
+          fi
+          git commit -m 'Fix NavoTap AppIcon for build 6'
+          git push origin HEAD:fix/navotap-build6-icon
