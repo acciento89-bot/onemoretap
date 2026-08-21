@@ -201,20 +201,27 @@ struct ClassicGameView: View {
 
         if controller.canUseContinue {
           Button {
-            isPresentingAd = true
-            ads.showRewardedContinue { rewarded in
-              isPresentingAd = false
-              if rewarded { controller.continueAfterReward() }
+            switch ads.rewardedAvailability {
+            case .ready:
+              isPresentingAd = true
+              ads.showRewardedContinue { rewarded in
+                isPresentingAd = false
+                if rewarded { controller.continueAfterReward() }
+              }
+            case .unavailable:
+              ads.retryRewarded()
+            case .loading:
+              break
             }
           } label: {
             HStack(spacing: 9) {
-              Image(systemName: "play.rectangle.fill")
-              Text(ads.rewardedReady ? "WATCH AD · CONTINUE" : "CONTINUE LOADING")
+              Image(systemName: rewardedContinueIcon)
+              Text(rewardedContinueTitle)
             }
           }
           .buttonStyle(RewardGameButtonStyle(theme: profile.selectedTheme))
-          .disabled(!ads.rewardedReady || isPresentingAd)
-          .opacity(ads.rewardedReady ? 1 : 0.5)
+          .disabled(ads.rewardedAvailability == .loading || isPresentingAd)
+          .opacity(ads.rewardedAvailability == .loading ? 0.5 : 1)
           .padding(.bottom, 10)
         }
 
@@ -249,6 +256,28 @@ struct ClassicGameView: View {
     }
     .transition(.opacity.combined(with: .scale(scale: 0.96)))
     .animation(.spring(response: 0.38, dampingFraction: 0.82), value: controller.isGameOver)
+  }
+
+  private var rewardedContinueTitle: String {
+    switch ads.rewardedAvailability {
+    case .ready:
+      "WATCH AD · CONTINUE"
+    case .loading:
+      "CONTINUE LOADING"
+    case .unavailable:
+      "AD UNAVAILABLE · RETRY"
+    }
+  }
+
+  private var rewardedContinueIcon: String {
+    switch ads.rewardedAvailability {
+    case .ready:
+      "play.rectangle.fill"
+    case .loading:
+      "hourglass"
+    case .unavailable:
+      "arrow.clockwise"
+    }
   }
 }
 
