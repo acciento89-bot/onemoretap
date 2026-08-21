@@ -58,8 +58,8 @@ jobs:
           python3 -m json.tool OneMoreTap/Resources/NavoTap.storekit >/dev/null
           plutil -lint OneMoreTap/Resources/Info.plist
           plutil -lint OneMoreTap.xcodeproj/project.pbxproj
-          test -x ci/check-app-icon.sh
-          ci/check-app-icon.sh OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png source
+          test -f ci/check-app-icon.sh
+          bash ci/check-app-icon.sh OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png source
 
           grep -q 'ca-app-pub-8944085355624754~4792390111' OneMoreTap/Resources/Info.plist
           grep -q 'ca-app-pub-8944085355624754/7162618768' OneMoreTap/Monetization/AdService.swift
@@ -137,7 +137,7 @@ jobs:
           while IFS= read -r ICON; do
             [ -n "$ICON" ] || continue
             ICON_COUNT=$((ICON_COUNT + 1))
-            ci/check-app-icon.sh "$ICON" "archive:$ICON"
+            bash ci/check-app-icon.sh "$ICON" "archive:$ICON"
           done < <(find "$APP" -maxdepth 1 -type f -name 'AppIcon*.png' | sort)
           test "$ICON_COUNT" -gt 0 || { echo '::error title=AppIcon production guard::No compiled AppIcon PNG found'; exit 1; }
 
