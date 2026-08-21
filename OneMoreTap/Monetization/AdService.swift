@@ -109,7 +109,7 @@ final class AdService: NSObject, ObservableObject, FullScreenContentDelegate {
       return
     }
 
-    let shouldShow = restartCount >= 4 && (restartCount - 4).isMultiple(of: 3)
+    let shouldShow = InterstitialCadence.shouldShow(onRestart: restartCount)
     guard shouldShow, let interstitialAd else {
       completion()
       if shouldShow { Task { await loadInterstitial() } }
