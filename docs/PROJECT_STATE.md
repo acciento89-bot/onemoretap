@@ -22,7 +22,7 @@ Technical identifiers intentionally remain stable:
 
 **Monetization/release code: COMPLETE and merged to `main`.**
 
-**Physical-device QA: MOST MAJOR GAME/MONETIZATION GATES GREEN on TestFlight Build `0.2.0 (4)`.**
+**Physical-device QA: MAJOR GAME/MONETIZATION GATES GREEN on TestFlight Build `0.2.0 (4)`.**
 
 Build 2 exposed Fire StoreKit loading and permanent Rewarded loading issues. PR #5 fixed both. Build 3 confirmed Fire price resolution and Google QA ads, then exposed the second-Continue regression. PR #7 fixed the one-Continue-per-run rule at both UI/controller and core-engine layers. Build 4 verified that fix on a physical iPhone.
 
