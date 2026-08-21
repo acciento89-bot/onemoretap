@@ -16,6 +16,7 @@ final class ClassicGameController: ObservableObject {
   let scene: ClassicScene
   private weak var profile: PlayerProfile?
   private var runCommitted = false
+  private var hasStartedRun = false
 
   init() {
     self.scene = ClassicScene(size: CGSize(width: 430, height: 760))
@@ -32,7 +33,13 @@ final class ClassicGameController: ObservableObject {
     scene.applyTheme(profile.selectedTheme)
   }
 
-  func start() {
+  func startIfNeeded() {
+    guard !hasStartedRun else { return }
+    startNewRun()
+  }
+
+  func startNewRun() {
+    hasStartedRun = true
     runCommitted = false
     isGameOver = false
     isPaused = false
@@ -52,14 +59,13 @@ final class ClassicGameController: ObservableObject {
   }
 
   func continueAfterReward() {
-    guard canUseContinue else { return }
+    guard canUseContinue, scene.continueRun() else { return }
     hasUsedContinue = true
     isGameOver = false
     isPaused = false
     isNewBest = false
     combo = 0
     statusText = "CONTINUE"
-    scene.continueRun()
 
     Task { @MainActor [weak self] in
       try? await Task.sleep(for: .milliseconds(700))
