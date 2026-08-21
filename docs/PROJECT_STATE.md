@@ -24,7 +24,7 @@ Production build **1.0 (5)** was uploaded successfully and processed by Apple as
 
 OneMoreFloor release-blocker audit run `32489661436` rebuilt the exact source used for build 5 and inspected the real Release archive. Xcode emitted `AppIcon60x60@2x.png` and `AppIcon76x76@2x~ipad.png`; both measured RGB 0/0/0, average luminance 0, 100% near-black and one quantized color. This proves the black icon is in the binary, not merely an App Store Connect display issue.
 
-The replacement release target is therefore **NavoTap 1.0 (6)**. Build 5 must never be submitted for review.
+The source build number has been bumped to **NavoTap 1.0 (6)** for the replacement. Build 5 must never be submitted for review.
 
 ## Product / physical QA — GREEN
 
@@ -101,7 +101,7 @@ Do not submit the review draft yet.
 ## Remaining release gates — ORDERED
 
 1. Replace broken AppIcon with corrected NavoTap artwork.
-2. Bump source build identity to **1.0 (6)**.
+2. Keep replacement source identity at **1.0 (6)**.
 3. Add permanent source + compiled-archive AppIcon visual-integrity gate to CI/TestFlight flow.
 4. Core tests + Xcode CI green.
 5. Build an unsigned Release archive and prove compiled AppIcon is visually non-black before any Apple upload.
