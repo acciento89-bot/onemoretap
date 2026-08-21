@@ -56,7 +56,7 @@ struct ClassicGameView: View {
     }
     .onAppear {
       controller.attach(profile: profile)
-      controller.start()
+      controller.startIfNeeded()
     }
     .onChange(of: profile.soundEnabled) { _, _ in controller.syncSettings() }
     .onChange(of: profile.hapticsEnabled) { _, _ in controller.syncSettings() }
@@ -230,7 +230,7 @@ struct ClassicGameView: View {
           isPresentingAd = true
           ads.showInterstitialOnRestartIfEligible(adsRemoved: store.adsRemoved) {
             isPresentingAd = false
-            controller.start()
+            controller.startNewRun()
           }
         }
         .buttonStyle(PrimaryGameButtonStyle(theme: profile.selectedTheme))

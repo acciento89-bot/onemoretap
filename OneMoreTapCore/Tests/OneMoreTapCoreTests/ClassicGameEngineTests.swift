@@ -59,6 +59,7 @@ import Testing
   #expect(engine.combo == 0)
   #expect(engine.coinsEarned == 0)
   #expect(!engine.isGameOver)
+  #expect(!engine.hasUsedRevive)
 }
 
 @Test func reviveKeepsProgressButReopensRun() {
@@ -70,6 +71,7 @@ import Testing
   #expect(engine.isGameOver)
   let revived = engine.reviveAfterMiss()
   #expect(revived)
+  #expect(engine.hasUsedRevive)
   #expect(!engine.isGameOver)
   #expect(engine.combo == 0)
   #expect(engine.score == scoreBeforeMiss)
@@ -80,4 +82,23 @@ import Testing
   var engine = ClassicGameEngine()
   let revived = engine.reviveAfterMiss()
   #expect(!revived)
+}
+
+@Test func reviveCanOnlyBeUsedOncePerRun() {
+  var engine = ClassicGameEngine()
+
+  _ = engine.evaluateTap(markerAngle: 180, targetAngle: 0)
+  let firstRevive = engine.reviveAfterMiss()
+  #expect(firstRevive)
+
+  _ = engine.evaluateTap(markerAngle: 180, targetAngle: 0)
+  #expect(engine.isGameOver)
+  let secondRevive = engine.reviveAfterMiss()
+  #expect(!secondRevive)
+  #expect(engine.isGameOver)
+
+  engine.reset()
+  _ = engine.evaluateTap(markerAngle: 180, targetAngle: 0)
+  let nextRunRevive = engine.reviveAfterMiss()
+  #expect(nextRunRevive)
 }
