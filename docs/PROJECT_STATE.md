@@ -36,10 +36,10 @@ Confirmed on 2026-08-21:
 - Rewarded Continue works and may be used **only once per run**.
 - After the rewarded Continue, a second loss in the same run does **not** offer another Continue.
 - A genuine new run via `ONE MORE TAP` restores exactly one Continue allowance.
-- Automatic Interstitial cadence is correct on physical iPhone: #1–3 none, #4 ad, #5–6 none, #7 ad, #8–9 none, #10 ad.
-- Fire purchase succeeds, theme unlocks/selects, renders in Classic and persists after full relaunch.
+- Automatic Interstitial cadence is correct: #1–3 none, #4 ad, #5–6 none, #7 ad, #8–9 none, #10 ad.
+- Fire purchase succeeds, unlocks/selects, renders in Classic and persists after full relaunch.
 - Remove Ads purchase succeeds and persists after relaunch.
-- Remove Ads suppresses automatic Interstitials while the optional Rewarded Continue remains available and functional.
+- Remove Ads suppresses automatic Interstitials while optional Rewarded Continue remains available and functional.
 - Galaxy and Retro purchases/unlocks/selections work and persist.
 - All Themes purchase/unlock behavior works and persists.
 - Restore Purchases works and restores StoreKit entitlements.
@@ -85,11 +85,24 @@ Confirmed on 2026-08-21:
 - Build 3 QA bridge run `32456558404`: Apple upload success with `NAVOTAP_TEST_ADS`.
 - Build 4 QA bridge run `32464932344`: Apple upload success with `NAVOTAP_TEST_ADS`.
 
+## App Store Connect IAP diagnosis — EXACT
+
+OneMoreFloor diagnostic run `32474099842` inspected all five live IAPs through App Store Connect API:
+
+- each IAP has two localizations (`de-DE`, `en-US`),
+- each has territory availability,
+- each has a price schedule,
+- each has a review note,
+- **each has zero App Store review screenshots.**
+
+Therefore the remaining `MISSING_METADATA` blocker is the missing **App Store Review Screenshot** on each IAP. A follow-up protected ASC run `32474284093` successfully updated all five review notes from the retired working name `One More Tap` to `NavoTap`.
+
 ## Account-side release state
 
 - App Store Connect NavoTap record: complete.
-- Five Non-Consumable IAP records: created.
-- **App Store Connect API still reports `MISSING_METADATA` for all five IAP records; resolve before App Review.**
+- Five Non-Consumable IAP records: created and functionally verified on device.
+- IAP localizations/prices/availability/review notes: present.
+- **IAP App Store review screenshots: missing on all five; required before App Review.**
 - App Privacy: complete; user confirmed 2026-08-21.
 - Production AdMob IDs: complete.
 - AdMob European regulations / UMP message: complete and published.
@@ -97,10 +110,10 @@ Confirmed on 2026-08-21:
 
 ## Remaining release gates
 
-1. Verify the Rewarded unavailable/dismiss/failure path visibly recovers to Retry rather than permanent Loading.
-2. Fresh-install UMP consent + Privacy Options physical-device QA.
-3. Complete remaining Classic lifecycle/regression QA: difficulty/reversals, pause, background/foreground and rapid retry.
-4. Resolve `MISSING_METADATA` for all five App Store Connect IAPs and attach/select the first IAPs for the first app-version review submission.
+1. Add one valid App Store Review Screenshot to each of the five IAPs; then verify their state leaves `MISSING_METADATA` and attach/select them for the first app-version review submission.
+2. Verify the Rewarded unavailable/dismiss/failure path visibly recovers to Retry rather than permanent Loading.
+3. Fresh-install UMP consent + Privacy Options physical-device QA.
+4. Complete remaining Classic lifecycle/regression QA: difficulty/reversals, pause, background/foreground and rapid retry.
 5. Verify `https://kamilunavo.com/navotap/privacy` and `https://kamilunavo.com/app-ads.txt` are live/crawlable.
 6. Upload the next **final production build without `NAVOTAP_TEST_ADS`** using a new build number.
 7. Submit to App Review only when the release checklist is fully green.
