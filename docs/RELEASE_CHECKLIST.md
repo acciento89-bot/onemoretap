@@ -83,9 +83,9 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 - [x] QA TestFlight build `0.2.0 (4)` uploaded from exact merged source `b355122a4b6fa935e494939e00615eb782cfd827` through OneMoreFloor run `32464932344` with `NAVOTAP_TEST_ADS`.
 - [x] Apple confirmed Build 4: `Uploaded package is processing.` / `Upload succeeded.` / `Uploaded NavoTap` / `EXPORT SUCCEEDED`.
 - [x] Temporary Build 4 OneMoreFloor bridge PR #116 closed without merge. Later duplicate-trigger attempts were rejected only because build number 4 had already been accepted.
-- [ ] Wait for Build 4 to finish App Store Connect/TestFlight processing and install/update it.
-- [ ] **Continue-once physical regression:** miss → rewarded Continue → miss again → no second Continue button.
-- [ ] Start a genuine new run with `ONE MORE TAP` and confirm one Continue is available again in that new run.
+- [x] Build 4 processed/installed on the physical iPhone.
+- [x] **Continue-once physical regression PASS:** miss → rewarded Continue → miss again → no second Continue button.
+- [x] Genuine new run via `ONE MORE TAP` restores exactly one rewarded Continue allowance.
 - [ ] Rewarded dismissal/failure/no-fill UI must recover to Retry rather than permanent Loading.
 - [ ] Test Interstitial cadence #4, #7 and #10.
 - [ ] Fresh-install consent flow + Privacy Options on a physical iPhone.
