@@ -62,6 +62,14 @@ import Testing
   #expect(!engine.hasUsedRevive)
 }
 
+@Test func interstitialCadenceStartsAtFourThenEveryThirdRestart() {
+  let expected = Set([4, 7, 10, 13])
+
+  for restart in 0...13 {
+    #expect(InterstitialCadence.shouldShow(onRestart: restart) == expected.contains(restart))
+  }
+}
+
 @Test func reviveKeepsProgressButReopensRun() {
   var engine = ClassicGameEngine()
   _ = engine.evaluateTap(markerAngle: 0, targetAngle: 0)
