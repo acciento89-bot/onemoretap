@@ -39,6 +39,13 @@ public struct HitResult: Equatable, Sendable {
   }
 }
 
+public enum InterstitialCadence {
+  public static func shouldShow(onRestart restartCount: Int) -> Bool {
+    guard restartCount >= 4 else { return false }
+    return (restartCount - 4).isMultiple(of: 3)
+  }
+}
+
 public struct ClassicGameEngine: Sendable {
   public private(set) var score: Int = 0
   public private(set) var combo: Int = 0
