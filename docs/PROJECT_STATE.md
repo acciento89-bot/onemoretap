@@ -16,17 +16,15 @@ Technical identifiers intentionally remain stable:
 - All Themes: `com.kamilunavo.onemoretap.theme.all`
 - Legacy source/project paths may still contain `OneMoreTap`.
 
-## Current release identity
+## Current release identity / BLOCKER
 
-**App Store version: `1.0`.**
+App Store marketing version remains **1.0**.
 
-**Current source build identity on `main`: `1.0 (5)`.**
+Production build **1.0 (5)** was uploaded successfully and processed by Apple as `VALID`, but is now **rejected for release by our own QA** because the compiled AppIcon is completely black.
 
-PR #12 aligned the binary with the real App Store Connect draft version and was squash-merged as `0fa531cfa6f7229017846bfefd640c2da0fea50f` after Actions run `32486728556` passed Core tests and the Xcode 26.2 iOS build.
+OneMoreFloor release-blocker audit run `32489661436` rebuilt the exact source used for build 5 and inspected the real Release archive. Xcode emitted `AppIcon60x60@2x.png` and `AppIcon76x76@2x~ipad.png`; both measured RGB 0/0/0, average luminance 0, 100% near-black and one quantized color. This proves the black icon is in the binary, not merely an App Store Connect display issue.
 
-The previous `0.2.0 (2)`, `(3)` and `(4)` builds are TestFlight QA history only and are not the App Store release version.
-
-The production upload guard now verifies `1.0 (5)`, rejects `NAVOTAP_TEST_ADS` in Release build settings, and scans the final archived app bundle for Google's sample/test ad-ID prefix before upload.
+The replacement release target is therefore **NavoTap 1.0 (6)**. Build 5 must never be submitted for review.
 
 ## Product / physical QA — GREEN
 
@@ -72,30 +70,44 @@ Confirmed on a physical iPhone on 2026-08-21:
 - Build 2 TestFlight bridge run `32446107852`: Apple upload success.
 - Build 3 QA bridge run `32456558404`: Apple upload success with `NAVOTAP_TEST_ADS`.
 - Build 4 QA bridge run `32464932344`: Apple upload success with `NAVOTAP_TEST_ADS`.
-- Release identity PR #12 run `32486728556`: Core + Xcode 26.2 success; merged as `0fa531cfa6f7229017846bfefd640c2da0fea50f`.
+- Build 5 production bridge run `32488145687`: Apple upload success, production ads present, Google test IDs absent; build later rejected by visual icon QA.
+- Icon audit run `32489661436`: **FAIL by design** because both compiled AppIcon renditions are fully black.
 
 ## App Store Connect — current authoritative state
 
 Protected App Store Connect diagnostics through OneMoreFloor confirmed:
 
 - all five Non-Consumable IAP records exist,
-- all five have DE/EN localization, availability, price schedules and review notes,
-- all five review notes now use the product name `NavoTap`,
-- user uploaded one App Review Screenshot to each IAP,
-- run `32485927561` confirmed all five IAPs have `REVIEW_SCREENSHOTS=1`, all are **`READY_TO_SUBMIT`**, and `MISSING_METADATA` count is **0**,
+- all five have DE/EN localization, availability, price schedules and NavoTap review notes,
+- all five have one App Review Screenshot and are `READY_TO_SUBMIT`,
+- a draft Review Submission exists with exactly five IAP items, all `READY_FOR_REVIEW`,
 - iOS App Store version **1.0** exists in `PREPARE_FOR_SUBMISSION`,
-- no build is assigned to version 1.0 yet,
-- no Review Submission exists yet.
+- production build 5 is `VALID`,
+- version 1.0 is currently linked to exact build 5 through the ASC build relationship; this must be replaced by build 6 after the icon fix.
 
-Because these are NavoTap's **first** Non-Consumable IAPs, Apple requires the first IAP submission to be created together with the app-version submission in App Store Connect. The first-submission association is a UI step, not the review-submission API flow.
+Attempting to add App Store version 1.0 to the existing review draft exposed remaining app-version metadata blockers from Apple:
 
-## Remaining release gates
+- build export-compliance value `usesNonExemptEncryption`,
+- App Store Review detail,
+- copyright,
+- primary category,
+- content-rights declaration,
+- app pricing,
+- localized description, keywords and support URL,
+- required age-rating declaration fields.
 
-1. In App Store Connect, select all five `READY_TO_SUBMIT` IAPs → **Add for Review** → create a new submission for iOS version **1.0**. Keep the submission as a draft until final production QA is green.
-2. Verify the draft contains version 1.0 and all five IAPs.
-3. Verify Rewarded unavailable/dismiss/failure path visibly recovers to Retry rather than permanent Loading.
-4. Fresh-install UMP consent + Privacy Options physical-device QA.
-5. Complete remaining Classic lifecycle QA: difficulty/reversals, pause, background/foreground and rapid retry.
-6. Verify `https://kamilunavo.com/navotap/privacy` and `https://kamilunavo.com/app-ads.txt` are live/crawlable.
-7. Upload final production **NavoTap 1.0 (5)** without `NAVOTAP_TEST_ADS` through the protected OneMoreFloor TestFlight bridge.
-8. Assign the processed production build to App Store version 1.0 and submit only after every release gate is green.
+Do not submit the review draft yet.
+
+## Remaining release gates — ORDERED
+
+1. Replace broken AppIcon with corrected NavoTap artwork.
+2. Bump source build identity to **1.0 (6)**.
+3. Add permanent source + compiled-archive AppIcon visual-integrity gate to CI/TestFlight flow.
+4. Core tests + Xcode CI green.
+5. Build an unsigned Release archive and prove compiled AppIcon is visually non-black before any Apple upload.
+6. Upload production **NavoTap 1.0 (6)** without `NAVOTAP_TEST_ADS` through the protected OneMoreFloor bridge; verify production ad IDs/no sample IDs and icon gate again before upload.
+7. Confirm Apple build 6 is `VALID`; relink App Store version 1.0 from build 5 to build 6.
+8. Complete remaining App Store version metadata blockers.
+9. Verify Rewarded unavailable/retry path, fresh-install UMP + Privacy Options and remaining Classic lifecycle QA.
+10. Verify `https://kamilunavo.com/navotap/privacy` and `https://kamilunavo.com/app-ads.txt` live/crawlable.
+11. Add version 1.0 to existing review draft with the five IAPs and submit only when every gate is green.
