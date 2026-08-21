@@ -74,7 +74,7 @@ This file is the release handoff for NavoTap. Code-side items are tracked separa
 - [x] Physical QA found Rewarded Continue could stay on `CONTINUE LOADING`; recoverable state/retry behavior added.
 - [x] QA TestFlight build `0.2.0 (3)` uploaded through OneMoreFloor run `32456558404`.
 - [x] Build 3 archive compiled with `NAVOTAP_TEST_ADS`; Apple confirmed `Upload succeeded` / `Uploaded NavoTap` / `EXPORT SUCCEEDED`.
-- [ ] Wait for Build 3 TestFlight processing and install/update it.
+- [ ] Wait for Build 3 to finish App Store Connect/TestFlight processing and install/update it.
 - [ ] Confirm Fire now resolves to its live price and can be purchased/selected/relaunched.
 - [ ] Rewarded Continue test-ad success and one-use-per-run behavior.
 - [ ] Rewarded dismissal/failure/no-fill UI must recover to Retry rather than permanent Loading.
