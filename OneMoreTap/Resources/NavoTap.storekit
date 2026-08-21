@@ -50,7 +50,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.kamilunavo.onemoretap.theme.fire",
+      "productID" : "om.kamilunavo.onemoretap.theme.fire",
       "referenceName" : "Fire Theme",
       "type" : "NonConsumable"
     },
