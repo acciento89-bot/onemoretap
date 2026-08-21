@@ -38,8 +38,13 @@ Last updated: 2026-08-21
 - [x] NavoTap exists for bundle ID `com.kamilunavo.onemoretap`.
 - [x] All five Non-Consumable IAP records exist.
 - [x] App Privacy completed; user confirmed 2026-08-21.
-- [ ] **Resolve `MISSING_METADATA` on all five IAPs.** App Store Connect API confirmed this state on 2026-08-21.
-- [ ] Add/select the completed first Non-Consumable IAPs in the first app-version review submission.
+- [x] All five IAPs have DE/EN localizations.
+- [x] All five IAPs have availability configured.
+- [x] All five IAPs have price schedules configured.
+- [x] All five IAP review notes updated to use `NavoTap`; protected ASC run `32474284093` succeeded.
+- [ ] **Add an App Store Review Screenshot to each of the five IAPs.** Protected diagnostic run `32474099842` confirmed `REVIEW_SCREENSHOTS=0` for every IAP; this is the exact remaining `MISSING_METADATA` blocker.
+- [ ] Verify all five IAP states leave `MISSING_METADATA` after screenshot upload.
+- [ ] Add/select the first Non-Consumable IAPs in the first app-version review submission.
 
 ## AdMob / Consent
 
@@ -82,7 +87,7 @@ Last updated: 2026-08-21
 
 ## Final production release
 
-- [ ] Clear all five IAP `MISSING_METADATA` states.
+- [ ] Upload IAP review screenshot to all five IAPs and verify metadata state.
 - [ ] Attach/select first IAPs for the app-version submission.
 - [ ] Finish remaining Rewarded/UMP/lifecycle physical QA.
 - [ ] Upload a new **production build without `NAVOTAP_TEST_ADS`** using the next unused build number.
