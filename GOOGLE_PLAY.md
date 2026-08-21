@@ -30,15 +30,19 @@ Android must retain the accepted iOS v1 rules:
 
 ## Google Play Billing — one-time products
 
-Create these as non-consumable/permanent one-time products. Product IDs intentionally match the established iOS identities:
+Create these as non-consumable/permanent one-time products. Every product needs an active one-time purchase option. The German launch prices are locked to the accepted iOS v1 price decisions.
 
-- Remove Ads: `com.kamilunavo.onemoretap.removeads`
-- Fire Theme: `om.kamilunavo.onemoretap.theme.fire` — intentional legacy identifier; do not correct
-- Galaxy Theme: `com.kamilunavo.onemoretap.theme.galaxy`
-- Retro Theme: `com.kamilunavo.onemoretap.theme.retro`
-- All Themes: `com.kamilunavo.onemoretap.theme.all`
+| Product | Product ID | DE launch price |
+| --- | --- | ---: |
+| Remove Ads | `com.kamilunavo.onemoretap.removeads` | €2.99 |
+| Fire Theme | `om.kamilunavo.onemoretap.theme.fire` | €1.99 |
+| Galaxy Theme | `com.kamilunavo.onemoretap.theme.galaxy` | €1.99 |
+| Retro Theme | `com.kamilunavo.onemoretap.theme.retro` | €1.99 |
+| All Themes | `com.kamilunavo.onemoretap.theme.all` | €3.99 |
 
-Each product needs an active one-time purchase option in Google Play Console. Prices should follow the current NavoTap pricing decision used for iOS unless a platform-specific price decision is made explicitly.
+The Fire Theme identifier intentionally retains the legacy missing leading `c` (`om...`). Do not correct or normalize it: the Android billing code and release handoff deliberately use the established identifier.
+
+Suggested one-time purchase option ID for all five products: `lifetime`.
 
 ## AdMob / UMP
 
@@ -128,7 +132,7 @@ Available themes are cosmetic only and provide no gameplay advantage.
 ## Play Console declarations / release gates
 
 - [ ] Create Play Console app `NavoTap` with package `com.kamilunavo.onemoretap`.
-- [ ] Create all five one-time products and activate their purchase options.
+- [ ] Create all five one-time products with the locked prices above and activate their purchase options.
 - [ ] Create Android NavoTap in AdMob and obtain the three Android production IDs.
 - [ ] Build a production Release AAB with the Android AdMob variables injected.
 - [ ] Complete Ads declaration.
