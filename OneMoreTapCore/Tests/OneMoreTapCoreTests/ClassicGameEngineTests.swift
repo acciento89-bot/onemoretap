@@ -88,14 +88,17 @@ import Testing
   var engine = ClassicGameEngine()
 
   _ = engine.evaluateTap(markerAngle: 180, targetAngle: 0)
-  #expect(engine.reviveAfterMiss())
+  let firstRevive = engine.reviveAfterMiss()
+  #expect(firstRevive)
 
   _ = engine.evaluateTap(markerAngle: 180, targetAngle: 0)
   #expect(engine.isGameOver)
-  #expect(!engine.reviveAfterMiss())
+  let secondRevive = engine.reviveAfterMiss()
+  #expect(!secondRevive)
   #expect(engine.isGameOver)
 
   engine.reset()
   _ = engine.evaluateTap(markerAngle: 180, targetAngle: 0)
-  #expect(engine.reviveAfterMiss())
+  let nextRunRevive = engine.reviveAfterMiss()
+  #expect(nextRunRevive)
 }
