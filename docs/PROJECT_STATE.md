@@ -1,6 +1,6 @@
 # NavoTap — Project State
 
-Last updated: 2026-08-20
+Last updated: 2026-08-21
 
 ## Identity
 
@@ -11,8 +11,9 @@ The former working name `One More Tap` is retired because an existing App Store 
 Technical identifiers created before the rename remain intentionally stable:
 
 - Bundle ID: `com.kamilunavo.onemoretap`
-- StoreKit product IDs under `com.kamilunavo.onemoretap.*`
-- Source directory / core-package legacy paths may still contain `OneMoreTap`
+- Most StoreKit product IDs remain under `com.kamilunavo.onemoretap.*`
+- **Fire is a locked legacy exception:** the App Store Connect product was created as `om.kamilunavo.onemoretap.theme.fire` (missing the leading `c`). The app must use that exact live ID.
+- Source directory / core-package legacy paths may still contain `OneMoreTap`.
 
 These are implementation identifiers, not customer-facing branding, and must not be renamed casually after store setup.
 
@@ -22,11 +23,16 @@ These are implementation identifiers, not customer-facing branding, and must not
 
 **Monetization/release code: COMPLETE and merged to `main`.**
 
-**NavoTap branding pass: COMPLETE and CI-VALIDATED.**
+**Physical-device QA: IN PROGRESS on TestFlight.**
 
-**App Store / monetization account setup: COMPLETE through IAPs, App Privacy, production AdMob IDs and UMP consent configuration.**
+Build `0.2.0 (2)` reached TestFlight and passed the initial physical-iPhone smoke test: Home, Classic gameplay, score/combo HUD and Shop rendered and ran. Physical QA then found two release bugs:
 
-NavoTap includes rotating-orb Classic gameplay, target/perfect zones, combo, score, coins, progressive difficulty, direction reversals, game-over/retry, one rewarded continue per run, conservative interstitials, Remove Ads, cosmetic themes, StoreKit 2 restore/entitlements, UMP consent/privacy-options flow, sound, haptics and local persistence.
+1. Fire remained on `LOADING` while the other StoreKit products resolved.
+2. Rewarded Continue could remain on `CONTINUE LOADING` indefinitely.
+
+Both were addressed in PR #5 and squash-merged as `8c5efba595099bf8ffbc14c58b3a63cdc0220b2b` after Core tests and Xcode 26.2 simulator build passed in Actions run `32456370914`.
+
+A safe QA TestFlight build `0.2.0 (3)` was uploaded through the protected OneMoreFloor bridge in Actions run `32456558404`. Apple confirmed `Upload succeeded`, `Uploaded NavoTap` and `EXPORT SUCCEEDED`; App Store Connect/TestFlight processing/availability on the user side remains the next gate. Build 3 is compiled with `NAVOTAP_TEST_ADS`, so Rewarded/Interstitial QA uses Google's official sample ad units rather than the production units. Normal release builds still default to the production AdMob IDs.
 
 ## Product rules locked for Classic
 
@@ -47,38 +53,59 @@ NavoTap includes rotating-orb Classic gameplay, target/perfect zones, combo, sco
 - Remove Ads disables automatic interstitials only; rewarded continue remains optional.
 - Neon is free; Fire, Galaxy, Retro and All Themes are supported.
 
-## Branding implementation
+## StoreKit live IDs
 
-- Home title: `NAVOTAP`.
-- iOS `CFBundleDisplayName`: `NavoTap`.
-- Swift app entry point: `NavoTapApp`.
-- Xcode target/product: `NavoTap` / `NavoTap.app`.
-- Shared Xcode scheme: `NavoTap`.
-- Local StoreKit configuration file: `NavoTap.storekit`.
-- App Store Connect / AdMob documentation uses NavoTap.
+- Remove Ads: `com.kamilunavo.onemoretap.removeads`
+- Fire: `om.kamilunavo.onemoretap.theme.fire` — **intentional live legacy typo; do not “correct” it**
+- Galaxy: `com.kamilunavo.onemoretap.theme.galaxy`
+- Retro: `com.kamilunavo.onemoretap.theme.retro`
+- All Themes: `com.kamilunavo.onemoretap.theme.all`
+
+App Store Connect API diagnosis on 2026-08-21 confirmed the Fire mismatch as the reason StoreKit omitted only Fire. The same diagnosis reported all five IAP records in `MISSING_METADATA`; this is a release blocker to clear before App Review.
+
+## Rewarded-ad robustness
+
+`AdService` now exposes explicit Rewarded states:
+
+- `loading`
+- `ready`
+- `unavailable`
+
+A failed/no-fill/consent-blocked request no longer leaves the UI in permanent loading. The UI can show `AD UNAVAILABLE · RETRY`, manual retry is supported, and failed rewarded loads automatically retry after 15 seconds.
+
+`NAVOTAP_TEST_ADS` switches only Rewarded/Interstitial unit IDs to Google's official sample IDs for safe QA. Production is the default compilation path and continues to use:
+
+- AdMob app ID: `ca-app-pub-8944085355624754~4792390111`
+- Rewarded: `ca-app-pub-8944085355624754/7162618768`
+- Interstitial: `ca-app-pub-8944085355624754/3694930864`
 
 ## Validation
 
 - Core regression suite: 9/9.
-- NavoTap rebrand GitHub Actions run `32409256186`: Core tests — success.
-- NavoTap rebrand GitHub Actions run `32409256186`: Xcode 26.2 iOS Simulator `Build NavoTap` — success.
-- Production AdMob GitHub Actions run `32410958142`: Core tests + Xcode 26.2 `Build NavoTap` — success.
+- NavoTap rebrand Actions run `32409256186`: Core tests + Xcode 26.2 build — success.
+- Production AdMob Actions run `32410958142`: Core tests + Xcode 26.2 build — success.
+- Physical-QA fix Actions run `32456370914`: Core tests + Xcode 26.2 `Build NavoTap` — success.
+- Build 2 TestFlight bridge run `32446107852`: Apple upload succeeded.
+- Build 3 QA TestFlight bridge run `32456558404`: archive + Apple upload succeeded with `NAVOTAP_TEST_ADS` enabled.
 - GoogleMobileAds 13.8.0 and GoogleUserMessagingPlatform 3.1.0 resolve in the iOS build.
 
 ## Account-side release state
 
 - App Store Connect NavoTap record: complete.
-- Five Non-Consumable IAPs: complete, user confirmed 2026-08-20.
-- App Privacy: complete, user confirmed 2026-08-20.
+- Five Non-Consumable IAPs: created; **all currently report `MISSING_METADATA` via App Store Connect API and must be completed before submission.**
+- App Privacy: complete, user confirmed 2026-08-21.
 - Production AdMob IDs: complete and merged to `main`.
-- AdMob European regulations / UMP message: complete, user confirmed 2026-08-20.
+- AdMob European regulations / UMP message: complete, user confirmed.
 - Dedicated NavoTap privacy page and app-ads.txt: code merged to Kamilunavo website.
 
 ## Remaining release gates
 
-1. Verify the production website serves `/navotap/privacy` and `/app-ads.txt` publicly.
-2. Run the guarded TestFlight workflow for NavoTap 0.2.0 (2) from `main` once the repository has the App Store Connect API secrets.
-3. Confirm the build appears in App Store Connect/TestFlight.
-4. Attach the first Non-Consumable IAPs to the first app-version review submission when selecting the version/build.
-5. Physical iPhone QA for consent/privacy options, gameplay, purchases, restore, rewarded continue, interstitial cadence, Remove Ads, themes and lifecycle handling.
-6. Submit only after `docs/RELEASE_CHECKLIST.md` is fully satisfied.
+1. Wait for TestFlight build `0.2.0 (3)` processing, install it on the physical iPhone and re-test Fire.
+2. Verify Rewarded Continue with the safe Google test rewarded ad: success, dismissal/failure state, retry and one-use-per-run behavior.
+3. Verify test Interstitial cadence on restart #4, #7 and #10.
+4. Complete purchase/relaunch/restore QA for Remove Ads, Fire, Galaxy, Retro and All Themes.
+5. Fresh-install UMP consent + Privacy Options QA.
+6. Complete Classic lifecycle/regression QA on the physical device.
+7. Resolve `MISSING_METADATA` for all five App Store Connect IAPs and attach/select them for the first app-version review submission.
+8. Verify `/navotap/privacy` and `/app-ads.txt` are live/crawlable.
+9. After QA is green, upload a **final production build without `NAVOTAP_TEST_ADS`** (next build number) and submit only after `docs/RELEASE_CHECKLIST.md` is fully satisfied.
