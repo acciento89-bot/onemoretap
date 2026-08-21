@@ -13,6 +13,19 @@ val releaseInterstitialId = providers.gradleProperty("NAVOTAP_INTERSTITIAL_AD_ID
     .orElse(providers.environmentVariable("NAVOTAP_INTERSTITIAL_AD_ID"))
     .getOrElse("")
 
+val generatedIconResDir = layout.buildDirectory.dir("generated/navotapIcon/res").get().asFile
+val generateNavoTapIcon by tasks.registering(Copy::class) {
+    val sourceIcon = rootProject.file("../OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png")
+    from(sourceIcon)
+    into(generatedIconResDir.resolve("drawable-nodpi"))
+    rename { "navotap_app_icon.png" }
+    doFirst {
+        if (!sourceIcon.isFile) {
+            throw GradleException("Canonical NavoTap AppIcon.png is missing: ${sourceIcon.path}")
+        }
+    }
+}
+
 android {
     namespace = "com.kamilunavo.onemoretap"
     compileSdk = 36
@@ -25,6 +38,8 @@ android {
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    sourceSets.getByName("main").res.srcDir(generatedIconResDir)
 
     buildFeatures {
         compose = true
@@ -52,6 +67,10 @@ android {
             buildConfigField("boolean", "USES_TEST_ADS", "false")
         }
     }
+}
+
+tasks.named("preBuild").configure {
+    dependsOn(generateNavoTapIcon)
 }
 
 gradle.taskGraph.whenReady {
