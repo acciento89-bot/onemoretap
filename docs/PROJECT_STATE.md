@@ -23,7 +23,7 @@ These are implementation identifiers, not customer-facing branding, and must not
 
 **Monetization/release code: COMPLETE and merged to `main`.**
 
-**Physical-device QA: IN PROGRESS on TestFlight Build `0.2.0 (4)`.**
+**Physical-device QA: IN PROGRESS; Build `0.2.0 (4)` continue-once regression is GREEN.**
 
 Build `0.2.0 (2)` reached TestFlight and passed the initial physical-iPhone smoke test. That pass found two release bugs: Fire remained on `LOADING`, and Rewarded Continue could remain on `CONTINUE LOADING`. Both were fixed in PR #5 and validated in Build 3.
 
@@ -40,11 +40,11 @@ PR #7 fixes this at two layers and was squash-merged to `main` as `b355122a4b6fa
 1. `ClassicGameView` now uses `startIfNeeded()` on appearance and only `ONE MORE TAP` explicitly calls `startNewRun()`.
 2. `ClassicGameEngine` itself tracks `hasUsedRevive` and rejects a second revive in the same run, so the one-continue rule no longer depends only on UI/controller state.
 3. `ClassicScene.continueRun()` reports whether the core revive actually succeeded, preventing controller/core divergence.
-4. Regression coverage now proves: miss → first revive succeeds → second miss → second revive fails → real reset → revive is available again.
+4. Regression coverage proves: miss → first revive succeeds → second miss → second revive fails → real reset → revive is available again.
 
 The fix passed the Core suite and Xcode 26.2 iOS build in Actions run `32464711226`.
 
-A safe QA TestFlight build `0.2.0 (4)` was then uploaded from the exact merged source commit `b355122a4b6fa935e494939e00615eb782cfd827` through the protected OneMoreFloor bridge in Actions run `32464932344`, compiled with `NAVOTAP_TEST_ADS`. Apple confirmed:
+A safe QA TestFlight build `0.2.0 (4)` was uploaded from the exact merged source commit `b355122a4b6fa935e494939e00615eb782cfd827` through the protected OneMoreFloor bridge in Actions run `32464932344`, compiled with `NAVOTAP_TEST_ADS`. Apple confirmed:
 
 - `Uploaded package is processing.`
 - `Upload succeeded.`
@@ -52,6 +52,8 @@ A safe QA TestFlight build `0.2.0 (4)` was then uploaded from the exact merged s
 - `** EXPORT SUCCEEDED **`
 
 Later duplicate bridge triggers failed only because Apple had already accepted build number 4; they do not indicate an app/signing regression. The temporary OneMoreFloor bridge PR #116 was closed without merge.
+
+**Physical iPhone verification on 2026-08-21 passed the exact continue-once regression:** lose → rewarded Continue → lose again in the same run → no second Continue is offered. Starting a genuine new run restores exactly one Continue allowance. This gate is now locked GREEN.
 
 ## Product rules locked for Classic
 
@@ -109,6 +111,7 @@ A failed/no-fill/consent-blocked request no longer leaves the UI in permanent lo
 - Build 2 TestFlight bridge run `32446107852`: Apple upload succeeded.
 - Build 3 QA TestFlight bridge run `32456558404`: Apple upload succeeded with `NAVOTAP_TEST_ADS` enabled.
 - Build 4 QA TestFlight bridge run `32464932344`: exact merged continue-once source archived and Apple upload succeeded with `NAVOTAP_TEST_ADS` enabled.
+- Build 4 physical-iPhone continue-once regression: **PASS** on 2026-08-21.
 - GoogleMobileAds 13.8.0 and GoogleUserMessagingPlatform 3.1.0 resolve in the iOS build.
 
 ## Account-side release state
@@ -122,13 +125,11 @@ A failed/no-fill/consent-blocked request no longer leaves the UI in permanent lo
 
 ## Remaining release gates
 
-1. Wait for TestFlight Build `0.2.0 (4)` processing, install/update it on the physical iPhone and run the exact continue regression: **miss → rewarded Continue → miss again → no second Continue button**.
-2. Confirm the next explicit `ONE MORE TAP` new run permits one rewarded Continue again.
-3. Verify Rewarded dismissal/failure/no-fill state recovers to Retry rather than permanent Loading.
-4. Verify test Interstitial cadence on restart #4, #7 and #10.
-5. Complete purchase/relaunch/restore QA for Remove Ads, Fire, Galaxy, Retro and All Themes.
-6. Fresh-install UMP consent + Privacy Options QA.
-7. Complete Classic lifecycle/regression QA on the physical device.
-8. Resolve `MISSING_METADATA` for all five App Store Connect IAPs and attach/select them for the first app-version review submission.
-9. Verify `/navotap/privacy` and `/app-ads.txt` are live/crawlable.
-10. After QA is green, upload a **final production build without `NAVOTAP_TEST_ADS`** using the next unused build number and submit only after `docs/RELEASE_CHECKLIST.md` is fully satisfied.
+1. Verify Rewarded dismissal/failure/no-fill state recovers to Retry rather than permanent Loading.
+2. Verify test Interstitial cadence on restart #4, #7 and #10.
+3. Complete purchase/relaunch/restore QA for Remove Ads, Fire, Galaxy, Retro and All Themes.
+4. Fresh-install UMP consent + Privacy Options QA.
+5. Complete Classic lifecycle/regression QA on the physical device.
+6. Resolve `MISSING_METADATA` for all five App Store Connect IAPs and attach/select them for the first app-version review submission.
+7. Verify `/navotap/privacy` and `/app-ads.txt` are live/crawlable.
+8. After QA is green, upload a **final production build without `NAVOTAP_TEST_ADS`** using the next unused build number and submit only after `docs/RELEASE_CHECKLIST.md` is fully satisfied.
