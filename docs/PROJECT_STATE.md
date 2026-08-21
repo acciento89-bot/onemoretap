@@ -32,7 +32,7 @@ Build `0.2.0 (2)` reached TestFlight and passed the initial physical-iPhone smok
 
 Both were addressed in PR #5 and squash-merged as `8c5efba595099bf8ffbc14c58b3a63cdc0220b2b` after Core tests and Xcode 26.2 simulator build passed in Actions run `32456370914`.
 
-A safe QA TestFlight build `0.2.0 (3)` was then uploaded through the protected OneMoreFloor bridge in Actions run `32456558404`. Build 3 is compiled with `NAVOTAP_TEST_ADS`, so Rewarded/Interstitial QA uses Google's official sample ad units rather than the production units. Normal release builds still default to the production AdMob IDs.
+A safe QA TestFlight build `0.2.0 (3)` was uploaded through the protected OneMoreFloor bridge in Actions run `32456558404`. Apple confirmed `Upload succeeded`, `Uploaded NavoTap` and `EXPORT SUCCEEDED`; App Store Connect/TestFlight processing/availability on the user side remains the next gate. Build 3 is compiled with `NAVOTAP_TEST_ADS`, so Rewarded/Interstitial QA uses Google's official sample ad units rather than the production units. Normal release builds still default to the production AdMob IDs.
 
 ## Product rules locked for Classic
 
