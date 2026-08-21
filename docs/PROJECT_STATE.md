@@ -16,59 +16,50 @@ Technical identifiers intentionally remain stable:
 - All Themes: `com.kamilunavo.onemoretap.theme.all`
 - Legacy source/project paths may still contain `OneMoreTap`.
 
-## Current milestone
+## Current release identity
 
-**Classic mode: COMPLETE and locked.**
+**App Store version: `1.0`.**
 
-**Monetization/release code: COMPLETE and merged to `main`.**
+**Current source build identity on `main`: `1.0 (5)`.**
 
-**Physical-device QA: MAJOR GAME/MONETIZATION GATES GREEN on TestFlight Build `0.2.0 (4)`.**
+PR #12 aligned the binary with the real App Store Connect draft version and was squash-merged as `0fa531cfa6f7229017846bfefd640c2da0fea50f` after Actions run `32486728556` passed Core tests and the Xcode 26.2 iOS build.
 
-Build 2 exposed Fire StoreKit loading and permanent Rewarded loading issues. PR #5 fixed both. Build 3 confirmed Fire price resolution and Google QA ads, then exposed the second-Continue regression. PR #7 fixed the one-Continue-per-run rule at both UI/controller and core-engine layers. Build 4 verified that fix on a physical iPhone.
+The previous `0.2.0 (2)`, `(3)` and `(4)` builds are TestFlight QA history only and are not the App Store release version.
 
-## Physical iPhone QA — GREEN
+The production upload guard now verifies `1.0 (5)`, rejects `NAVOTAP_TEST_ADS` in Release build settings, and scans the final archived app bundle for Google's sample/test ad-ID prefix before upload.
 
-Confirmed on 2026-08-21:
+## Product / physical QA — GREEN
 
-- Home, Classic gameplay, score/combo HUD and Shop render and run correctly.
+Confirmed on a physical iPhone on 2026-08-21:
+
+- Home, Classic, score/combo HUD and Shop render and run correctly.
 - Fire resolves to its live price and no longer remains on `LOADING`.
 - Google QA Rewarded and Interstitial ads load/display correctly.
 - Rewarded Continue works and may be used **only once per run**.
-- After the rewarded Continue, a second loss in the same run does **not** offer another Continue.
-- A genuine new run via `ONE MORE TAP` restores exactly one Continue allowance.
+- A genuine new run restores exactly one Continue allowance.
 - Automatic Interstitial cadence is correct: #1–3 none, #4 ad, #5–6 none, #7 ad, #8–9 none, #10 ad.
-- Fire purchase succeeds, unlocks/selects, renders in Classic and persists after full relaunch.
-- Remove Ads purchase succeeds and persists after relaunch.
-- Remove Ads suppresses automatic Interstitials while optional Rewarded Continue remains available and functional.
-- Galaxy and Retro purchases/unlocks/selections work and persist.
-- All Themes purchase/unlock behavior works and persists.
-- Restore Purchases works and restores StoreKit entitlements.
+- Fire purchase/unlock/select/render/relaunch persistence PASS.
+- Remove Ads purchase/relaunch persistence PASS.
+- Remove Ads suppresses automatic Interstitials while optional Rewarded Continue remains available/functioning.
+- Galaxy and Retro purchase/unlock/select/persistence PASS.
+- All Themes purchase/unlock/persistence PASS.
+- Restore Purchases PASS.
 
-## Classic product rules — LOCKED
+## Classic / monetization rules — LOCKED
 
-- Portrait iPhone-first game.
-- One-finger input; no swipe/drag controls.
-- Run starts/restarts immediately.
+- Portrait iPhone-first, one-finger gameplay.
 - One miss ends the run unless the single optional rewarded Continue is used.
-- Rewarded Continue can be used at most once per run; only a genuine new run resets the allowance.
 - Continue preserves score/coins, resets combo and cannot double-commit a run.
-- Difficulty increases continuously.
-- Perfect hits are rewarded but not required.
-- No pay-to-win purchases.
-- Themes are cosmetic only.
-
-## Monetization rules — LOCKED
-
-- One optional rewarded-video Continue per run.
-- Automatic Interstitial first appears at restart #4 and then every third restart (#7, #10, #13, ...), when loaded.
-- Remove Ads disables automatic Interstitials only; Rewarded Continue remains optional.
-- Neon is free; Fire, Galaxy, Retro and All Themes are supported.
+- Difficulty increases continuously; Perfect hits are rewarded but not required.
+- One automatic Interstitial on restart #4 and then every third restart (#7, #10, #13, ...), when loaded.
+- Remove Ads disables automatic Interstitials only.
+- No pay-to-win purchases; themes are cosmetic only.
 
 ## Rewarded robustness
 
-`AdService` has explicit Rewarded states `loading`, `ready`, and `unavailable`. Failed/no-fill/consent-blocked loading no longer has an intentionally permanent loading state; the UI supports `AD UNAVAILABLE · RETRY`, manual retry and a 15-second automatic retry.
+`AdService` exposes `loading`, `ready`, and `unavailable`. Failed/no-fill/consent-blocked loading can show `AD UNAVAILABLE · RETRY`, supports manual retry and automatically retries after 15 seconds.
 
-`NAVOTAP_TEST_ADS` switches only Rewarded/Interstitial unit IDs to Google's official sample IDs for safe QA. Production remains the default compilation path with:
+`NAVOTAP_TEST_ADS` switches only Rewarded/Interstitial IDs to Google's official sample units for safe QA. Production defaults remain:
 
 - AdMob app ID: `ca-app-pub-8944085355624754~4792390111`
 - Rewarded: `ca-app-pub-8944085355624754/7162618768`
@@ -76,44 +67,35 @@ Confirmed on 2026-08-21:
 
 ## Validation / CI
 
-- Core regression suite: **11/11** after adding the interstitial cadence regression.
-- Production AdMob run `32410958142`: Core + Xcode build success.
-- Fire/Rewarded-loading fix run `32456370914`: Core + Xcode build success.
-- Continue-once fix run `32464711226`: Core + Xcode build success.
-- Interstitial cadence regression run `32472174341`: Core + Xcode build success; PR #10 merged as `eeae711ada83611658406da71e5866eeaea8b8d2`.
+- Core regression suite: **11/11**.
+- Interstitial cadence regression run `32472174341`: Core + Xcode success; PR #10 merged as `eeae711ada83611658406da71e5866eeaea8b8d2`.
 - Build 2 TestFlight bridge run `32446107852`: Apple upload success.
 - Build 3 QA bridge run `32456558404`: Apple upload success with `NAVOTAP_TEST_ADS`.
 - Build 4 QA bridge run `32464932344`: Apple upload success with `NAVOTAP_TEST_ADS`.
+- Release identity PR #12 run `32486728556`: Core + Xcode 26.2 success; merged as `0fa531cfa6f7229017846bfefd640c2da0fea50f`.
 
-## App Store Connect IAP diagnosis — EXACT
+## App Store Connect — current authoritative state
 
-OneMoreFloor diagnostic run `32474099842` inspected all five live IAPs through App Store Connect API:
+Protected App Store Connect diagnostics through OneMoreFloor confirmed:
 
-- each IAP has two localizations (`de-DE`, `en-US`),
-- each has territory availability,
-- each has a price schedule,
-- each has a review note,
-- **each has zero App Store review screenshots.**
+- all five Non-Consumable IAP records exist,
+- all five have DE/EN localization, availability, price schedules and review notes,
+- all five review notes now use the product name `NavoTap`,
+- user uploaded one App Review Screenshot to each IAP,
+- run `32485927561` confirmed all five IAPs have `REVIEW_SCREENSHOTS=1`, all are **`READY_TO_SUBMIT`**, and `MISSING_METADATA` count is **0**,
+- iOS App Store version **1.0** exists in `PREPARE_FOR_SUBMISSION`,
+- no build is assigned to version 1.0 yet,
+- no Review Submission exists yet.
 
-Therefore the remaining `MISSING_METADATA` blocker is the missing **App Store Review Screenshot** on each IAP. A follow-up protected ASC run `32474284093` successfully updated all five review notes from the retired working name `One More Tap` to `NavoTap`.
-
-## Account-side release state
-
-- App Store Connect NavoTap record: complete.
-- Five Non-Consumable IAP records: created and functionally verified on device.
-- IAP localizations/prices/availability/review notes: present.
-- **IAP App Store review screenshots: missing on all five; required before App Review.**
-- App Privacy: complete; user confirmed 2026-08-21.
-- Production AdMob IDs: complete.
-- AdMob European regulations / UMP message: complete and published.
-- Dedicated NavoTap privacy page and root `app-ads.txt`: merged to Kamilunavo website.
+Because these are NavoTap's **first** Non-Consumable IAPs, Apple requires the first IAP submission to be created together with the app-version submission in App Store Connect. The first-submission association is a UI step, not the review-submission API flow.
 
 ## Remaining release gates
 
-1. Add one valid App Store Review Screenshot to each of the five IAPs; then verify their state leaves `MISSING_METADATA` and attach/select them for the first app-version review submission.
-2. Verify the Rewarded unavailable/dismiss/failure path visibly recovers to Retry rather than permanent Loading.
-3. Fresh-install UMP consent + Privacy Options physical-device QA.
-4. Complete remaining Classic lifecycle/regression QA: difficulty/reversals, pause, background/foreground and rapid retry.
-5. Verify `https://kamilunavo.com/navotap/privacy` and `https://kamilunavo.com/app-ads.txt` are live/crawlable.
-6. Upload the next **final production build without `NAVOTAP_TEST_ADS`** using a new build number.
-7. Submit to App Review only when the release checklist is fully green.
+1. In App Store Connect, select all five `READY_TO_SUBMIT` IAPs → **Add for Review** → create a new submission for iOS version **1.0**. Keep the submission as a draft until final production QA is green.
+2. Verify the draft contains version 1.0 and all five IAPs.
+3. Verify Rewarded unavailable/dismiss/failure path visibly recovers to Retry rather than permanent Loading.
+4. Fresh-install UMP consent + Privacy Options physical-device QA.
+5. Complete remaining Classic lifecycle QA: difficulty/reversals, pause, background/foreground and rapid retry.
+6. Verify `https://kamilunavo.com/navotap/privacy` and `https://kamilunavo.com/app-ads.txt` are live/crawlable.
+7. Upload final production **NavoTap 1.0 (5)** without `NAVOTAP_TEST_ADS` through the protected OneMoreFloor TestFlight bridge.
+8. Assign the processed production build to App Store version 1.0 and submit only after every release gate is green.
