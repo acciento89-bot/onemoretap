@@ -44,6 +44,7 @@ public struct ClassicGameEngine: Sendable {
   public private(set) var combo: Int = 0
   public private(set) var coinsEarned: Int = 0
   public private(set) var isGameOver: Bool = false
+  public private(set) var hasUsedRevive: Bool = false
 
   public init() {}
 
@@ -52,11 +53,13 @@ public struct ClassicGameEngine: Sendable {
     combo = 0
     coinsEarned = 0
     isGameOver = false
+    hasUsedRevive = false
   }
 
   @discardableResult
   public mutating func reviveAfterMiss() -> Bool {
-    guard isGameOver else { return false }
+    guard isGameOver, !hasUsedRevive else { return false }
+    hasUsedRevive = true
     isGameOver = false
     combo = 0
     return true
