@@ -2,6 +2,8 @@ package com.kamilunavo.onemoretap
 
 import android.app.Activity
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,6 +20,9 @@ import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 
 class BillingManager(context: Context) : PurchasesUpdatedListener {
+    private val appContext = context.applicationContext
+    private val handler = Handler(Looper.getMainLooper())
+
     var purchasedProductIds by mutableStateOf<Set<String>>(emptySet())
         private set
     var productDetails by mutableStateOf<Map<String, ProductDetails>>(emptyMap())
@@ -30,13 +35,15 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
     val adsRemoved: Boolean
         get() = MonetizationProducts.REMOVE_ADS in purchasedProductIds
 
-    private val billingClient = BillingClient.newBuilder(context.applicationContext)
-        .setListener(this)
-        .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
-        .enableAutoServiceReconnection()
-        .build()
+    private var billingClient: BillingClient? = null
+    private var connectionScheduled = false
+    private var connectionStarted = false
 
-    init { connect() }
+    init {
+        // Keep the first Activity/Compose frame completely free from Play Billing startup.
+        // If Play Services is unhealthy on a device, the game UI still opens first.
+        scheduleConnect()
+    }
 
     fun isThemeUnlocked(theme: GameTheme): Boolean {
         val id = theme.productId ?: return true
@@ -49,6 +56,13 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
         ?.formattedPrice
 
     fun launchPurchase(activity: Activity, productId: String) {
+        val client = billingClient
+        if (client == null || !client.isReady) {
+            statusMessage = "Google Play Store is still connecting."
+            scheduleConnect(immediate = true)
+            return
+        }
+
         val details = productDetails[productId]
         if (details == null) {
             statusMessage = "Store product is not available yet."
@@ -64,12 +78,18 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
             .setProductDetails(details)
             .setOfferToken(offerToken)
             .build()
-        val result = billingClient.launchBillingFlow(
-            activity,
-            BillingFlowParams.newBuilder().setProductDetailsParamsList(listOf(productParams)).build()
-        )
-        if (result.responseCode != BillingClient.BillingResponseCode.OK) {
-            statusMessage = result.debugMessage.ifBlank { "Purchase could not be started." }
+
+        try {
+            val result = client.launchBillingFlow(
+                activity,
+                BillingFlowParams.newBuilder().setProductDetailsParamsList(listOf(productParams)).build()
+            )
+            if (result.responseCode != BillingClient.BillingResponseCode.OK) {
+                statusMessage = result.debugMessage.ifBlank { "Purchase could not be started." }
+            }
+        } catch (error: Throwable) {
+            statusMessage = error.message ?: "Google Play Billing is temporarily unavailable."
+            billingReady = false
         }
     }
 
@@ -86,32 +106,73 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
         }
     }
 
+    private fun scheduleConnect(immediate: Boolean = false) {
+        if (billingReady || connectionScheduled || connectionStarted) return
+        connectionScheduled = true
+        handler.postDelayed({
+            connectionScheduled = false
+            connect()
+        }, if (immediate) 0L else 1_500L)
+    }
+
+    private fun createClient(): BillingClient? {
+        billingClient?.let { return it }
+        return try {
+            BillingClient.newBuilder(appContext)
+                .setListener(this)
+                .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
+                .enableAutoServiceReconnection()
+                .build()
+                .also { billingClient = it }
+        } catch (error: Throwable) {
+            billingReady = false
+            statusMessage = error.message ?: "Google Play Billing is temporarily unavailable."
+            null
+        }
+    }
+
     private fun connect() {
-        if (billingClient.isReady) {
+        val client = createClient() ?: return
+        if (client.isReady) {
             billingReady = true
+            connectionStarted = false
             queryProducts()
             refreshPurchases()
             return
         }
-        billingClient.startConnection(object : BillingClientStateListener {
-            override fun onBillingSetupFinished(result: BillingResult) {
-                billingReady = result.responseCode == BillingClient.BillingResponseCode.OK
-                if (billingReady) {
-                    queryProducts()
-                    refreshPurchases()
-                } else {
-                    statusMessage = "Google Play Billing unavailable (${result.responseCode})."
-                }
-            }
+        if (connectionStarted) return
+        connectionStarted = true
 
-            override fun onBillingServiceDisconnected() {
-                billingReady = false
-            }
-        })
+        try {
+            client.startConnection(object : BillingClientStateListener {
+                override fun onBillingSetupFinished(result: BillingResult) {
+                    connectionStarted = false
+                    billingReady = result.responseCode == BillingClient.BillingResponseCode.OK
+                    if (billingReady) {
+                        statusMessage = null
+                        queryProducts()
+                        refreshPurchases()
+                    } else {
+                        statusMessage = "Google Play Billing unavailable (${result.responseCode})."
+                    }
+                }
+
+                override fun onBillingServiceDisconnected() {
+                    connectionStarted = false
+                    billingReady = false
+                    scheduleConnect()
+                }
+            })
+        } catch (error: Throwable) {
+            connectionStarted = false
+            billingReady = false
+            statusMessage = error.message ?: "Google Play Billing is temporarily unavailable."
+        }
     }
 
     private fun queryProducts() {
-        if (!billingClient.isReady) return
+        val client = billingClient ?: return
+        if (!client.isReady) return
         val products = MonetizationProducts.ALL.map { id ->
             QueryProductDetailsParams.Product.newBuilder()
                 .setProductId(id)
@@ -119,43 +180,60 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
                 .build()
         }
         val params = QueryProductDetailsParams.newBuilder().setProductList(products).build()
-        billingClient.queryProductDetailsAsync(params) { result, detailsResult ->
-            if (result.responseCode != BillingClient.BillingResponseCode.OK) {
-                statusMessage = result.debugMessage.ifBlank { "Store products are currently unavailable." }
-                return@queryProductDetailsAsync
+
+        try {
+            client.queryProductDetailsAsync(params) { result, detailsResult ->
+                if (result.responseCode != BillingClient.BillingResponseCode.OK) {
+                    statusMessage = result.debugMessage.ifBlank { "Store products are currently unavailable." }
+                    return@queryProductDetailsAsync
+                }
+                productDetails = detailsResult.productDetailsList.associateBy { it.productId }
             }
-            productDetails = detailsResult.productDetailsList.associateBy { it.productId }
+        } catch (error: Throwable) {
+            statusMessage = error.message ?: "Store products are currently unavailable."
         }
     }
 
     private fun refreshPurchases() {
-        if (!billingClient.isReady) {
-            connect()
+        val client = billingClient
+        if (client == null || !client.isReady) {
+            scheduleConnect(immediate = true)
             return
         }
         val params = QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP).build()
-        billingClient.queryPurchasesAsync(params) { result, purchases ->
-            if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                processPurchases(purchases)
-            } else {
-                statusMessage = result.debugMessage.ifBlank { "Purchases could not be restored." }
+
+        try {
+            client.queryPurchasesAsync(params) { result, purchases ->
+                if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                    processPurchases(purchases)
+                } else {
+                    statusMessage = result.debugMessage.ifBlank { "Purchases could not be restored." }
+                }
             }
+        } catch (error: Throwable) {
+            statusMessage = error.message ?: "Purchases could not be restored."
         }
     }
 
     private fun processPurchases(purchases: List<Purchase>) {
+        val client = billingClient
         val owned = purchases.filter {
             it.purchaseState == Purchase.PurchaseState.PURCHASED &&
                 it.products.any(MonetizationProducts.ALL::contains)
         }
         purchasedProductIds = owned.flatMap { it.products }.filter(MonetizationProducts.ALL::contains).toSet()
 
+        if (client == null) return
         owned.filterNot { it.isAcknowledged }.forEach { purchase ->
             val params = AcknowledgePurchaseParams.newBuilder().setPurchaseToken(purchase.purchaseToken).build()
-            billingClient.acknowledgePurchase(params) { result ->
-                if (result.responseCode != BillingClient.BillingResponseCode.OK) {
-                    statusMessage = result.debugMessage.ifBlank { "Purchase acknowledgement failed." }
+            try {
+                client.acknowledgePurchase(params) { result ->
+                    if (result.responseCode != BillingClient.BillingResponseCode.OK) {
+                        statusMessage = result.debugMessage.ifBlank { "Purchase acknowledgement failed." }
+                    }
                 }
+            } catch (error: Throwable) {
+                statusMessage = error.message ?: "Purchase acknowledgement failed."
             }
         }
     }
