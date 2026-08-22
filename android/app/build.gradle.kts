@@ -19,7 +19,6 @@ val uploadKeyAlias = System.getenv("ANDROID_UPLOAD_KEY_ALIAS")
 val uploadKeyPassword = System.getenv("ANDROID_UPLOAD_KEY_PASSWORD")
 val releaseSigningEnabled = listOf(uploadKeystorePath, uploadStorePassword, uploadKeyAlias, uploadKeyPassword)
     .all { !it.isNullOrBlank() }
-val ciSmokeSigning = System.getenv("NAVOTAP_CI_SMOKE") == "true"
 
 val generatedIconResDir = layout.buildDirectory.dir("generated/navotapIcon/res").get().asFile
 val generateNavoTapIcon by tasks.registering(Copy::class) {
@@ -54,6 +53,10 @@ android {
         buildConfig = true
     }
 
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -85,10 +88,7 @@ android {
             buildConfigField("String", "REWARDED_AD_ID", "\"${releaseRewardedId}\"")
             buildConfigField("String", "INTERSTITIAL_AD_ID", "\"${releaseInterstitialId}\"")
             buildConfigField("boolean", "USES_TEST_ADS", "false")
-            when {
-                releaseSigningEnabled -> signingConfig = signingConfigs.getByName("release")
-                ciSmokeSigning -> signingConfig = signingConfigs.getByName("debug")
-            }
+            if (releaseSigningEnabled) signingConfig = signingConfigs.getByName("release")
         }
     }
 }
@@ -123,5 +123,6 @@ dependencies {
     implementation("com.google.android.ump:user-messaging-platform:4.0.0")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.16")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
