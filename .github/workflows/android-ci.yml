@@ -51,16 +51,18 @@ jobs:
           set -euo pipefail
           grep -q 'applicationId = "com.kamilunavo.onemoretap"' android/app/build.gradle.kts
           grep -q 'targetSdk = 36' android/app/build.gradle.kts
-          grep -q 'versionCode = 2' android/app/build.gradle.kts
-          grep -q 'versionName = "1.0.1"' android/app/build.gradle.kts
+          grep -q 'versionCode = 3' android/app/build.gradle.kts
+          grep -q 'versionName = "1.0.2"' android/app/build.gradle.kts
+          grep -q 'isMinifyEnabled = false' android/app/build.gradle.kts
           grep -q 'com.kamilunavo.onemoretap.removeads' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
           grep -q 'om.kamilunavo.onemoretap.theme.fire' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
           grep -q 'play-services-ads:25.4.0' android/app/build.gradle.kts
           grep -q 'user-messaging-platform:4.0.0' android/app/build.gradle.kts
           grep -q 'android:usesCleartextTraffic="false"' android/app/src/main/AndroidManifest.xml
-          grep -q 'com.google.android.gms.ads.MobileAdsInitProvider' android/app/src/main/AndroidManifest.xml
           grep -q 'tools:node="remove"' android/app/src/main/AndroidManifest.xml
-          grep -q 'Ads are temporarily unavailable.' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
+          grep -q 'handler.postDelayed' android/app/src/main/java/com/kamilunavo/onemoretap/BillingManager.kt
+          grep -q '1_500L' android/app/src/main/java/com/kamilunavo/onemoretap/BillingManager.kt
+          grep -q '1_500L' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
 
       - name: Prove release cannot build without Android AdMob IDs
         run: |
