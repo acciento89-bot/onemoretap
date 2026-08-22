@@ -73,7 +73,7 @@ jobs:
           chmod 600 "$RUNNER_TEMP/navotap-upload.jks"
           echo "ANDROID_UPLOAD_KEYSTORE_PATH=$RUNNER_TEMP/navotap-upload.jks" >> "$GITHUB_ENV"
 
-      - name: Release tests
+      - name: Release startup and gameplay tests
         run: gradle -p android testReleaseUnitTest --stacktrace
 
       - name: Build signed release AAB
@@ -87,22 +87,24 @@ jobs:
           test -s "$AAB"
           grep -Fq 'applicationId = "com.kamilunavo.onemoretap"' android/app/build.gradle.kts
           grep -Fq 'targetSdk = 36' android/app/build.gradle.kts
-          grep -Fq 'versionCode = 3' android/app/build.gradle.kts
-          grep -Fq 'versionName = "1.0.2"' android/app/build.gradle.kts
+          grep -Fq 'versionCode = 4' android/app/build.gradle.kts
+          grep -Fq 'versionName = "1.0.3"' android/app/build.gradle.kts
           grep -Fq 'isMinifyEnabled = false' android/app/build.gradle.kts
           grep -Fq 'tools:node="remove"' android/app/src/main/AndroidManifest.xml
           grep -Fq 'buildConfigField("boolean", "USES_TEST_ADS", "false")' android/app/build.gradle.kts
+          grep -Fq 'if (BuildConfig.DEBUG)' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
+          grep -Fq 'NAVOTAP ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
           jarsigner -verify -verbose -certs "$AAB" | tee /tmp/jarsigner.txt
           grep -Fq 'jar verified.' /tmp/jarsigner.txt
-          sha256sum "$AAB" | tee android/app/build/outputs/bundle/release/NavoTap-1.0.2-3-PlayStore.aab.sha256
-          cp "$AAB" android/app/build/outputs/bundle/release/NavoTap-1.0.2-3-PlayStore.aab
+          sha256sum "$AAB" | tee android/app/build/outputs/bundle/release/NavoTap-1.0.3-4-PlayStore.aab.sha256
+          cp "$AAB" android/app/build/outputs/bundle/release/NavoTap-1.0.3-4-PlayStore.aab
 
       - name: Upload signed Play bundle
         uses: actions/upload-artifact@v4
         with:
-          name: NavoTap-1.0.2-3-PlayStore
+          name: NavoTap-1.0.3-4-PlayStore
           path: |
-            android/app/build/outputs/bundle/release/NavoTap-1.0.2-3-PlayStore.aab
-            android/app/build/outputs/bundle/release/NavoTap-1.0.2-3-PlayStore.aab.sha256
+            android/app/build/outputs/bundle/release/NavoTap-1.0.3-4-PlayStore.aab
+            android/app/build/outputs/bundle/release/NavoTap-1.0.3-4-PlayStore.aab.sha256
           if-no-files-found: error
           retention-days: 14
