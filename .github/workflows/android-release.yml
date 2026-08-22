@@ -2,9 +2,7 @@ name: NavoTap Android Play Release
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - 'android/signed-1.0.3-4'
+  pull_request:
     paths:
       - '.github/workflows/android-release.yml'
 
