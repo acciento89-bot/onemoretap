@@ -2,19 +2,6 @@ name: NavoTap Android Play Release
 
 on:
   workflow_dispatch:
-    inputs:
-      admob_app_id:
-        description: Android AdMob App ID
-        required: true
-        type: string
-      rewarded_ad_id:
-        description: Android rewarded Continue ad unit ID
-        required: true
-        type: string
-      interstitial_ad_id:
-        description: Android restart interstitial ad unit ID
-        required: true
-        type: string
 
 permissions:
   contents: read
@@ -24,9 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      NAVOTAP_ADMOB_APP_ID: ${{ inputs.admob_app_id }}
-      NAVOTAP_REWARDED_AD_ID: ${{ inputs.rewarded_ad_id }}
-      NAVOTAP_INTERSTITIAL_AD_ID: ${{ inputs.interstitial_ad_id }}
+      # AdMob app/ad-unit IDs are public runtime identifiers embedded in the Android app.
+      # Keeping the production IDs here removes error-prone manual release inputs.
+      NAVOTAP_ADMOB_APP_ID: ca-app-pub-8944085355624754~8281696102
+      NAVOTAP_REWARDED_AD_ID: ca-app-pub-8944085355624754/1572817522
+      NAVOTAP_INTERSTITIAL_AD_ID: ca-app-pub-8944085355624754/1963699766
       ANDROID_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
       ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
       ANDROID_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
@@ -50,7 +39,7 @@ jobs:
         with:
           gradle-version: '9.5.0'
 
-      - name: Validate release inputs and signing secrets
+      - name: Validate production AdMob IDs and signing secrets
         shell: bash
         run: |
           set -euo pipefail
