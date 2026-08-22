@@ -58,11 +58,13 @@ jobs:
           grep -q 'om.kamilunavo.onemoretap.theme.fire' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
           grep -q 'play-services-ads:25.4.0' android/app/build.gradle.kts
           grep -q 'user-messaging-platform:4.0.0' android/app/build.gradle.kts
+          grep -q 'robolectric:4.16' android/app/build.gradle.kts
           grep -q 'android:usesCleartextTraffic="false"' android/app/src/main/AndroidManifest.xml
           grep -q 'tools:node="remove"' android/app/src/main/AndroidManifest.xml
           grep -q 'handler.postDelayed' android/app/src/main/java/com/kamilunavo/onemoretap/BillingManager.kt
           grep -q '1_500L' android/app/src/main/java/com/kamilunavo/onemoretap/BillingManager.kt
           grep -q '1_500L' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
+          test -s android/app/src/test/java/com/kamilunavo/onemoretap/MainActivityStartupTest.kt
 
       - name: Prove release cannot build without Android AdMob IDs
         run: |
@@ -85,11 +87,10 @@ jobs:
           retention-days: 7
 
   startup_smoke:
-    name: Release startup smoke on emulator
+    name: Release startup smoke (Robolectric)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
-      NAVOTAP_CI_SMOKE: 'true'
       NAVOTAP_ADMOB_APP_ID: ca-app-pub-8944085355624754~8281696102
       NAVOTAP_REWARDED_AD_ID: ca-app-pub-8944085355624754/1572817522
       NAVOTAP_INTERSTITIAL_AD_ID: ca-app-pub-8944085355624754/1963699766
@@ -113,32 +114,9 @@ jobs:
         with:
           gradle-version: '9.5.0'
 
-      - name: Boot emulator and prove release app stays alive
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 35
-          target: google_apis
-          arch: x86_64
-          profile: pixel_6
-          disable-animations: true
-          script: |
-            set -euo pipefail
-            gradle -p android assembleRelease --stacktrace
-            APK='android/app/build/outputs/apk/release/app-release.apk'
-            test -s "$APK"
-            adb install -r "$APK"
-            adb logcat -c
-            adb shell am force-stop com.kamilunavo.onemoretap
-            adb shell am start -W -n com.kamilunavo.onemoretap/.MainActivity
-            sleep 8
-            PID="$(adb shell pidof com.kamilunavo.onemoretap | tr -d '\r')"
-            if [ -z "$PID" ]; then
-              echo 'NavoTap process died during startup smoke test.'
-              adb logcat -d
-              exit 1
-            fi
-            if adb logcat -d | grep -E 'FATAL EXCEPTION|Process: com\.kamilunavo\.onemoretap' ; then
-              echo 'Fatal runtime exception detected during startup smoke test.'
-              exit 1
-            fi
-            adb shell dumpsys activity activities | grep -F 'com.kamilunavo.onemoretap/.MainActivity'
+      - name: Launch release MainActivity past delayed Google SDK startup
+        run: |
+          set -euo pipefail
+          gradle -p android testReleaseUnitTest \
+            --tests com.kamilunavo.onemoretap.MainActivityStartupTest \
+            --stacktrace
