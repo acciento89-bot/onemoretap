@@ -58,7 +58,7 @@ jobs:
           test -s android/app/src/main/res/drawable/navotap_launcher_background.xml
           test -s android/app/src/main/res/drawable/navotap_launcher_foreground.xml
           grep -q 'com.kamilunavo.onemoretap.removeads' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
-          grep -q 'com.kamilunavo.onemoretap.theme.fire' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
+          grep -q 'om.kamilunavo.onemoretap.theme.fire' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
           grep -q 'play-services-ads:25.4.0' android/app/build.gradle.kts
           grep -q 'user-messaging-platform:4.0.0' android/app/build.gradle.kts
           grep -q 'robolectric:4.16' android/app/build.gradle.kts
