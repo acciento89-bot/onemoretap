@@ -50,13 +50,13 @@ jobs:
       - name: Build Android QA bundle with Google test ads
         run: gradle -p android bundleDebug --stacktrace
 
-      - name: Verify Android identity, monetization and startup guards
+      - name: Verify Android identity, monetization, UI and startup guards
         run: |
           set -euo pipefail
           grep -q 'applicationId = "com.kamilunavo.onemoretap"' android/app/build.gradle.kts
           grep -q 'targetSdk = 36' android/app/build.gradle.kts
-          grep -q 'versionCode = 3' android/app/build.gradle.kts
-          grep -q 'versionName = "1.0.2"' android/app/build.gradle.kts
+          grep -q 'versionCode = 4' android/app/build.gradle.kts
+          grep -q 'versionName = "1.0.3"' android/app/build.gradle.kts
           grep -q 'isMinifyEnabled = false' android/app/build.gradle.kts
           grep -q 'testBuildType = "release"' android/app/build.gradle.kts
           grep -q 'com.kamilunavo.onemoretap.removeads' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
@@ -69,6 +69,9 @@ jobs:
           grep -q 'handler.postDelayed' android/app/src/main/java/com/kamilunavo/onemoretap/BillingManager.kt
           grep -q '1_500L' android/app/src/main/java/com/kamilunavo/onemoretap/BillingManager.kt
           grep -q '1_500L' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
+          grep -q 'NAVOTAP ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
+          grep -q 'if (BuildConfig.DEBUG)' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
+          grep -q 'onSurface = Color.White' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
           test -s android/app/src/test/java/com/kamilunavo/onemoretap/MainActivityStartupTest.kt
 
       - name: Prove release cannot build without Android AdMob IDs
@@ -86,7 +89,7 @@ jobs:
       - name: Upload QA bundle
         uses: actions/upload-artifact@v4
         with:
-          name: NavoTap-android-qa-debug-aab
+          name: NavoTap-1.0.3-4-android-qa-debug-aab
           path: android/app/build/outputs/bundle/debug/app-debug.aab
           if-no-files-found: error
           retention-days: 7
