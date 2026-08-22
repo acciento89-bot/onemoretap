@@ -73,8 +73,8 @@ jobs:
           chmod 600 "$RUNNER_TEMP/navotap-upload.jks"
           echo "ANDROID_UPLOAD_KEYSTORE_PATH=$RUNNER_TEMP/navotap-upload.jks" >> "$GITHUB_ENV"
 
-      - name: Tests
-        run: gradle -p android testDebugUnitTest --stacktrace
+      - name: Release tests
+        run: gradle -p android testReleaseUnitTest --stacktrace
 
       - name: Build signed release AAB
         run: gradle -p android bundleRelease --stacktrace
