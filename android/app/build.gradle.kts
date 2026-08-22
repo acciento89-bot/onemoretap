@@ -41,8 +41,8 @@ android {
         applicationId = "com.kamilunavo.onemoretap"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -51,6 +51,14 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    // AGP 9 only creates local unit tests for testBuildType by default.
+    // Make the crash gate exercise the actual release variant instead of debug.
+    testBuildType = "release"
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
     }
 
     compileOptions {
@@ -77,8 +85,9 @@ android {
             buildConfigField("boolean", "USES_TEST_ADS", "true")
         }
         release {
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Crashfix 1.0.2 deliberately disables R8/minification. The previous Play-only
+            // crash must be isolated before optimization is re-enabled in a later release.
+            isMinifyEnabled = false
             manifestPlaceholders["admobAppId"] = releaseAdMobAppId.ifBlank { "MISSING_ANDROID_ADMOB_APP_ID" }
             buildConfigField("String", "REWARDED_AD_ID", "\"${releaseRewardedId}\"")
             buildConfigField("String", "INTERSTITIAL_AD_ID", "\"${releaseInterstitialId}\"")
@@ -118,5 +127,6 @@ dependencies {
     implementation("com.google.android.ump:user-messaging-platform:4.0.0")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.16")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

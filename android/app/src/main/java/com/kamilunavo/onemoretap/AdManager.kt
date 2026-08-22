@@ -25,32 +25,51 @@ enum class RewardedAvailability { LOADING, READY, UNAVAILABLE }
 class AdManager(context: Context) {
     private val appContext = context.applicationContext
     private val handler = Handler(Looper.getMainLooper())
-    private val consentInformation: ConsentInformation? = try {
-        UserMessagingPlatform.getConsentInformation(appContext)
-    } catch (_: Throwable) {
-        null
-    }
 
-    var rewardedAvailability by mutableStateOf(
-        if (consentInformation == null) RewardedAvailability.UNAVAILABLE else RewardedAvailability.LOADING
-    )
+    var rewardedAvailability by mutableStateOf(RewardedAvailability.UNAVAILABLE)
         private set
     var interstitialReady by mutableStateOf(false)
         private set
     var privacyOptionsRequired by mutableStateOf(false)
         private set
-    var consentErrorMessage by mutableStateOf<String?>(
-        if (consentInformation == null) "Ads are temporarily unavailable." else null
-    )
+    var consentErrorMessage by mutableStateOf<String?>(null)
         private set
 
+    private var consentInformation: ConsentInformation? = null
     private var rewardedAd: RewardedAd? = null
     private var interstitialAd: InterstitialAd? = null
     private var mobileAdsStarted = false
     private var rewardedRetryScheduled = false
+    private var consentInitScheduled = false
+    private var consentInitStarted = false
 
     fun requestConsentAndStart(activity: Activity) {
-        val consent = consentInformation ?: return
+        if (consentInitScheduled || consentInitStarted || mobileAdsStarted) return
+        consentInitScheduled = true
+
+        // Keep UMP and Google Mobile Ads completely out of the first UI frame.
+        // The game must render even if Google Play services or the ads SDK is unhealthy.
+        handler.postDelayed({
+            consentInitScheduled = false
+            initializeConsentAndAds(activity)
+        }, 1_500L)
+    }
+
+    private fun initializeConsentAndAds(activity: Activity) {
+        if (consentInitStarted || mobileAdsStarted) return
+        consentInitStarted = true
+        rewardedAvailability = RewardedAvailability.LOADING
+
+        val consent = try {
+            UserMessagingPlatform.getConsentInformation(appContext)
+        } catch (error: Throwable) {
+            consentErrorMessage = error.message ?: "Ads are temporarily unavailable."
+            rewardedAvailability = RewardedAvailability.UNAVAILABLE
+            consentInitStarted = false
+            return
+        }
+        consentInformation = consent
+
         val params = ConsentRequestParameters.Builder().build()
         try {
             consent.requestConsentInfoUpdate(
@@ -67,13 +86,13 @@ class AdManager(context: Context) {
                     } catch (error: Throwable) {
                         consentErrorMessage = error.message ?: "Privacy options are temporarily unavailable."
                     }
-                    // Consent may have been granted in a previous session. Avoid waiting for a form callback.
+                    // Consent may already exist from a previous session.
                     startAdsIfAllowed()
                 },
                 { requestError ->
                     consentErrorMessage = requestError.message
                     updatePrivacyOptionsRequirement()
-                    // UMP can still allow ads based on the previous valid session state.
+                    // UMP can still allow ads based on previous valid consent state.
                     startAdsIfAllowed()
                 },
             )
@@ -81,6 +100,7 @@ class AdManager(context: Context) {
             consentErrorMessage = error.message ?: "Ads are temporarily unavailable."
             rewardedAvailability = RewardedAvailability.UNAVAILABLE
             interstitialReady = false
+            consentInitStarted = false
         }
     }
 
@@ -194,21 +214,26 @@ class AdManager(context: Context) {
 
     private fun startAdsIfAllowed() {
         val consent = consentInformation ?: return
-        if (!consent.canRequestAds()) return
+        if (!consent.canRequestAds()) {
+            rewardedAvailability = RewardedAvailability.UNAVAILABLE
+            consentInitStarted = false
+            return
+        }
         if (mobileAdsStarted) {
             if (rewardedAd == null) loadRewarded()
             if (interstitialAd == null) loadInterstitial()
             return
         }
 
-        mobileAdsStarted = true
         try {
+            mobileAdsStarted = true
             MobileAds.initialize(appContext) {
                 loadRewarded()
                 loadInterstitial()
             }
         } catch (error: Throwable) {
             mobileAdsStarted = false
+            consentInitStarted = false
             rewardedAvailability = RewardedAvailability.UNAVAILABLE
             interstitialReady = false
             consentErrorMessage = error.message ?: "Ads are temporarily unavailable."
@@ -217,7 +242,7 @@ class AdManager(context: Context) {
 
     private fun loadRewarded() {
         val consent = consentInformation
-        if (consent == null || !consent.canRequestAds()) {
+        if (consent == null || !consent.canRequestAds() || !mobileAdsStarted) {
             rewardedAvailability = RewardedAvailability.UNAVAILABLE
             return
         }
@@ -250,7 +275,7 @@ class AdManager(context: Context) {
 
     private fun loadInterstitial() {
         val consent = consentInformation
-        if (consent == null || !consent.canRequestAds()) {
+        if (consent == null || !consent.canRequestAds() || !mobileAdsStarted) {
             interstitialReady = false
             return
         }
@@ -278,7 +303,7 @@ class AdManager(context: Context) {
     }
 
     private fun scheduleRewardedRetry() {
-        if (rewardedRetryScheduled || consentInformation == null) return
+        if (rewardedRetryScheduled || consentInformation == null || !mobileAdsStarted) return
         rewardedRetryScheduled = true
         handler.postDelayed({
             rewardedRetryScheduled = false
