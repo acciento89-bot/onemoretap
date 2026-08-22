@@ -87,20 +87,21 @@ jobs:
           test -s "$AAB"
           grep -Fq 'applicationId = "com.kamilunavo.onemoretap"' android/app/build.gradle.kts
           grep -Fq 'targetSdk = 36' android/app/build.gradle.kts
-          grep -Fq 'versionCode = 1' android/app/build.gradle.kts
-          grep -Fq 'versionName = "1.0.0"' android/app/build.gradle.kts
+          grep -Fq 'versionCode = 2' android/app/build.gradle.kts
+          grep -Fq 'versionName = "1.0.1"' android/app/build.gradle.kts
+          grep -Fq 'tools:node="remove"' android/app/src/main/AndroidManifest.xml
           grep -Fq 'buildConfigField("boolean", "USES_TEST_ADS", "false")' android/app/build.gradle.kts
           jarsigner -verify -verbose -certs "$AAB" | tee /tmp/jarsigner.txt
           grep -Fq 'jar verified.' /tmp/jarsigner.txt
-          sha256sum "$AAB" | tee android/app/build/outputs/bundle/release/NavoTap-1.0.0-1-PlayStore.aab.sha256
-          cp "$AAB" android/app/build/outputs/bundle/release/NavoTap-1.0.0-1-PlayStore.aab
+          sha256sum "$AAB" | tee android/app/build/outputs/bundle/release/NavoTap-1.0.1-2-PlayStore.aab.sha256
+          cp "$AAB" android/app/build/outputs/bundle/release/NavoTap-1.0.1-2-PlayStore.aab
 
       - name: Upload signed Play bundle
         uses: actions/upload-artifact@v4
         with:
-          name: NavoTap-1.0.0-1-PlayStore
+          name: NavoTap-1.0.1-2-PlayStore
           path: |
-            android/app/build/outputs/bundle/release/NavoTap-1.0.0-1-PlayStore.aab
-            android/app/build/outputs/bundle/release/NavoTap-1.0.0-1-PlayStore.aab.sha256
+            android/app/build/outputs/bundle/release/NavoTap-1.0.1-2-PlayStore.aab
+            android/app/build/outputs/bundle/release/NavoTap-1.0.1-2-PlayStore.aab.sha256
           if-no-files-found: error
           retention-days: 14

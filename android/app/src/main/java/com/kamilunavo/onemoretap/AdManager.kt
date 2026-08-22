@@ -24,16 +24,24 @@ enum class RewardedAvailability { LOADING, READY, UNAVAILABLE }
 
 class AdManager(context: Context) {
     private val appContext = context.applicationContext
-    private val consentInformation = UserMessagingPlatform.getConsentInformation(appContext)
     private val handler = Handler(Looper.getMainLooper())
+    private val consentInformation: ConsentInformation? = try {
+        UserMessagingPlatform.getConsentInformation(appContext)
+    } catch (_: Throwable) {
+        null
+    }
 
-    var rewardedAvailability by mutableStateOf(RewardedAvailability.LOADING)
+    var rewardedAvailability by mutableStateOf(
+        if (consentInformation == null) RewardedAvailability.UNAVAILABLE else RewardedAvailability.LOADING
+    )
         private set
     var interstitialReady by mutableStateOf(false)
         private set
     var privacyOptionsRequired by mutableStateOf(false)
         private set
-    var consentErrorMessage by mutableStateOf<String?>(null)
+    var consentErrorMessage by mutableStateOf<String?>(
+        if (consentInformation == null) "Ads are temporarily unavailable." else null
+    )
         private set
 
     private var rewardedAd: RewardedAd? = null
@@ -42,35 +50,50 @@ class AdManager(context: Context) {
     private var rewardedRetryScheduled = false
 
     fun requestConsentAndStart(activity: Activity) {
+        val consent = consentInformation ?: return
         val params = ConsentRequestParameters.Builder().build()
-        consentInformation.requestConsentInfoUpdate(
-            activity,
-            params,
-            {
-                updatePrivacyOptionsRequirement()
-                UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
-                    consentErrorMessage = formError?.message
+        try {
+            consent.requestConsentInfoUpdate(
+                activity,
+                params,
+                {
                     updatePrivacyOptionsRequirement()
+                    try {
+                        UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
+                            consentErrorMessage = formError?.message
+                            updatePrivacyOptionsRequirement()
+                            startAdsIfAllowed()
+                        }
+                    } catch (error: Throwable) {
+                        consentErrorMessage = error.message ?: "Privacy options are temporarily unavailable."
+                    }
+                    // Consent may have been granted in a previous session. Avoid waiting for a form callback.
                     startAdsIfAllowed()
-                }
-                // Consent may have been granted in a previous session. Avoid waiting for a form callback.
-                startAdsIfAllowed()
-            },
-            { requestError ->
-                consentErrorMessage = requestError.message
-                updatePrivacyOptionsRequirement()
-                // UMP can still allow ads based on the previous valid session state.
-                startAdsIfAllowed()
-            },
-        )
+                },
+                { requestError ->
+                    consentErrorMessage = requestError.message
+                    updatePrivacyOptionsRequirement()
+                    // UMP can still allow ads based on the previous valid session state.
+                    startAdsIfAllowed()
+                },
+            )
+        } catch (error: Throwable) {
+            consentErrorMessage = error.message ?: "Ads are temporarily unavailable."
+            rewardedAvailability = RewardedAvailability.UNAVAILABLE
+            interstitialReady = false
+        }
     }
 
     fun showPrivacyOptions(activity: Activity) {
-        if (!privacyOptionsRequired) return
-        UserMessagingPlatform.showPrivacyOptionsForm(activity) { formError ->
-            consentErrorMessage = formError?.message
-            updatePrivacyOptionsRequirement()
-            startAdsIfAllowed()
+        if (!privacyOptionsRequired || consentInformation == null) return
+        try {
+            UserMessagingPlatform.showPrivacyOptionsForm(activity) { formError ->
+                consentErrorMessage = formError?.message
+                updatePrivacyOptionsRequirement()
+                startAdsIfAllowed()
+            }
+        } catch (error: Throwable) {
+            consentErrorMessage = error.message ?: "Privacy options are temporarily unavailable."
         }
     }
 
@@ -106,12 +129,18 @@ class AdManager(context: Context) {
                 if (!earned) onUnavailable()
             }
         }
-        ad.setImmersiveMode(true)
-        ad.show(activity) {
-            if (!earned) {
-                earned = true
-                onRewardEarned()
+        try {
+            ad.setImmersiveMode(true)
+            ad.show(activity) {
+                if (!earned) {
+                    earned = true
+                    onRewardEarned()
+                }
             }
+        } catch (_: Throwable) {
+            rewardedAvailability = RewardedAvailability.UNAVAILABLE
+            scheduleRewardedRetry()
+            if (!earned) onUnavailable()
         }
     }
 
@@ -144,18 +173,28 @@ class AdManager(context: Context) {
                 finishOnce()
             }
         }
-        ad.setImmersiveMode(true)
-        ad.show(activity)
+        try {
+            ad.setImmersiveMode(true)
+            ad.show(activity)
+        } catch (_: Throwable) {
+            loadInterstitial()
+            finishOnce()
+        }
     }
 
     private fun updatePrivacyOptionsRequirement() {
+        val consent = consentInformation ?: run {
+            privacyOptionsRequired = false
+            return
+        }
         privacyOptionsRequired =
-            consentInformation.privacyOptionsRequirementStatus ==
+            consent.privacyOptionsRequirementStatus ==
                 ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
     }
 
     private fun startAdsIfAllowed() {
-        if (!consentInformation.canRequestAds()) return
+        val consent = consentInformation ?: return
+        if (!consent.canRequestAds()) return
         if (mobileAdsStarted) {
             if (rewardedAd == null) loadRewarded()
             if (interstitialAd == null) loadInterstitial()
@@ -163,63 +202,83 @@ class AdManager(context: Context) {
         }
 
         mobileAdsStarted = true
-        MobileAds.initialize(appContext) {
-            loadRewarded()
-            loadInterstitial()
+        try {
+            MobileAds.initialize(appContext) {
+                loadRewarded()
+                loadInterstitial()
+            }
+        } catch (error: Throwable) {
+            mobileAdsStarted = false
+            rewardedAvailability = RewardedAvailability.UNAVAILABLE
+            interstitialReady = false
+            consentErrorMessage = error.message ?: "Ads are temporarily unavailable."
         }
     }
 
     private fun loadRewarded() {
-        if (!consentInformation.canRequestAds()) {
+        val consent = consentInformation
+        if (consent == null || !consent.canRequestAds()) {
             rewardedAvailability = RewardedAvailability.UNAVAILABLE
             return
         }
         rewardedAvailability = RewardedAvailability.LOADING
-        RewardedAd.load(
-            appContext,
-            BuildConfig.REWARDED_AD_ID,
-            AdRequest.Builder().build(),
-            object : RewardedAdLoadCallback() {
-                override fun onAdLoaded(ad: RewardedAd) {
-                    rewardedAd = ad
-                    rewardedAvailability = RewardedAvailability.READY
-                    rewardedRetryScheduled = false
-                }
+        try {
+            RewardedAd.load(
+                appContext,
+                BuildConfig.REWARDED_AD_ID,
+                AdRequest.Builder().build(),
+                object : RewardedAdLoadCallback() {
+                    override fun onAdLoaded(ad: RewardedAd) {
+                        rewardedAd = ad
+                        rewardedAvailability = RewardedAvailability.READY
+                        rewardedRetryScheduled = false
+                    }
 
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    rewardedAd = null
-                    rewardedAvailability = RewardedAvailability.UNAVAILABLE
-                    scheduleRewardedRetry()
-                }
-            },
-        )
+                    override fun onAdFailedToLoad(error: LoadAdError) {
+                        rewardedAd = null
+                        rewardedAvailability = RewardedAvailability.UNAVAILABLE
+                        scheduleRewardedRetry()
+                    }
+                },
+            )
+        } catch (_: Throwable) {
+            rewardedAd = null
+            rewardedAvailability = RewardedAvailability.UNAVAILABLE
+            scheduleRewardedRetry()
+        }
     }
 
     private fun loadInterstitial() {
-        if (!consentInformation.canRequestAds()) {
+        val consent = consentInformation
+        if (consent == null || !consent.canRequestAds()) {
             interstitialReady = false
             return
         }
-        InterstitialAd.load(
-            appContext,
-            BuildConfig.INTERSTITIAL_AD_ID,
-            AdRequest.Builder().build(),
-            object : InterstitialAdLoadCallback() {
-                override fun onAdLoaded(ad: InterstitialAd) {
-                    interstitialAd = ad
-                    interstitialReady = true
-                }
+        try {
+            InterstitialAd.load(
+                appContext,
+                BuildConfig.INTERSTITIAL_AD_ID,
+                AdRequest.Builder().build(),
+                object : InterstitialAdLoadCallback() {
+                    override fun onAdLoaded(ad: InterstitialAd) {
+                        interstitialAd = ad
+                        interstitialReady = true
+                    }
 
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    interstitialAd = null
-                    interstitialReady = false
-                }
-            },
-        )
+                    override fun onAdFailedToLoad(error: LoadAdError) {
+                        interstitialAd = null
+                        interstitialReady = false
+                    }
+                },
+            )
+        } catch (_: Throwable) {
+            interstitialAd = null
+            interstitialReady = false
+        }
     }
 
     private fun scheduleRewardedRetry() {
-        if (rewardedRetryScheduled) return
+        if (rewardedRetryScheduled || consentInformation == null) return
         rewardedRetryScheduled = true
         handler.postDelayed({
             rewardedRetryScheduled = false

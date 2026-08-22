@@ -46,15 +46,21 @@ jobs:
       - name: Build Android QA bundle with Google test ads
         run: gradle -p android bundleDebug --stacktrace
 
-      - name: Verify Android identity and monetization guards
+      - name: Verify Android identity, monetization and startup guards
         run: |
+          set -euo pipefail
           grep -q 'applicationId = "com.kamilunavo.onemoretap"' android/app/build.gradle.kts
           grep -q 'targetSdk = 36' android/app/build.gradle.kts
-          grep -q 'versionCode = 1' android/app/build.gradle.kts
+          grep -q 'versionCode = 2' android/app/build.gradle.kts
+          grep -q 'versionName = "1.0.1"' android/app/build.gradle.kts
           grep -q 'com.kamilunavo.onemoretap.removeads' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
           grep -q 'om.kamilunavo.onemoretap.theme.fire' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
           grep -q 'play-services-ads:25.4.0' android/app/build.gradle.kts
           grep -q 'user-messaging-platform:4.0.0' android/app/build.gradle.kts
+          grep -q 'android:usesCleartextTraffic="false"' android/app/src/main/AndroidManifest.xml
+          grep -q 'com.google.android.gms.ads.MobileAdsInitProvider' android/app/src/main/AndroidManifest.xml
+          grep -q 'tools:node="remove"' android/app/src/main/AndroidManifest.xml
+          grep -q 'Ads are temporarily unavailable.' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
 
       - name: Prove release cannot build without Android AdMob IDs
         run: |
