@@ -2,19 +2,6 @@ name: NavoTap Android Play Release
 
 on:
   workflow_dispatch:
-    inputs:
-      admob_app_id:
-        description: Android AdMob App ID
-        required: true
-        type: string
-      rewarded_ad_id:
-        description: Android rewarded Continue ad unit ID
-        required: true
-        type: string
-      interstitial_ad_id:
-        description: Android restart interstitial ad unit ID
-        required: true
-        type: string
 
 permissions:
   contents: read
@@ -24,9 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      NAVOTAP_ADMOB_APP_ID: ${{ inputs.admob_app_id }}
-      NAVOTAP_REWARDED_AD_ID: ${{ inputs.rewarded_ad_id }}
-      NAVOTAP_INTERSTITIAL_AD_ID: ${{ inputs.interstitial_ad_id }}
+      # AdMob app/ad-unit IDs are public runtime identifiers embedded in the Android app.
+      # Keeping the production IDs here removes error-prone manual release inputs.
+      NAVOTAP_ADMOB_APP_ID: ca-app-pub-8944085355624754~8281696102
+      NAVOTAP_REWARDED_AD_ID: ca-app-pub-8944085355624754/1572817522
+      NAVOTAP_INTERSTITIAL_AD_ID: ca-app-pub-8944085355624754/1963699766
       ANDROID_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
       ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
       ANDROID_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
@@ -50,7 +39,7 @@ jobs:
         with:
           gradle-version: '9.5.0'
 
-      - name: Validate release inputs and signing secrets
+      - name: Validate production AdMob IDs and signing secrets
         shell: bash
         run: |
           set -euo pipefail
@@ -73,7 +62,7 @@ jobs:
           chmod 600 "$RUNNER_TEMP/navotap-upload.jks"
           echo "ANDROID_UPLOAD_KEYSTORE_PATH=$RUNNER_TEMP/navotap-upload.jks" >> "$GITHUB_ENV"
 
-      - name: Release tests
+      - name: Release startup and gameplay tests
         run: gradle -p android testReleaseUnitTest --stacktrace
 
       - name: Build signed release AAB
@@ -87,22 +76,24 @@ jobs:
           test -s "$AAB"
           grep -Fq 'applicationId = "com.kamilunavo.onemoretap"' android/app/build.gradle.kts
           grep -Fq 'targetSdk = 36' android/app/build.gradle.kts
-          grep -Fq 'versionCode = 3' android/app/build.gradle.kts
-          grep -Fq 'versionName = "1.0.2"' android/app/build.gradle.kts
+          grep -Fq 'versionCode = 4' android/app/build.gradle.kts
+          grep -Fq 'versionName = "1.0.3"' android/app/build.gradle.kts
           grep -Fq 'isMinifyEnabled = false' android/app/build.gradle.kts
           grep -Fq 'tools:node="remove"' android/app/src/main/AndroidManifest.xml
           grep -Fq 'buildConfigField("boolean", "USES_TEST_ADS", "false")' android/app/build.gradle.kts
+          grep -Fq 'if (BuildConfig.DEBUG)' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
+          grep -Fq 'NAVOTAP ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
           jarsigner -verify -verbose -certs "$AAB" | tee /tmp/jarsigner.txt
           grep -Fq 'jar verified.' /tmp/jarsigner.txt
-          sha256sum "$AAB" | tee android/app/build/outputs/bundle/release/NavoTap-1.0.2-3-PlayStore.aab.sha256
-          cp "$AAB" android/app/build/outputs/bundle/release/NavoTap-1.0.2-3-PlayStore.aab
+          sha256sum "$AAB" | tee android/app/build/outputs/bundle/release/NavoTap-1.0.3-4-PlayStore.aab.sha256
+          cp "$AAB" android/app/build/outputs/bundle/release/NavoTap-1.0.3-4-PlayStore.aab
 
       - name: Upload signed Play bundle
         uses: actions/upload-artifact@v4
         with:
-          name: NavoTap-1.0.2-3-PlayStore
+          name: NavoTap-1.0.3-4-PlayStore
           path: |
-            android/app/build/outputs/bundle/release/NavoTap-1.0.2-3-PlayStore.aab
-            android/app/build/outputs/bundle/release/NavoTap-1.0.2-3-PlayStore.aab.sha256
+            android/app/build/outputs/bundle/release/NavoTap-1.0.3-4-PlayStore.aab
+            android/app/build/outputs/bundle/release/NavoTap-1.0.3-4-PlayStore.aab.sha256
           if-no-files-found: error
           retention-days: 14

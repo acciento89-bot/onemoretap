@@ -1,20 +1,20 @@
 # NavoTap — Google Play release handoff
 
-## Android identity
+## Android release candidate
 
 - App name: NavoTap
 - Package / application ID: `com.kamilunavo.onemoretap`
-- Version name: `1.0.0`
-- Version code: `1`
+- Release candidate: `1.0.3 (4)`
 - Target SDK: Android 16 / API 36
 - Minimum SDK: API 26
 - Category: Games / Arcade / Casual
 - Base app price: Free
 - Distribution: Android App Bundle (`.aab`)
+- Release minification: disabled for 1.0.3 while the Play-only startup crash fix remains under real-device verification
 
 ## Locked gameplay parity
 
-Android must retain the accepted iOS v1 rules:
+Android retains the accepted gameplay rules:
 
 - one-finger Classic mode;
 - one miss ends a run unless the single optional rewarded Continue is used;
@@ -30,71 +30,58 @@ Android must retain the accepted iOS v1 rules:
 
 ## Google Play Billing — one-time products
 
-Create these as non-consumable/permanent one-time products. Every product needs an active one-time purchase option. The German launch prices are locked to the accepted iOS v1 price decisions.
+All five items are permanent/non-consumable one-time products. The Android client never hard-codes prices; it renders the localized price returned by Google Play.
 
-| Product | Product ID | DE launch price |
+| Product | Product ID | Current DE Play test price observed |
 | --- | --- | ---: |
-| Remove Ads | `com.kamilunavo.onemoretap.removeads` | €2.99 |
-| Fire Theme | `om.kamilunavo.onemoretap.theme.fire` | €1.99 |
-| Galaxy Theme | `com.kamilunavo.onemoretap.theme.galaxy` | €1.99 |
-| Retro Theme | `com.kamilunavo.onemoretap.theme.retro` | €1.99 |
-| All Themes | `com.kamilunavo.onemoretap.theme.all` | €3.99 |
+| Remove Ads | `com.kamilunavo.onemoretap.removeads` | €3.59 |
+| Fire Theme | `om.kamilunavo.onemoretap.theme.fire` | €2.39 |
+| Galaxy Theme | `com.kamilunavo.onemoretap.theme.galaxy` | €2.39 |
+| Retro Theme | `com.kamilunavo.onemoretap.theme.retro` | €2.39 |
+| All Themes | `com.kamilunavo.onemoretap.theme.all` | €4.79 |
 
-The Fire Theme identifier intentionally retains the legacy missing leading `c` (`om...`). Do not correct or normalize it: the Android billing code and release handoff deliberately use the established identifier.
-
-Suggested one-time purchase option ID for all five products: `lifetime`.
+The Fire Theme identifier intentionally retains the legacy missing leading `c` (`om...`). Do not correct or normalize it: the Android billing code and Play product use the established identifier.
 
 ## AdMob / UMP
 
-Android AdMob identities are platform-specific and MUST NOT reuse the iOS ad unit IDs.
+Android production IDs are locked in `.github/workflows/android-release.yml` because AdMob app/ad-unit IDs are public runtime identifiers, not credentials:
 
-Before a production Android release, create an Android NavoTap app in AdMob and create:
+- App ID: `ca-app-pub-8944085355624754~8281696102`
+- Rewarded Continue: `ca-app-pub-8944085355624754/1572817522`
+- Restart interstitial: `ca-app-pub-8944085355624754/1963699766`
 
-- Android AdMob App ID
-- Rewarded ad unit for the optional Continue
-- Interstitial ad unit for restart cadence
-
-Release build variables:
-
-- `NAVOTAP_ADMOB_APP_ID`
-- `NAVOTAP_REWARDED_AD_ID`
-- `NAVOTAP_INTERSTITIAL_AD_ID`
-
-These values must stay outside source control. The Release Gradle build hard-fails if any are absent.
-
-Debug builds intentionally use Google's official Android sample AdMob IDs. Never upload a debug/test-ad bundle to production.
-
-Current Android SDKs:
+Current SDKs:
 
 - Google Mobile Ads SDK 25.4.0
 - User Messaging Platform 4.0.0
 
-Consent flow:
+Release behavior:
 
-- request consent information on every app launch;
-- load/show a required consent form;
-- request ads only when UMP `canRequestAds()` is true;
-- expose Privacy Options only when UMP reports that an entry point is required.
+- UMP/AdMob start 1.5 seconds after the first app frame so Google SDK startup cannot block launch;
+- ads are requested only when UMP `canRequestAds()` is true;
+- Privacy Options are shown only when UMP reports they are required;
+- UMP/AdMob failures are fail-soft and never block gameplay;
+- release-visible consent diagnostic/error text is removed; diagnostics are debug-only;
+- Google Mobile Ads auto-init provider is removed from the manifest and initialization is controlled by `AdManager`.
+
+### External AdMob gate before production
+
+The Play-distributed 1.0.2 test exposed `Publisher misconfiguration: no form(s) configured for the input app ID`. Before production promotion, AdMob Privacy & messaging must have an applicable consent message/form configured and published for the Android NavoTap app. Re-test a fresh install afterwards. This is an AdMob-console configuration gate, not an app-code crash.
 
 ## Persistent Play upload signing
 
-A dedicated NavoTap RSA-4096 upload key has been created for Google Play. Keep the private backup outside source control and keep using this same upload certificate for later NavoTap versions.
-
-Upload certificate SHA-256 fingerprint:
+A dedicated persistent NavoTap Google Play upload key is already in use. Upload certificate SHA-256:
 
 `F1:BD:1B:E0:BD:C0:54:20:B4:37:16:04:DC:FB:7C:1E:DF:38:91:30:4A:5B:5A:CF:27:C0:F9:3A:12:91:97:F9`
 
-The workflow `.github/workflows/android-release.yml` creates the signed production AAB only when all seven release secrets are available:
+Repository secrets used by `.github/workflows/android-release.yml`:
 
 - `ANDROID_UPLOAD_KEYSTORE_BASE64`
 - `ANDROID_UPLOAD_KEYSTORE_PASSWORD`
 - `ANDROID_UPLOAD_KEY_ALIAS`
 - `ANDROID_UPLOAD_KEY_PASSWORD`
-- `NAVOTAP_ADMOB_APP_ID`
-- `NAVOTAP_REWARDED_AD_ID`
-- `NAVOTAP_INTERSTITIAL_AD_ID`
 
-The workflow rejects Google's sample/test ad IDs, runs unit tests, builds the minified release with the persistent upload key, verifies the JAR signature and emits `NavoTap-1.0.0-1-PlayStore.aab` plus SHA-256 checksum.
+The release workflow is now one-click/manual-dispatch: it runs release unit/startup tests, creates the signed production AAB, verifies its signature and emits `NavoTap-1.0.3-4-PlayStore.aab` plus SHA-256 checksum.
 
 ## German Play listing
 
@@ -149,20 +136,37 @@ Available themes are cosmetic only and provide no gameplay advantage.
 - Website: `https://kamilunavo.com`
 - app-ads.txt: `https://kamilunavo.com/app-ads.txt`
 
-## Play Console declarations / release gates
+Repository verification:
 
-- [ ] Create Play Console app `NavoTap` with package `com.kamilunavo.onemoretap`.
-- [ ] Create all five one-time products with the locked prices above and activate their purchase options.
-- [ ] Create Android NavoTap in AdMob and obtain the three Android production IDs.
-- [x] Create persistent Play upload key and signed-release workflow.
-- [ ] Add upload-key + AdMob values to GitHub repository secrets.
-- [ ] Run `NavoTap Android Play Release` and obtain the signed production AAB.
-- [ ] Complete Ads declaration.
-- [ ] Complete Data safety against the final Google Mobile Ads / UMP / Billing dependency set.
-- [ ] Complete target audience/content rating and app content declarations.
-- [ ] Verify privacy/support/app-ads.txt URLs.
-- [ ] Upload Release AAB to internal testing.
-- [ ] On a Play-enabled emulator/device: fresh launch/UMP, Classic lifecycle, rewarded Continue once/run, rewarded unavailable/retry, interstitial #4/#7/#10, all five purchases, persistence and restore.
-- [ ] Verify Remove Ads suppresses interstitials but not optional rewarded Continue.
-- [ ] Complete any closed-testing requirement attached to the developer account.
-- [ ] Promote to production only after every gate above is green.
+- NavoTap privacy route exists and is being updated for iOS + Android / Google Play Billing.
+- `public/app-ads.txt` contains `google.com, pub-8944085355624754, DIRECT, f08c47fec0942fa0`.
+- generic Kamilunavo support route exists.
+
+## Final Play release gates
+
+Repository/code gates:
+
+- [x] Play package identity fixed to `com.kamilunavo.onemoretap`.
+- [x] Target API 36.
+- [x] Five Billing products wired and prices loaded from Google Play on the Play-distributed test build.
+- [x] Persistent upload key and signed-release pipeline proven with 1.0.2 (3).
+- [x] Play-distributed 1.0.2 (3) cold-start crash no longer reproduces on the reported test device.
+- [x] Release startup smoke exercises the delayed Google SDK startup path.
+- [x] Release UI no longer exposes UMP diagnostics and uses explicit dark-theme content contrast.
+- [x] Version display reads `BuildConfig.VERSION_NAME` / `VERSION_CODE`.
+- [x] Android privacy policy source covers Google Play Billing and Android AdMob.
+- [x] app-ads.txt publisher entry exists in the website repository.
+- [ ] CI green for 1.0.3 (4).
+- [ ] Signed `NavoTap-1.0.3-4-PlayStore.aab` produced from merged release candidate.
+
+External console gates:
+
+- [x] Google Play app exists and internal testing is usable.
+- [x] Five one-time products return localized prices in the Play-distributed app.
+- [ ] AdMob Privacy & messaging form/message configured and published for Android NavoTap; fresh-install UMP retest clean.
+- [ ] Play Console Ads declaration completed accurately.
+- [ ] Play Console Data safety completed against Google Mobile Ads / UMP / Billing.
+- [ ] Target audience/content rating/app-content declarations completed.
+- [ ] Final 1.0.3 (4) AAB uploaded to internal testing.
+- [ ] Final device test: fresh launch, Classic, background/resume, rewarded Continue once/run, interstitial cadence, all five purchases/restore, theme persistence, Remove Ads behavior, force-stop/relaunch.
+- [ ] Promote the same tested versionCode 4 to the required next track/production; do not rebuild after approval of this candidate.
