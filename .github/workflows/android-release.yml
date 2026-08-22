@@ -22,7 +22,7 @@ on:
       - '.github/workflows/android-release.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   release:
@@ -111,3 +111,26 @@ jobs:
             android/app/build/outputs/bundle/release/NavoTap-1.0.2-3-PlayStore.aab.sha256
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish release receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs
+          HASH="$(cut -d' ' -f1 android/app/build/outputs/bundle/release/NavoTap-1.0.2-3-PlayStore.aab.sha256)"
+          cat > docs/NAVOTAP_ANDROID_RELEASE_RECEIPT.md <<EOF
+          # NavoTap Android release receipt
+
+          - Version: 1.0.2 (3)
+          - Artifact: NavoTap-1.0.2-3-PlayStore
+          - Workflow run ID: ${{ github.run_id }}
+          - Source commit: ${{ github.sha }}
+          - AAB SHA-256: ${HASH}
+          - Signed: yes (jarsigner verified)
+          - Release tests: passed
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/NAVOTAP_ANDROID_RELEASE_RECEIPT.md
+          git commit -m 'docs(android): record NavoTap 1.0.2 (3) release' || exit 0
+          git push origin HEAD:main
