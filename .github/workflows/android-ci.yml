@@ -75,3 +75,47 @@ jobs:
           path: android/app/build/outputs/bundle/debug/app-debug.aab
           if-no-files-found: error
           retention-days: 7
+
+      - name: Restore persistent Play upload key
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n '${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}'
+          printf '%s' '${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}' | base64 --decode > "$RUNNER_TEMP/navotap-upload.jks"
+          chmod 600 "$RUNNER_TEMP/navotap-upload.jks"
+
+      - name: Build signed production Play bundle
+        if: github.event_name == 'pull_request'
+        env:
+          NAVOTAP_ADMOB_APP_ID: ca-app-pub-8944085355624754~8281696102
+          NAVOTAP_REWARDED_AD_ID: ca-app-pub-8944085355624754/1572817522
+          NAVOTAP_INTERSTITIAL_AD_ID: ca-app-pub-8944085355624754/1963699766
+          ANDROID_UPLOAD_KEYSTORE_PATH: ${{ runner.temp }}/navotap-upload.jks
+          ANDROID_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+          ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          ANDROID_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+        run: gradle -p android bundleRelease --stacktrace
+
+      - name: Verify signed production Play bundle
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          AAB='android/app/build/outputs/bundle/release/app-release.aab'
+          test -s "$AAB"
+          jarsigner -verify -verbose -certs "$AAB" | tee /tmp/navotap-jarsigner.txt
+          grep -Fq 'jar verified.' /tmp/navotap-jarsigner.txt
+          cp "$AAB" android/app/build/outputs/bundle/release/NavoTap-1.0.0-1-PlayStore.aab
+          sha256sum "$AAB" > android/app/build/outputs/bundle/release/NavoTap-1.0.0-1-PlayStore.aab.sha256
+
+      - name: Upload signed production Play bundle
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: NavoTap-1.0.0-1-PlayStore
+          path: |
+            android/app/build/outputs/bundle/release/NavoTap-1.0.0-1-PlayStore.aab
+            android/app/build/outputs/bundle/release/NavoTap-1.0.0-1-PlayStore.aab.sha256
+          if-no-files-found: error
+          retention-days: 14
