@@ -19,6 +19,7 @@ val uploadKeyAlias = System.getenv("ANDROID_UPLOAD_KEY_ALIAS")
 val uploadKeyPassword = System.getenv("ANDROID_UPLOAD_KEY_PASSWORD")
 val releaseSigningEnabled = listOf(uploadKeystorePath, uploadStorePassword, uploadKeyAlias, uploadKeyPassword)
     .all { !it.isNullOrBlank() }
+val ciSmokeSigning = System.getenv("NAVOTAP_CI_SMOKE") == "true"
 
 val generatedIconResDir = layout.buildDirectory.dir("generated/navotapIcon/res").get().asFile
 val generateNavoTapIcon by tasks.registering(Copy::class) {
@@ -84,7 +85,10 @@ android {
             buildConfigField("String", "REWARDED_AD_ID", "\"${releaseRewardedId}\"")
             buildConfigField("String", "INTERSTITIAL_AD_ID", "\"${releaseInterstitialId}\"")
             buildConfigField("boolean", "USES_TEST_ADS", "false")
-            if (releaseSigningEnabled) signingConfig = signingConfigs.getByName("release")
+            when {
+                releaseSigningEnabled -> signingConfig = signingConfigs.getByName("release")
+                ciSmokeSigning -> signingConfig = signingConfigs.getByName("debug")
+            }
         }
     }
 }
