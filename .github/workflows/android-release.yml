@@ -15,26 +15,18 @@ on:
         description: Android restart interstitial ad unit ID
         required: true
         type: string
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/android-release.yml'
-  pull_request:
-    paths:
-      - '.github/workflows/android-release.yml'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      NAVOTAP_ADMOB_APP_ID: ${{ inputs.admob_app_id || 'ca-app-pub-8944085355624754~8281696102' }}
-      NAVOTAP_REWARDED_AD_ID: ${{ inputs.rewarded_ad_id || 'ca-app-pub-8944085355624754/1572817522' }}
-      NAVOTAP_INTERSTITIAL_AD_ID: ${{ inputs.interstitial_ad_id || 'ca-app-pub-8944085355624754/1963699766' }}
+      NAVOTAP_ADMOB_APP_ID: ${{ inputs.admob_app_id }}
+      NAVOTAP_REWARDED_AD_ID: ${{ inputs.rewarded_ad_id }}
+      NAVOTAP_INTERSTITIAL_AD_ID: ${{ inputs.interstitial_ad_id }}
       ANDROID_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
       ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
       ANDROID_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
@@ -114,26 +106,3 @@ jobs:
             android/app/build/outputs/bundle/release/NavoTap-1.0.2-3-PlayStore.aab.sha256
           if-no-files-found: error
           retention-days: 14
-
-      - name: Publish release receipt
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p docs
-          HASH="$(cut -d' ' -f1 android/app/build/outputs/bundle/release/NavoTap-1.0.2-3-PlayStore.aab.sha256)"
-          cat > docs/NAVOTAP_ANDROID_RELEASE_RECEIPT.md <<EOF
-          # NavoTap Android release receipt
-
-          - Version: 1.0.2 (3)
-          - Artifact: NavoTap-1.0.2-3-PlayStore
-          - Workflow run ID: ${{ github.run_id }}
-          - Source commit: ${{ github.sha }}
-          - AAB SHA-256: ${HASH}
-          - Signed: yes (jarsigner verified)
-          - Release tests: passed
-          EOF
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add docs/NAVOTAP_ANDROID_RELEASE_RECEIPT.md
-          git commit -m 'docs(android): record NavoTap 1.0.2 (3) release' || exit 0
-          git push origin HEAD:main
