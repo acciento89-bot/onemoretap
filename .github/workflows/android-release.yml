@@ -15,6 +15,11 @@ on:
         description: Android restart interstitial ad unit ID
         required: true
         type: string
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/android-release.yml'
 
 permissions:
   contents: read
@@ -24,9 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      NAVOTAP_ADMOB_APP_ID: ${{ inputs.admob_app_id }}
-      NAVOTAP_REWARDED_AD_ID: ${{ inputs.rewarded_ad_id }}
-      NAVOTAP_INTERSTITIAL_AD_ID: ${{ inputs.interstitial_ad_id }}
+      NAVOTAP_ADMOB_APP_ID: ${{ inputs.admob_app_id || 'ca-app-pub-8944085355624754~8281696102' }}
+      NAVOTAP_REWARDED_AD_ID: ${{ inputs.rewarded_ad_id || 'ca-app-pub-8944085355624754/1572817522' }}
+      NAVOTAP_INTERSTITIAL_AD_ID: ${{ inputs.interstitial_ad_id || 'ca-app-pub-8944085355624754/1963699766' }}
       ANDROID_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
       ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
       ANDROID_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
