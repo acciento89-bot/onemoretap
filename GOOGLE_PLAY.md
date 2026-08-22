@@ -76,6 +76,26 @@ Consent flow:
 - request ads only when UMP `canRequestAds()` is true;
 - expose Privacy Options only when UMP reports that an entry point is required.
 
+## Persistent Play upload signing
+
+A dedicated NavoTap RSA-4096 upload key has been created for Google Play. Keep the private backup outside source control and keep using this same upload certificate for later NavoTap versions.
+
+Upload certificate SHA-256 fingerprint:
+
+`F1:BD:1B:E0:BD:C0:54:20:B4:37:16:04:DC:FB:7C:1E:DF:38:91:30:4A:5B:5A:CF:27:C0:F9:3A:12:91:97:F9`
+
+The workflow `.github/workflows/android-release.yml` creates the signed production AAB only when all seven release secrets are available:
+
+- `ANDROID_UPLOAD_KEYSTORE_BASE64`
+- `ANDROID_UPLOAD_KEYSTORE_PASSWORD`
+- `ANDROID_UPLOAD_KEY_ALIAS`
+- `ANDROID_UPLOAD_KEY_PASSWORD`
+- `NAVOTAP_ADMOB_APP_ID`
+- `NAVOTAP_REWARDED_AD_ID`
+- `NAVOTAP_INTERSTITIAL_AD_ID`
+
+The workflow rejects Google's sample/test ad IDs, runs unit tests, builds the minified release with the persistent upload key, verifies the JAR signature and emits `NavoTap-1.0.0-1-PlayStore.aab` plus SHA-256 checksum.
+
 ## German Play listing
 
 ### Short description
@@ -134,7 +154,9 @@ Available themes are cosmetic only and provide no gameplay advantage.
 - [ ] Create Play Console app `NavoTap` with package `com.kamilunavo.onemoretap`.
 - [ ] Create all five one-time products with the locked prices above and activate their purchase options.
 - [ ] Create Android NavoTap in AdMob and obtain the three Android production IDs.
-- [ ] Build a production Release AAB with the Android AdMob variables injected.
+- [x] Create persistent Play upload key and signed-release workflow.
+- [ ] Add upload-key + AdMob values to GitHub repository secrets.
+- [ ] Run `NavoTap Android Play Release` and obtain the signed production AAB.
 - [ ] Complete Ads declaration.
 - [ ] Complete Data safety against the final Google Mobile Ads / UMP / Billing dependency set.
 - [ ] Complete target audience/content rating and app content declarations.

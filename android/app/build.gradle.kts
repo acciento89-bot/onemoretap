@@ -13,6 +13,13 @@ val releaseInterstitialId = providers.gradleProperty("NAVOTAP_INTERSTITIAL_AD_ID
     .orElse(providers.environmentVariable("NAVOTAP_INTERSTITIAL_AD_ID"))
     .getOrElse("")
 
+val uploadKeystorePath = System.getenv("ANDROID_UPLOAD_KEYSTORE_PATH")
+val uploadStorePassword = System.getenv("ANDROID_UPLOAD_STORE_PASSWORD")
+val uploadKeyAlias = System.getenv("ANDROID_UPLOAD_KEY_ALIAS")
+val uploadKeyPassword = System.getenv("ANDROID_UPLOAD_KEY_PASSWORD")
+val releaseSigningEnabled = listOf(uploadKeystorePath, uploadStorePassword, uploadKeyAlias, uploadKeyPassword)
+    .all { !it.isNullOrBlank() }
+
 val generatedIconResDir = layout.buildDirectory.dir("generated/navotapIcon/res").get().asFile
 val generateNavoTapIcon by tasks.registering(Copy::class) {
     val sourceIcon = rootProject.file("../OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png")
@@ -51,6 +58,17 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    if (releaseSigningEnabled) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(requireNotNull(uploadKeystorePath))
+                storePassword = requireNotNull(uploadStorePassword)
+                keyAlias = requireNotNull(uploadKeyAlias)
+                keyPassword = requireNotNull(uploadKeyPassword)
+            }
+        }
+    }
+
     buildTypes {
         debug {
             manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"
@@ -65,6 +83,7 @@ android {
             buildConfigField("String", "REWARDED_AD_ID", "\"${releaseRewardedId}\"")
             buildConfigField("String", "INTERSTITIAL_AD_ID", "\"${releaseInterstitialId}\"")
             buildConfigField("boolean", "USES_TEST_ADS", "false")
+            if (releaseSigningEnabled) signingConfig = signingConfigs.getByName("release")
         }
     }
 }
