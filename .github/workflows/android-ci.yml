@@ -40,8 +40,12 @@ jobs:
         with:
           gradle-version: '9.5.0'
 
-      - name: Classic engine parity tests
-        run: gradle -p android testDebugUnitTest --stacktrace
+      - name: Classic engine parity tests on release variant
+        env:
+          NAVOTAP_ADMOB_APP_ID: ca-app-pub-8944085355624754~8281696102
+          NAVOTAP_REWARDED_AD_ID: ca-app-pub-8944085355624754/1572817522
+          NAVOTAP_INTERSTITIAL_AD_ID: ca-app-pub-8944085355624754/1963699766
+        run: gradle -p android testReleaseUnitTest --stacktrace
 
       - name: Build Android QA bundle with Google test ads
         run: gradle -p android bundleDebug --stacktrace
@@ -54,6 +58,7 @@ jobs:
           grep -q 'versionCode = 3' android/app/build.gradle.kts
           grep -q 'versionName = "1.0.2"' android/app/build.gradle.kts
           grep -q 'isMinifyEnabled = false' android/app/build.gradle.kts
+          grep -q 'testBuildType = "release"' android/app/build.gradle.kts
           grep -q 'com.kamilunavo.onemoretap.removeads' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
           grep -q 'om.kamilunavo.onemoretap.theme.fire' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
           grep -q 'play-services-ads:25.4.0' android/app/build.gradle.kts
