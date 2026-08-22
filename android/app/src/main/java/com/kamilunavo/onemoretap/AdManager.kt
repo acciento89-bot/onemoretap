@@ -40,6 +40,9 @@ class AdManager(context: Context) {
     private var interstitialAd: InterstitialAd? = null
     private var mobileAdsStarted = false
     private var rewardedRetryScheduled = false
+    private var interstitialRetryScheduled = false
+    private var rewardedLoading = false
+    private var interstitialLoading = false
     private var consentInitScheduled = false
     private var consentInitStarted = false
 
@@ -117,9 +120,18 @@ class AdManager(context: Context) {
         }
     }
 
-    fun retryRewarded() {
+    fun retryRewarded(activity: Activity) {
         rewardedRetryScheduled = false
+        rewardedAvailability = RewardedAvailability.LOADING
+        val consent = consentInformation
+        if (!mobileAdsStarted || consent == null || !consent.canRequestAds()) {
+            consentInitScheduled = false
+            consentInitStarted = false
+            initializeConsentAndAds(activity)
+            return
+        }
         loadRewarded()
+        loadInterstitial()
     }
 
     fun showRewarded(
@@ -167,8 +179,11 @@ class AdManager(context: Context) {
     fun showInterstitialIfReady(activity: Activity, onComplete: () -> Unit) {
         val ad = interstitialAd
         if (ad == null) {
-            onComplete()
             loadInterstitial()
+            handler.postDelayed({
+                if (interstitialAd != null) showInterstitialIfReady(activity, onComplete)
+                else onComplete()
+            }, 1_200L)
             return
         }
 
@@ -246,6 +261,8 @@ class AdManager(context: Context) {
             rewardedAvailability = RewardedAvailability.UNAVAILABLE
             return
         }
+        if (rewardedAd != null || rewardedLoading) return
+        rewardedLoading = true
         rewardedAvailability = RewardedAvailability.LOADING
         try {
             RewardedAd.load(
@@ -254,12 +271,14 @@ class AdManager(context: Context) {
                 AdRequest.Builder().build(),
                 object : RewardedAdLoadCallback() {
                     override fun onAdLoaded(ad: RewardedAd) {
+                        rewardedLoading = false
                         rewardedAd = ad
                         rewardedAvailability = RewardedAvailability.READY
                         rewardedRetryScheduled = false
                     }
 
                     override fun onAdFailedToLoad(error: LoadAdError) {
+                        rewardedLoading = false
                         rewardedAd = null
                         rewardedAvailability = RewardedAvailability.UNAVAILABLE
                         scheduleRewardedRetry()
@@ -267,6 +286,7 @@ class AdManager(context: Context) {
                 },
             )
         } catch (_: Throwable) {
+            rewardedLoading = false
             rewardedAd = null
             rewardedAvailability = RewardedAvailability.UNAVAILABLE
             scheduleRewardedRetry()
@@ -279,6 +299,8 @@ class AdManager(context: Context) {
             interstitialReady = false
             return
         }
+        if (interstitialAd != null || interstitialLoading) return
+        interstitialLoading = true
         try {
             InterstitialAd.load(
                 appContext,
@@ -286,20 +308,35 @@ class AdManager(context: Context) {
                 AdRequest.Builder().build(),
                 object : InterstitialAdLoadCallback() {
                     override fun onAdLoaded(ad: InterstitialAd) {
+                        interstitialLoading = false
+                        interstitialRetryScheduled = false
                         interstitialAd = ad
                         interstitialReady = true
                     }
 
                     override fun onAdFailedToLoad(error: LoadAdError) {
+                        interstitialLoading = false
                         interstitialAd = null
                         interstitialReady = false
+                        scheduleInterstitialRetry()
                     }
                 },
             )
         } catch (_: Throwable) {
+            interstitialLoading = false
             interstitialAd = null
             interstitialReady = false
+            scheduleInterstitialRetry()
         }
+    }
+
+    private fun scheduleInterstitialRetry() {
+        if (interstitialRetryScheduled || consentInformation == null || !mobileAdsStarted) return
+        interstitialRetryScheduled = true
+        handler.postDelayed({
+            interstitialRetryScheduled = false
+            loadInterstitial()
+        }, 15_000L)
     }
 
     private fun scheduleRewardedRetry() {

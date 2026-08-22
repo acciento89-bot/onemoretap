@@ -570,7 +570,7 @@ private fun GameOverCard(
                     onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth()
                 ) { Text("AD LOADING") }
                 RewardedAvailability.UNAVAILABLE -> OutlinedButton(
-                    onClick = ads::retryRewarded, modifier = Modifier.fillMaxWidth()
+                    onClick = { ads.retryRewarded(activity) }, modifier = Modifier.fillMaxWidth()
                 ) { Text("AD UNAVAILABLE · RETRY") }
             }
         }
