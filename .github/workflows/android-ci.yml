@@ -83,3 +83,59 @@ jobs:
           path: android/app/build/outputs/bundle/debug/app-debug.aab
           if-no-files-found: error
           retention-days: 7
+
+  startup_smoke:
+    name: Release startup smoke on emulator
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NAVOTAP_CI_SMOKE: 'true'
+      NAVOTAP_ADMOB_APP_ID: ca-app-pub-8944085355624754~8281696102
+      NAVOTAP_REWARDED_AD_ID: ca-app-pub-8944085355624754/1572817522
+      NAVOTAP_INTERSTITIAL_AD_ID: ca-app-pub-8944085355624754/1963699766
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle 9.5
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.5.0'
+
+      - name: Boot emulator and prove release app stays alive
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: |
+            set -euo pipefail
+            gradle -p android assembleRelease --stacktrace
+            APK='android/app/build/outputs/apk/release/app-release.apk'
+            test -s "$APK"
+            adb install -r "$APK"
+            adb logcat -c
+            adb shell am force-stop com.kamilunavo.onemoretap
+            adb shell am start -W -n com.kamilunavo.onemoretap/.MainActivity
+            sleep 8
+            PID="$(adb shell pidof com.kamilunavo.onemoretap | tr -d '\r')"
+            if [ -z "$PID" ]; then
+              echo 'NavoTap process died during startup smoke test.'
+              adb logcat -d
+              exit 1
+            fi
+            if adb logcat -d | grep -E 'FATAL EXCEPTION|Process: com\.kamilunavo\.onemoretap' ; then
+              echo 'Fatal runtime exception detected during startup smoke test.'
+              exit 1
+            fi
+            adb shell dumpsys activity activities | grep -F 'com.kamilunavo.onemoretap/.MainActivity'
