@@ -20,6 +20,9 @@ on:
       - main
     paths:
       - '.github/workflows/android-release.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/android-release.yml'
 
 permissions:
   contents: write
