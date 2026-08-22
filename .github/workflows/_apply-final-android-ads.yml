@@ -1,0 +1,58 @@
+name: Persist NavoTap Android ads fixes
+
+on:
+  push:
+    branches:
+      - android/final-ads-1.0.4-5
+    paths:
+      - .github/workflows/_apply-final-android-ads.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: android/final-ads-1.0.4-5
+          fetch-depth: 0
+      - name: Apply and persist release fixes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          ad=Path('android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt')
+          s=ad.read_text()
+          if 'interstitialRetryScheduled' not in s:
+              s=s.replace('    private var rewardedRetryScheduled = false\n','''    private var rewardedRetryScheduled = false\n    private var interstitialRetryScheduled = false\n    private var rewardedLoading = false\n    private var interstitialLoading = false\n''')
+              s=s.replace('''    fun retryRewarded() {\n        rewardedRetryScheduled = false\n        loadRewarded()\n    }\n''','''    fun retryRewarded(activity: Activity) {\n        rewardedRetryScheduled = false\n        rewardedAvailability = RewardedAvailability.LOADING\n        val consent = consentInformation\n        if (!mobileAdsStarted || consent == null || !consent.canRequestAds()) {\n            consentInitScheduled = false\n            consentInitStarted = false\n            initializeConsentAndAds(activity)\n            return\n        }\n        loadRewarded()\n        loadInterstitial()\n    }\n''')
+              old='''        val ad = interstitialAd\n        if (ad == null) {\n            onComplete()\n            loadInterstitial()\n            return\n        }\n'''
+              new='''        val ad = interstitialAd\n        if (ad == null) {\n            loadInterstitial()\n            handler.postDelayed({\n                if (interstitialAd != null) showInterstitialIfReady(activity, onComplete)\n                else onComplete()\n            }, 1_200L)\n            return\n        }\n'''
+              if old not in s: raise SystemExit('interstitial anchor missing')
+              s=s.replace(old,new,1)
+              s=s.replace('''        rewardedAvailability = RewardedAvailability.LOADING\n        try {\n            RewardedAd.load(''','''        if (rewardedAd != null || rewardedLoading) return\n        rewardedLoading = true\n        rewardedAvailability = RewardedAvailability.LOADING\n        try {\n            RewardedAd.load(''',1)
+              s=s.replace('''                    override fun onAdLoaded(ad: RewardedAd) {\n                        rewardedAd = ad\n''','''                    override fun onAdLoaded(ad: RewardedAd) {\n                        rewardedLoading = false\n                        rewardedAd = ad\n''',1)
+              s=s.replace('''                    override fun onAdFailedToLoad(error: LoadAdError) {\n                        rewardedAd = null\n''','''                    override fun onAdFailedToLoad(error: LoadAdError) {\n                        rewardedLoading = false\n                        rewardedAd = null\n''',1)
+              s=s.replace('''        } catch (_: Throwable) {\n            rewardedAd = null\n            rewardedAvailability = RewardedAvailability.UNAVAILABLE\n            scheduleRewardedRetry()\n        }\n    }\n\n    private fun loadInterstitial() {''','''        } catch (_: Throwable) {\n            rewardedLoading = false\n            rewardedAd = null\n            rewardedAvailability = RewardedAvailability.UNAVAILABLE\n            scheduleRewardedRetry()\n        }\n    }\n\n    private fun loadInterstitial() {''',1)
+              pos=s.index('    private fun loadInterstitial()')
+              tail=s[pos:]
+              tail=tail.replace('''        try {\n            InterstitialAd.load(''','''        if (interstitialAd != null || interstitialLoading) return\n        interstitialLoading = true\n        try {\n            InterstitialAd.load(''',1)
+              tail=tail.replace('''                    override fun onAdLoaded(ad: InterstitialAd) {\n                        interstitialAd = ad\n                        interstitialReady = true\n                    }\n\n                    override fun onAdFailedToLoad(error: LoadAdError) {\n                        interstitialAd = null\n                        interstitialReady = false\n                    }\n''','''                    override fun onAdLoaded(ad: InterstitialAd) {\n                        interstitialLoading = false\n                        interstitialRetryScheduled = false\n                        interstitialAd = ad\n                        interstitialReady = true\n                    }\n\n                    override fun onAdFailedToLoad(error: LoadAdError) {\n                        interstitialLoading = false\n                        interstitialAd = null\n                        interstitialReady = false\n                        scheduleInterstitialRetry()\n                    }\n''',1)
+              tail=tail.replace('''        } catch (_: Throwable) {\n            interstitialAd = null\n            interstitialReady = false\n        }\n    }\n\n    private fun scheduleRewardedRetry() {''','''        } catch (_: Throwable) {\n            interstitialLoading = false\n            interstitialAd = null\n            interstitialReady = false\n            scheduleInterstitialRetry()\n        }\n    }\n\n    private fun scheduleInterstitialRetry() {\n        if (interstitialRetryScheduled || consentInformation == null || !mobileAdsStarted) return\n        interstitialRetryScheduled = true\n        handler.postDelayed({\n            interstitialRetryScheduled = false\n            loadInterstitial()\n        }, 15_000L)\n    }\n\n    private fun scheduleRewardedRetry() {''',1)
+              s=s[:pos]+tail
+              ad.write_text(s)
+          main=Path('android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt')
+          main.write_text(main.read_text().replace('onClick = ads::retryRewarded, modifier = Modifier.fillMaxWidth()','onClick = { ads.retryRewarded(activity) }, modifier = Modifier.fillMaxWidth()'))
+          g=Path('android/app/build.gradle.kts')
+          g.write_text(g.read_text().replace('versionCode = 4','versionCode = 5').replace('versionName = "1.0.3"','versionName = "1.0.4"'))
+          PY
+          git config user.name 'Kamilunavo Release Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add android/app/build.gradle.kts android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
+          git diff --cached --check
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix(android): harden AdMob loading for 1.0.4 (5)'
+            git push origin HEAD:android/final-ads-1.0.4-5
+          fi

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Midnight game field. -->
+    <path
+        android:fillColor="#040712"
+        android:pathData="M0,0h108v108h-108z" />
+
+    <!-- Inner arena disk. -->
+    <path
+        android:fillColor="#11162A"
+        android:pathData="M54,13a41,41 0,1 0,0,82a41,41 0,1 0,0,-82" />
+
+    <!-- Electric target rings. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#00E7F0"
+        android:strokeWidth="7"
+        android:strokeLineCap="round"
+        android:pathData="M23,63A34,34 0,0 1,79,28" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#7C5CFF"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M84,47A31,31 0,0 1,42,84" />
+
+    <!-- Tap target. -->
+    <path
+        android:fillColor="#00E7F0"
+        android:pathData="M54,35a19,19 0,1 0,0,38a19,19 0,1 0,0,-38" />
+    <path
+        android:fillColor="#07111F"
+        android:pathData="M54,42a12,12 0,1 0,0,24a12,12 0,1 0,0,-24" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,48a6,6 0,1 0,0,12a6,6 0,1 0,0,-12" />
+
+    <!-- Tap spark / timing cue. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M82,19L85,26L92,29L85,32L82,39L79,32L72,29L79,26Z" />
+    <path
+        android:fillColor="#00E7F0"
+        android:pathData="M25,80L27,85L32,87L27,89L25,94L23,89L18,87L23,85Z" />
+</vector>
