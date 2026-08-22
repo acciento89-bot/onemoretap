@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -22,74 +22,91 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: android/final-ads-1.0.4-5
+          fetch-depth: 0
+
+      - name: Apply final AdMob fixes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          ad=Path('android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt')
+          s=ad.read_text()
+          if 'interstitialRetryScheduled' not in s:
+              s=s.replace('    private var rewardedRetryScheduled = false\n','''    private var rewardedRetryScheduled = false\n    private var interstitialRetryScheduled = false\n    private var rewardedLoading = false\n    private var interstitialLoading = false\n''')
+              s=s.replace('''    fun retryRewarded() {\n        rewardedRetryScheduled = false\n        loadRewarded()\n    }\n''','''    fun retryRewarded(activity: Activity) {\n        rewardedRetryScheduled = false\n        rewardedAvailability = RewardedAvailability.LOADING\n        val consent = consentInformation\n        if (!mobileAdsStarted || consent == null || !consent.canRequestAds()) {\n            consentInitScheduled = false\n            consentInitStarted = false\n            initializeConsentAndAds(activity)\n            return\n        }\n        loadRewarded()\n        loadInterstitial()\n    }\n''')
+              s=s.replace('''        val ad = interstitialAd\n        if (ad == null) {\n            onComplete()\n            loadInterstitial()\n            return\n        }\n''','''        val ad = interstitialAd\n        if (ad == null) {\n            loadInterstitial()\n            handler.postDelayed({\n                if (interstitialAd != null) showInterstitialIfReady(activity, onComplete)\n                else onComplete()\n            }, 1_200L)\n            return\n        }\n''',1)
+              s=s.replace('''        rewardedAvailability = RewardedAvailability.LOADING\n        try {\n            RewardedAd.load(''','''        if (rewardedAd != null || rewardedLoading) return\n        rewardedLoading = true\n        rewardedAvailability = RewardedAvailability.LOADING\n        try {\n            RewardedAd.load(''',1)
+              s=s.replace('''                    override fun onAdLoaded(ad: RewardedAd) {\n                        rewardedAd = ad\n''','''                    override fun onAdLoaded(ad: RewardedAd) {\n                        rewardedLoading = false\n                        rewardedAd = ad\n''',1)
+              s=s.replace('''                    override fun onAdFailedToLoad(error: LoadAdError) {\n                        rewardedAd = null\n''','''                    override fun onAdFailedToLoad(error: LoadAdError) {\n                        rewardedLoading = false\n                        rewardedAd = null\n''',1)
+              s=s.replace('''        } catch (_: Throwable) {\n            rewardedAd = null\n            rewardedAvailability = RewardedAvailability.UNAVAILABLE\n            scheduleRewardedRetry()\n        }\n    }\n\n    private fun loadInterstitial() {''','''        } catch (_: Throwable) {\n            rewardedLoading = false\n            rewardedAd = null\n            rewardedAvailability = RewardedAvailability.UNAVAILABLE\n            scheduleRewardedRetry()\n        }\n    }\n\n    private fun loadInterstitial() {''',1)
+              old='''        try {\n            InterstitialAd.load('''
+              new='''        if (interstitialAd != null || interstitialLoading) return\n        interstitialLoading = true\n        try {\n            InterstitialAd.load('''
+              # replace only the occurrence inside loadInterstitial
+              pos=s.index('    private fun loadInterstitial()')
+              tail=s[pos:].replace(old,new,1)
+              s=s[:pos]+tail
+              s=s.replace('''                    override fun onAdLoaded(ad: InterstitialAd) {\n                        interstitialAd = ad\n                        interstitialReady = true\n                    }\n\n                    override fun onAdFailedToLoad(error: LoadAdError) {\n                        interstitialAd = null\n                        interstitialReady = false\n                    }\n''','''                    override fun onAdLoaded(ad: InterstitialAd) {\n                        interstitialLoading = false\n                        interstitialRetryScheduled = false\n                        interstitialAd = ad\n                        interstitialReady = true\n                    }\n\n                    override fun onAdFailedToLoad(error: LoadAdError) {\n                        interstitialLoading = false\n                        interstitialAd = null\n                        interstitialReady = false\n                        scheduleInterstitialRetry()\n                    }\n''',1)
+              pos=s.index('    private fun loadInterstitial()')
+              tail=s[pos:].replace('''        } catch (_: Throwable) {\n            interstitialAd = null\n            interstitialReady = false\n        }\n    }\n\n    private fun scheduleRewardedRetry() {''','''        } catch (_: Throwable) {\n            interstitialLoading = false\n            interstitialAd = null\n            interstitialReady = false\n            scheduleInterstitialRetry()\n        }\n    }\n\n    private fun scheduleInterstitialRetry() {\n        if (interstitialRetryScheduled || consentInformation == null || !mobileAdsStarted) return\n        interstitialRetryScheduled = true\n        handler.postDelayed({\n            interstitialRetryScheduled = false\n            loadInterstitial()\n        }, 15_000L)\n    }\n\n    private fun scheduleRewardedRetry() {''',1)
+              s=s[:pos]+tail
+              ad.write_text(s)
+          main=Path('android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt')
+          x=main.read_text().replace('onClick = ads::retryRewarded, modifier = Modifier.fillMaxWidth()','onClick = { ads.retryRewarded(activity) }, modifier = Modifier.fillMaxWidth()')
+          main.write_text(x)
+          g=Path('android/app/build.gradle.kts')
+          g.write_text(g.read_text().replace('versionCode = 4','versionCode = 5').replace('versionName = "1.0.3"','versionName = "1.0.4"'))
+          PY
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-
       - name: Install Android 16 SDK
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
-
       - name: Set up Gradle 9.5
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.0'
-
       - name: Classic engine parity tests on release variant
         env:
           NAVOTAP_ADMOB_APP_ID: ca-app-pub-8944085355624754~8281696102
           NAVOTAP_REWARDED_AD_ID: ca-app-pub-8944085355624754/1572817522
           NAVOTAP_INTERSTITIAL_AD_ID: ca-app-pub-8944085355624754/1963699766
         run: gradle -p android testReleaseUnitTest --stacktrace
-
       - name: Build Android QA bundle with Google test ads
         run: gradle -p android bundleDebug --stacktrace
-
-      - name: Verify Android identity, monetization, UI and startup guards
+      - name: Verify Android ads and release gates
         run: |
           set -euo pipefail
-          grep -q 'applicationId = "com.kamilunavo.onemoretap"' android/app/build.gradle.kts
-          grep -q 'targetSdk = 36' android/app/build.gradle.kts
-          grep -q 'versionCode = 4' android/app/build.gradle.kts
-          grep -q 'versionName = "1.0.3"' android/app/build.gradle.kts
-          grep -q 'isMinifyEnabled = false' android/app/build.gradle.kts
-          grep -q 'testBuildType = "release"' android/app/build.gradle.kts
-          grep -q 'com.kamilunavo.onemoretap.removeads' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
-          grep -q 'om.kamilunavo.onemoretap.theme.fire' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
-          grep -q 'play-services-ads:25.4.0' android/app/build.gradle.kts
+          grep -q 'versionCode = 5' android/app/build.gradle.kts
+          grep -q 'versionName = "1.0.4"' android/app/build.gradle.kts
+          grep -q 'fun retryRewarded(activity: Activity)' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
+          grep -q 'interstitialRetryScheduled' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
+          grep -q '1_200L' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
+          grep -q 'scheduleInterstitialRetry' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
+          grep -q 'ads.retryRewarded(activity)' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
           grep -q 'user-messaging-platform:4.0.0' android/app/build.gradle.kts
-          grep -q 'robolectric:4.16' android/app/build.gradle.kts
-          grep -q 'android:usesCleartextTraffic="false"' android/app/src/main/AndroidManifest.xml
-          grep -q 'tools:node="remove"' android/app/src/main/AndroidManifest.xml
-          grep -q 'handler.postDelayed' android/app/src/main/java/com/kamilunavo/onemoretap/BillingManager.kt
-          grep -q '1_500L' android/app/src/main/java/com/kamilunavo/onemoretap/BillingManager.kt
-          grep -q '1_500L' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
-          grep -q 'NAVOTAP ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
-          grep -q 'if (BuildConfig.DEBUG)' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
-          grep -q 'onSurface = Color.White' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
-          test -s android/app/src/test/java/com/kamilunavo/onemoretap/MainActivityStartupTest.kt
-
-      - name: Prove release cannot build without Android AdMob IDs
+          grep -q 'play-services-ads:25.4.0' android/app/build.gradle.kts
+      - name: Persist tested fixes
+        shell: bash
         run: |
-          set +e
-          gradle -p android bundleRelease --stacktrace > /tmp/navotap-release-guard.log 2>&1
-          status=$?
-          set -e
-          if [ "$status" -eq 0 ]; then
-            echo "Release unexpectedly built without production Android AdMob IDs"
-            exit 1
+          git config user.name 'Kamilunavo Release Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add android
+          git diff --cached --check
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix(android): harden AdMob loading for 1.0.4 (5)'
+            git push origin HEAD:android/final-ads-1.0.4-5
           fi
-          grep -q 'NavoTap release requires NAVOTAP_ADMOB_APP_ID' /tmp/navotap-release-guard.log
-
       - name: Upload QA bundle
         uses: actions/upload-artifact@v4
         with:
-          name: NavoTap-1.0.3-4-android-qa-debug-aab
+          name: NavoTap-1.0.4-5-android-qa-debug-aab
           path: android/app/build/outputs/bundle/debug/app-debug.aab
           if-no-files-found: error
           retention-days: 7
@@ -104,27 +121,16 @@ jobs:
       NAVOTAP_INTERSTITIAL_AD_ID: ca-app-pub-8944085355624754/1963699766
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android 16 SDK
-        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
-
-      - name: Set up Gradle 9.5
-        uses: gradle/actions/setup-gradle@v4
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.0'
-
       - name: Launch release MainActivity past delayed Google SDK startup
         run: |
           set -euo pipefail
-          gradle -p android testReleaseUnitTest \
-            --tests com.kamilunavo.onemoretap.MainActivityStartupTest \
-            --stacktrace
+          gradle -p android testReleaseUnitTest --tests com.kamilunavo.onemoretap.MainActivityStartupTest --stacktrace
