@@ -53,6 +53,10 @@ android {
         buildConfig = true
     }
 
+    // AGP 9 only creates local unit tests for testBuildType by default.
+    // Make the crash gate exercise the actual release variant instead of debug.
+    testBuildType = "release"
+
     testOptions {
         unitTests.isIncludeAndroidResources = true
     }
