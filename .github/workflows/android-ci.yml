@@ -48,8 +48,8 @@ jobs:
           set -euo pipefail
           grep -q 'applicationId = "com.kamilunavo.onemoretap"' android/app/build.gradle.kts
           grep -q 'targetSdk = 36' android/app/build.gradle.kts
-          grep -q 'versionCode = 5' android/app/build.gradle.kts
-          grep -q 'versionName = "1.0.4"' android/app/build.gradle.kts
+          grep -q 'versionCode = 6' android/app/build.gradle.kts
+          grep -q 'versionName = "1.0.5"' android/app/build.gradle.kts
           grep -q 'isMinifyEnabled = false' android/app/build.gradle.kts
           grep -q 'testBuildType = "release"' android/app/build.gradle.kts
           grep -q 'android:icon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
@@ -90,7 +90,7 @@ jobs:
       - name: Upload QA bundle
         uses: actions/upload-artifact@v4
         with:
-          name: NavoTap-1.0.4-5-android-qa-debug-aab
+          name: NavoTap-1.0.5-6-android-qa-debug-aab
           path: android/app/build/outputs/bundle/debug/app-debug.aab
           if-no-files-found: error
           retention-days: 7
