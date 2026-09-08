@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -190,10 +192,14 @@ private fun HomeScreen(
     onSettings: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(horizontal = 24.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(54.dp))
+        Spacer(Modifier.height(22.dp))
         NavoMark(profile.selectedTheme)
         Spacer(Modifier.height(18.dp))
         Text(
@@ -380,12 +386,54 @@ private fun GameScreen(
         }
     }
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 20.dp)) {
+    fun handleTapResult(quality: HitQuality) {
+        if (profile.hapticsEnabled) {
+            val constant = when (quality) {
+                HitQuality.PERFECT -> HapticFeedbackConstants.LONG_PRESS
+                HitQuality.GOOD -> HapticFeedbackConstants.VIRTUAL_KEY
+                HitQuality.MISS -> HapticFeedbackConstants.KEYBOARD_TAP
+            }
+            view.performHapticFeedback(constant)
+        }
+        if (profile.soundEnabled) {
+            val toneType = when (quality) {
+                HitQuality.PERFECT -> ToneGenerator.TONE_PROP_ACK
+                HitQuality.GOOD -> ToneGenerator.TONE_PROP_BEEP
+                HitQuality.MISS -> ToneGenerator.TONE_PROP_NACK
+            }
+            tone.startTone(toneType, 90)
+        }
+    }
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(horizontal = 18.dp, vertical = 12.dp)
+    ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = {
                 if (session.isGameOver) onHome() else session.togglePause()
             }) {
                 Text(if (session.isGameOver) "HOME" else if (session.isPaused) "RESUME" else "PAUSE")
+            }
+            Spacer(Modifier.weight(1f))
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    "CHASE THE",
+                    color = Color.White.copy(alpha = 0.52f),
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.2.sp,
+                )
+                Text(
+                    "PERFECT TAP",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 0.8.sp,
+                )
             }
             Spacer(Modifier.weight(1f))
             Column(horizontalAlignment = Alignment.End) {
@@ -394,29 +442,36 @@ private fun GameScreen(
             }
         }
 
-        Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .pointerInput(session.isGameOver, session.isPaused) {
+                    if (!session.isGameOver && !session.isPaused) {
+                        detectTapGestures(
+                            onPress = {
+                                session.tap()?.let { handleTapResult(it.quality) }
+                            },
+                            onTap = null,
+                        )
+                    }
+                },
+            contentAlignment = Alignment.Center,
+        ) {
             TapArena(
                 session = session,
                 theme = profile.selectedTheme,
-                onTapResult = { quality ->
-                    if (profile.hapticsEnabled) {
-                        val constant = when (quality) {
-                            HitQuality.PERFECT -> HapticFeedbackConstants.LONG_PRESS
-                            HitQuality.GOOD -> HapticFeedbackConstants.VIRTUAL_KEY
-                            HitQuality.MISS -> HapticFeedbackConstants.KEYBOARD_TAP
-                        }
-                        view.performHapticFeedback(constant)
-                    }
-                    if (profile.soundEnabled) {
-                        val toneType = when (quality) {
-                            HitQuality.PERFECT -> ToneGenerator.TONE_PROP_ACK
-                            HitQuality.GOOD -> ToneGenerator.TONE_PROP_BEEP
-                            HitQuality.MISS -> ToneGenerator.TONE_PROP_NACK
-                        }
-                        tone.startTone(toneType, 90)
-                    }
-                }
             )
+
+            if (!session.isGameOver && !session.isPaused && session.statusText == null) {
+                Text(
+                    "TAP ANYWHERE",
+                    color = Color.White.copy(alpha = 0.28f),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.3.sp,
+                )
+            }
 
             session.statusText?.let {
                 Text(
@@ -462,17 +517,11 @@ private fun GameScreen(
 private fun TapArena(
     session: ClassicGameSession,
     theme: GameTheme,
-    onTapResult: (HitQuality) -> Unit,
 ) {
     Canvas(
         modifier = Modifier
             .fillMaxWidth()
             .height(470.dp)
-            .pointerInput(session.isGameOver, session.isPaused) {
-                detectTapGestures {
-                    session.tap()?.let { onTapResult(it.quality) }
-                }
-            }
     ) {
         val center = Offset(size.width / 2f, size.height / 2f)
         val radius = min(size.width * 0.34f, size.height * 0.31f)
@@ -622,10 +671,15 @@ private fun ShopScreen(
     onBack: () -> Unit,
 ) {
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 18.dp),
+        Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Spacer(Modifier.height(22.dp))
+        Spacer(Modifier.height(6.dp))
         ScreenHeader(title = "SHOP", onBack = onBack)
         Text(
             "Make the run yours. Themes are cosmetic and never change gameplay.",
@@ -766,10 +820,15 @@ private fun SettingsScreen(
     onBack: () -> Unit,
 ) {
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 18.dp),
+        Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Spacer(Modifier.height(22.dp))
+        Spacer(Modifier.height(6.dp))
         ScreenHeader(title = "SETTINGS", onBack = onBack)
         Text(
             "Tune feedback and manage your purchases.",
