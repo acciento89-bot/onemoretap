@@ -41,8 +41,8 @@ android {
         applicationId = "com.kamilunavo.onemoretap"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "1.0.4"
+        versionCode = 6
+        versionName = "1.0.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -85,7 +85,7 @@ android {
             buildConfigField("boolean", "USES_TEST_ADS", "true")
         }
         release {
-            // Keep minification disabled through 1.0.3 while the Play-distributed startup fix is verified.
+            // Keep minification disabled while the Play-distributed startup and input fixes are verified.
             isMinifyEnabled = false
             manifestPlaceholders["admobAppId"] = releaseAdMobAppId.ifBlank { "MISSING_ANDROID_ADMOB_APP_ID" }
             buildConfigField("String", "REWARDED_AD_ID", "\"${releaseRewardedId}\"")
