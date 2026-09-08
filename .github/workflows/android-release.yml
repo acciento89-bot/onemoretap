@@ -65,8 +65,8 @@ jobs:
           test -s "$AAB"
           grep -Fq 'applicationId = "com.kamilunavo.onemoretap"' android/app/build.gradle.kts
           grep -Fq 'targetSdk = 36' android/app/build.gradle.kts
-          grep -Fq 'versionCode = 5' android/app/build.gradle.kts
-          grep -Fq 'versionName = "1.0.4"' android/app/build.gradle.kts
+          grep -Fq 'versionCode = 6' android/app/build.gradle.kts
+          grep -Fq 'versionName = "1.0.5"' android/app/build.gradle.kts
           grep -Fq 'isMinifyEnabled = false' android/app/build.gradle.kts
           grep -Fq 'android:icon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
           test -s android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
@@ -78,14 +78,14 @@ jobs:
           grep -Fq 'NAVOTAP ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
           jarsigner -verify -verbose -certs "$AAB" | tee /tmp/jarsigner.txt
           grep -Fq 'jar verified.' /tmp/jarsigner.txt
-          sha256sum "$AAB" | tee android/app/build/outputs/bundle/release/NavoTap-1.0.4-5-PlayStore.aab.sha256
-          cp "$AAB" android/app/build/outputs/bundle/release/NavoTap-1.0.4-5-PlayStore.aab
+          sha256sum "$AAB" | tee android/app/build/outputs/bundle/release/NavoTap-1.0.5-6-PlayStore.aab.sha256
+          cp "$AAB" android/app/build/outputs/bundle/release/NavoTap-1.0.5-6-PlayStore.aab
       - name: Upload signed Play bundle
         uses: actions/upload-artifact@v4
         with:
-          name: NavoTap-1.0.4-5-PlayStore
+          name: NavoTap-1.0.5-6-PlayStore
           path: |
-            android/app/build/outputs/bundle/release/NavoTap-1.0.4-5-PlayStore.aab
-            android/app/build/outputs/bundle/release/NavoTap-1.0.4-5-PlayStore.aab.sha256
+            android/app/build/outputs/bundle/release/NavoTap-1.0.5-6-PlayStore.aab
+            android/app/build/outputs/bundle/release/NavoTap-1.0.5-6-PlayStore.aab.sha256
           if-no-files-found: error
           retention-days: 14
