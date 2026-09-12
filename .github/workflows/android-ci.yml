@@ -3,6 +3,7 @@ name: Android CI
 on:
   push:
     branches:
+      - main
       - 'android/**'
     paths:
       - 'android/**'
@@ -35,6 +36,37 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.0'
+      - name: Lock NavoTap launcher identity before build
+        shell: bash
+        run: |
+          set -euo pipefail
+          manifest='android/app/src/main/AndroidManifest.xml'
+          adaptive='android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml'
+          foreground='android/app/src/main/res/drawable/navotap_launcher_foreground.xml'
+          background='android/app/src/main/res/drawable/navotap_launcher_background.xml'
+          canonical='android/app/src/main/res/drawable/navotap_launcher_icon.xml'
+          test -s "$manifest"
+          test -s "$adaptive"
+          test -s "$foreground"
+          test -s "$background"
+          test -s "$canonical"
+          grep -Fq 'android:icon="@mipmap/ic_launcher"' "$manifest"
+          grep -Fq 'android:roundIcon="@mipmap/ic_launcher"' "$manifest"
+          grep -Fq '<background android:drawable="@drawable/navotap_launcher_background" />' "$adaptive"
+          grep -Fq '<foreground android:drawable="@drawable/navotap_launcher_foreground" />' "$adaptive"
+          grep -Fq '#00E7F0' "$foreground"
+          grep -Fq '#7C5CFF' "$foreground"
+          grep -Fq '#FFFFFF' "$foreground"
+          grep -Fq '#00E7F0' "$canonical"
+          grep -Fq '#7C5CFF' "$canonical"
+          grep -Fq '#FFFFFF' "$canonical"
+          grep -Fq 'M54,48a6,6' "$foreground"
+          grep -Fq 'M54,48a6,6' "$canonical"
+          if grep -R --line-number -E 'android:icon="@(drawable|mipmap)/(?!ic_launcher)' android/app/src/main/AndroidManifest.xml 2>/dev/null; then
+            echo 'Unexpected alternate launcher icon reference found.'
+            exit 1
+          fi
+          echo 'NavoTap launcher identity is locked to the cyan/violet target mark.'
       - name: Classic engine parity tests on release variant
         env:
           NAVOTAP_ADMOB_APP_ID: ca-app-pub-8944085355624754~8281696102
