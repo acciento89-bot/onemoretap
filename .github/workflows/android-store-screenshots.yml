@@ -34,6 +34,10 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+      - name: Enable KVM acceleration
+        run: |
+          test -e /dev/kvm
+          sudo chmod 666 /dev/kvm
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.5.0'
@@ -57,7 +61,7 @@ jobs:
           profile: pixel_7
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
-          script: PACKAGE_NAME='com.kamilunavo.onemoretap' APK_PATH='build/navotap-store-screenshot.apk' OUTPUT_DIR='android/store/google-play/screenshots/de-DE' SECOND_ACTION='swipe' bash "$GITHUB_WORKSPACE/.github/scripts/capture-android-store-screenshots.sh"
+          script: WAIT_TEXT='NAVOTAP' PACKAGE_NAME='com.kamilunavo.onemoretap' APK_PATH='build/navotap-store-screenshot.apk' OUTPUT_DIR='android/store/google-play/screenshots/de-DE' SECOND_ACTION='swipe' bash "$GITHUB_WORKSPACE/.github/scripts/capture-android-store-screenshots.sh"
       - name: Reject QA-only screenshot surface
         run: |
           grep -Fq 'buildConfigField("boolean", "USES_TEST_ADS", "false")' android/app/build.gradle.kts
