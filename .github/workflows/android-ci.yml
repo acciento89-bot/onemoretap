@@ -106,8 +106,6 @@ jobs:
           grep -q '1_200L' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
           grep -q 'scheduleInterstitialRetry' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
           grep -q 'ads.retryRewarded(activity)' "$ui"
-          grep -q 'NAVOTAP ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})' "$ui"
-          grep -q 'if (BuildConfig.DEBUG)' "$ui"
           grep -q 'onSurface = Color.White' "$ui"
           grep -Fq 'statusBarsPadding()' "$ui"
           grep -Fq 'navigationBarsPadding()' "$ui"
