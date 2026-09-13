@@ -1,0 +1,77 @@
+name: NavoTap finish shop parity
+
+on:
+  push:
+    branches: [fix/android-ios-parity]
+    paths:
+      - .github/workflows/navotap-shop-parity-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: fix/android-ios-parity
+          fetch-depth: 0
+      - name: Move privacy controls into reachable Shop and remove dead Settings UI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path('android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt')
+          s = p.read_text()
+          shop_start = s.index('private fun ShopScreen(')
+          product_start = s.index('@Composable\nprivate fun ProductCard(', shop_start)
+          shop = s[shop_start:product_start]
+          if 'PRIVACY OPTIONS' not in shop:
+              marker = '''        billing.statusMessage?.let {
+                      Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                  }
+          '''
+              addition = '''        if (ads.privacyOptionsRequired) {
+                      OutlinedButton(
+                          onClick = { ads.showPrivacyOptions(activity) },
+                          modifier = Modifier.fillMaxWidth().height(48.dp),
+                          shape = RoundedCornerShape(18.dp),
+                          colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White.copy(alpha = 0.72f)),
+                      ) { Text("PRIVACY OPTIONS", fontWeight = FontWeight.Bold) }
+                  }
+                  Text(
+                      "Themes are cosmetic only. Purchases never change hitboxes, scoring or difficulty.",
+                      color = Color.White.copy(alpha = 0.35f),
+                      textAlign = TextAlign.Center,
+                      fontSize = 10.sp,
+                      modifier = Modifier.fillMaxWidth(),
+                  )
+          ''' + marker
+              if marker not in shop:
+                  raise SystemExit('Shop status marker missing')
+              shop = shop.replace(marker, addition, 1)
+              s = s[:shop_start] + shop + s[product_start:]
+
+          settings = re.compile(r'\n@Composable\nprivate fun SettingsScreen\(.*\Z', re.S)
+          if not settings.search(s):
+              raise SystemExit('Dead Settings block not found')
+          s = settings.sub('\n', s, count=1)
+          p.write_text(s)
+          PY
+          file=android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
+          grep -Fq 'PRIVACY OPTIONS' "$file"
+          grep -Fq 'Themes are cosmetic only. Purchases never change hitboxes' "$file"
+          ! grep -Fq 'private fun SettingsScreen' "$file"
+          ! grep -Fq 'private fun SettingToggle' "$file"
+          git diff --check
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name Kamilunavo
+          git config user.email acciento89@gmail.com
+          git add android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
+          git commit -m 'fix(navotap): finish reachable Shop and privacy parity'
+          git push origin HEAD:fix/android-ios-parity
