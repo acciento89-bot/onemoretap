@@ -48,6 +48,7 @@ android {
 
     sourceSets.getByName("main").res.srcDir(generatedIconResDir)
 
+    // The rebuilt Compose shell is QA-gated for iOS parity, system bars and real-device input before Play.
     buildFeatures {
         compose = true
         buildConfig = true

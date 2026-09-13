@@ -3,6 +3,9 @@ package com.kamilunavo.onemoretap
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.os.Bundle
+import android.graphics.Color as AndroidColor
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import android.view.HapticFeedbackConstants
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -74,6 +77,10 @@ import kotlin.math.sin
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(AndroidColor.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(AndroidColor.TRANSPARENT),
+        )
         setContent {
             val profile = remember { PlayerProfile(applicationContext) }
             val billing = remember { BillingManager(applicationContext) }
@@ -95,7 +102,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private enum class AppScreen { HOME, GAME, SHOP, SETTINGS }
+private enum class AppScreen { HOME, GAME, SHOP }
 
 @Composable
 private fun NavoTapApp(
@@ -151,7 +158,6 @@ private fun NavoTapApp(
                             screen = AppScreen.GAME
                         },
                         onShop = { screen = AppScreen.SHOP },
-                        onSettings = { screen = AppScreen.SETTINGS },
                     )
                     AppScreen.GAME -> GameScreen(
                         activity = activity,
@@ -165,12 +171,6 @@ private fun NavoTapApp(
                         },
                     )
                     AppScreen.SHOP -> ShopScreen(
-                        activity = activity,
-                        profile = profile,
-                        billing = billing,
-                        onBack = { screen = AppScreen.HOME },
-                    )
-                    AppScreen.SETTINGS -> SettingsScreen(
                         activity = activity,
                         profile = profile,
                         billing = billing,
@@ -189,150 +189,113 @@ private fun HomeScreen(
     billing: BillingManager,
     onPlay: () -> Unit,
     onShop: () -> Unit,
-    onSettings: () -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .statusBarsPadding()
             .navigationBarsPadding()
-            .padding(horizontal = 24.dp, vertical = 24.dp),
+            .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(22.dp))
+        Spacer(Modifier.height(44.dp))
         NavoMark(profile.selectedTheme)
-        Spacer(Modifier.height(18.dp))
-        Text(
-            "NAVOTAP",
-            color = Color.White,
-            fontSize = 40.sp,
-            fontWeight = FontWeight.Black,
-            letterSpacing = 3.sp,
-        )
-        Text(
-            "ONE TAP. ONE CHANCE.",
-            color = Color.White.copy(alpha = 0.62f),
-            fontSize = 12.sp,
-            letterSpacing = 1.5.sp,
-        )
+        Spacer(Modifier.height(24.dp))
+        Text("NAVOTAP", color = Color.White, fontSize = 38.sp, fontWeight = FontWeight.Black, letterSpacing = 2.2.sp)
+        Spacer(Modifier.height(8.dp))
+        Text("One tap. One chance. One more run.", color = Color.White.copy(alpha = 0.55f), fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         if (BuildConfig.USES_TEST_ADS) {
             Spacer(Modifier.height(8.dp))
-            Text("ANDROID QA · TEST ADS", color = MaterialTheme.colorScheme.primary, fontSize = 11.sp)
+            Text("ANDROID QA · TEST ADS", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
         }
-
-        Spacer(Modifier.height(34.dp))
+        Spacer(Modifier.height(38.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             StatCard("BEST", profile.bestScore.toString(), Modifier.weight(1f))
             StatCard("COINS", profile.coins.toString(), Modifier.weight(1f))
         }
-
-        Spacer(Modifier.height(26.dp))
-        Text(
-            "CLASSIC MODE",
-            modifier = Modifier.fillMaxWidth(),
-            color = Color.White.copy(alpha = 0.52f),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.4.sp,
-        )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(30.dp))
         Button(
             onClick = onPlay,
-            modifier = Modifier.fillMaxWidth().height(68.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ),
+            modifier = Modifier.fillMaxWidth().height(62.dp),
+            shape = RoundedCornerShape(22.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
         ) {
-            Text("PLAY CLASSIC", fontWeight = FontWeight.Black, fontSize = 18.sp, letterSpacing = 0.8.sp)
+            Text("CLASSIC", fontWeight = FontWeight.Black, fontSize = 19.sp, letterSpacing = 0.5.sp)
+        }
+        Spacer(Modifier.height(12.dp))
+        Text("Tap when the orb reaches the target", color = Color.White.copy(alpha = 0.45f), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.height(34.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            TogglePill("Sound", profile.soundEnabled, Modifier.weight(1f)) { profile.setSound(!profile.soundEnabled) }
+            TogglePill("Haptics", profile.hapticsEnabled, Modifier.weight(1f)) { profile.setHaptics(!profile.hapticsEnabled) }
         }
         Spacer(Modifier.height(12.dp))
         OutlinedButton(
             onClick = onShop,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            shape = RoundedCornerShape(22.dp),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White.copy(alpha = 0.72f)),
         ) {
-            Text("SHOP", fontWeight = FontWeight.Bold)
+            Text("SHOP & THEMES", modifier = Modifier.weight(1f), fontWeight = FontWeight.Black, fontSize = 13.sp)
+            Text(profile.selectedTheme.title, color = profile.selectedTheme.primary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
         }
-        TextButton(
-            onClick = onSettings,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary),
-        ) {
-            Text("SETTINGS", fontWeight = FontWeight.Bold)
-        }
-
-        Spacer(Modifier.weight(1f))
-        Text(
-            if (billing.adsRemoved) "AD-FREE MODE ACTIVE" else "Hit the highlighted arc. One miss ends the run.",
-            textAlign = TextAlign.Center,
-            color = Color.White.copy(alpha = 0.44f),
-            fontSize = 12.sp,
-        )
+        Spacer(Modifier.height(24.dp))
+        if (billing.adsRemoved) Text("AD-FREE MODE ACTIVE", color = MaterialTheme.colorScheme.primary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(34.dp))
     }
 }
 
 @Composable
 private fun NavoMark(theme: GameTheme) {
-    Canvas(modifier = Modifier.size(76.dp)) {
-        val center = Offset(size.width / 2f, size.height / 2f)
-        val radius = size.minDimension * 0.28f
-        val diameter = radius * 2f
-        val topLeft = Offset(center.x - radius, center.y - radius)
-        val arcSize = Size(diameter, diameter)
-
-        drawCircle(theme.primary.copy(alpha = 0.12f), radius = radius * 1.55f, center = center)
-        drawCircle(
-            Color.White.copy(alpha = 0.18f),
-            radius = radius,
-            center = center,
-            style = Stroke(width = 3f),
-        )
-        drawArc(
-            color = theme.primary,
-            startAngle = -58f,
-            sweepAngle = 112f,
-            useCenter = false,
-            topLeft = topLeft,
-            size = arcSize,
-            style = Stroke(width = 8f, cap = StrokeCap.Round),
-        )
-        val markerAngle = -4.0 / 180.0 * PI
-        val marker = Offset(
-            center.x + cos(markerAngle).toFloat() * radius,
-            center.y + sin(markerAngle).toFloat() * radius,
-        )
-        drawCircle(Color.White, radius = 5.5f, center = marker)
-        drawCircle(theme.primary, radius = 5.5f, center = marker, style = Stroke(width = 2f))
+    Box(modifier = Modifier.size(142.dp), contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val center = Offset(size.width / 2f, size.height / 2f)
+            val outerRadius = size.minDimension * 0.49f
+            val arcRadius = size.minDimension * 0.415f
+            val diameter = arcRadius * 2f
+            val topLeft = Offset(center.x - arcRadius, center.y - arcRadius)
+            drawCircle(Color.White.copy(alpha = 0.08f), radius = outerRadius, center = center, style = Stroke(width = 2.5f))
+            drawArc(theme.primary, -68f, 230f, false, topLeft, Size(diameter, diameter), style = Stroke(width = 12f, cap = StrokeCap.Round))
+            drawArc(theme.secondary, 72f, 90f, false, topLeft, Size(diameter, diameter), style = Stroke(width = 12f, cap = StrokeCap.Round))
+            val marker = Offset(center.x + arcRadius, center.y)
+            drawCircle(theme.primary.copy(alpha = 0.28f), radius = 17f, center = marker)
+            drawCircle(Color.White, radius = 11f, center = marker)
+            drawCircle(Color.White.copy(alpha = 0.05f), radius = size.minDimension * 0.25f, center = center)
+        }
+        Text("TAP", color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp, letterSpacing = 1.3.sp)
     }
 }
 
 @Composable
 private fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.075f),
-            contentColor = Color.White,
-        ),
-        shape = RoundedCornerShape(22.dp),
-    ) {
-        Column(
-            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 18.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                label,
-                color = Color.White.copy(alpha = 0.48f),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 1.2.sp,
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(value, color = Color.White, fontSize = 27.sp, fontWeight = FontWeight.Black)
+    Card(modifier = modifier, colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.045f), contentColor = Color.White), shape = RoundedCornerShape(20.dp)) {
+        Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(38.dp).background(Color.White.copy(alpha = 0.055f), RoundedCornerShape(19.dp)), contentAlignment = Alignment.Center) {
+                Text(if (label == "BEST") "*" else "+", color = MaterialTheme.colorScheme.primary, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+            }
+            Spacer(Modifier.size(12.dp))
+            Column {
+                Text(label, color = Color.White.copy(alpha = 0.42f), fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.1.sp)
+                Text(value, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Black)
+            }
         }
+    }
+}
+
+@Composable
+private fun TogglePill(label: String, enabled: Boolean, modifier: Modifier = Modifier, onToggle: () -> Unit) {
+    Button(
+        onClick = onToggle,
+        modifier = modifier.height(44.dp),
+        shape = RoundedCornerShape(22.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.White.copy(alpha = if (enabled) 0.09f else 0.035f),
+            contentColor = if (enabled) Color.White else Color.White.copy(alpha = 0.42f),
+        ),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp),
+    ) {
+        Text(label, fontSize = 13.sp, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -668,6 +631,7 @@ private fun ShopScreen(
     activity: MainActivity,
     profile: PlayerProfile,
     billing: BillingManager,
+    ads: AdManager,
     onBack: () -> Unit,
 ) {
     Column(
@@ -682,7 +646,7 @@ private fun ShopScreen(
         Spacer(Modifier.height(6.dp))
         ScreenHeader(title = "SHOP", onBack = onBack)
         Text(
-            "Make the run yours. Themes are cosmetic and never change gameplay.",
+            "Cosmetics only. Classic stays fair.",
             color = Color.White.copy(alpha = 0.50f),
             fontSize = 12.sp,
         )
@@ -764,6 +728,21 @@ private fun ShopScreen(
         ) {
             Text("RESTORE PURCHASES", fontWeight = FontWeight.Bold)
         }
+        if (ads.privacyOptionsRequired) {
+            OutlinedButton(
+                onClick = { ads.showPrivacyOptions(activity) },
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                shape = RoundedCornerShape(18.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White.copy(alpha = 0.72f)),
+            ) { Text("PRIVACY OPTIONS", fontWeight = FontWeight.Bold) }
+        }
+        Text(
+            "Themes are cosmetic only. Purchases never change hitboxes, scoring or difficulty.",
+            color = Color.White.copy(alpha = 0.35f),
+            textAlign = TextAlign.Center,
+            fontSize = 10.sp,
+            modifier = Modifier.fillMaxWidth(),
+        )
         billing.statusMessage?.let {
             Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
         }
@@ -807,124 +786,6 @@ private fun ProductCard(
                     Text(price ?: "BUY", fontWeight = FontWeight.Black)
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun SettingsScreen(
-    activity: MainActivity,
-    profile: PlayerProfile,
-    billing: BillingManager,
-    ads: AdManager,
-    onBack: () -> Unit,
-) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 18.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        Spacer(Modifier.height(6.dp))
-        ScreenHeader(title = "SETTINGS", onBack = onBack)
-        Text(
-            "Tune feedback and manage your purchases.",
-            color = Color.White.copy(alpha = 0.50f),
-            fontSize = 12.sp,
-        )
-
-        Spacer(Modifier.height(4.dp))
-        SettingToggle("Sound", "Audio feedback on every hit", profile.soundEnabled, profile::setSound)
-        SettingToggle("Haptics", "Tactile feedback for timing", profile.hapticsEnabled, profile::setHaptics)
-
-        OutlinedButton(
-            onClick = billing::restorePurchases,
-            modifier = Modifier.fillMaxWidth().height(54.dp),
-            shape = RoundedCornerShape(20.dp),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-        ) {
-            Text("RESTORE PURCHASES", fontWeight = FontWeight.Bold)
-        }
-        if (ads.privacyOptionsRequired) {
-            OutlinedButton(
-                onClick = { ads.showPrivacyOptions(activity) },
-                modifier = Modifier.fillMaxWidth().height(54.dp),
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-            ) {
-                Text("PRIVACY OPTIONS", fontWeight = FontWeight.Bold)
-            }
-        }
-
-        Spacer(Modifier.height(10.dp))
-        Text(
-            "NAVOTAP ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
-            color = Color.White.copy(alpha = 0.46f),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 0.7.sp,
-        )
-        Text(
-            "Themes are cosmetic only. Remove Ads disables automatic interstitials; optional rewarded Continue remains available.",
-            color = Color.White.copy(alpha = 0.42f),
-            fontSize = 12.sp,
-        )
-        if (BuildConfig.DEBUG) {
-            ads.consentErrorMessage?.let {
-                Text("Debug consent status: $it", color = Color.White.copy(alpha = 0.32f), fontSize = 10.sp)
-            }
-        }
-        Spacer(Modifier.height(24.dp))
-    }
-}
-
-@Composable
-private fun ScreenHeader(title: String, onBack: () -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        TextButton(
-            onClick = onBack,
-            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary),
-        ) {
-            Text("BACK", fontWeight = FontWeight.Bold)
-        }
-        Spacer(Modifier.weight(1f))
-        Text(
-            title,
-            color = Color.White,
-            fontSize = 27.sp,
-            fontWeight = FontWeight.Black,
-            letterSpacing = 1.2.sp,
-        )
-    }
-}
-
-@Composable
-private fun SettingToggle(
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.075f),
-            contentColor = Color.White,
-        ),
-        shape = RoundedCornerShape(22.dp),
-    ) {
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text(title, color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
-                Spacer(Modifier.height(2.dp))
-                Text(subtitle, color = Color.White.copy(alpha = 0.48f), fontSize = 11.sp)
-            }
-            Switch(checked = checked, onCheckedChange = onCheckedChange)
         }
     }
 }

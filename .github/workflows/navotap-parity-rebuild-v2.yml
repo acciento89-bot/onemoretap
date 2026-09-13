@@ -1,0 +1,59 @@
+name: NavoTap parity rebuild retry
+
+on:
+  push:
+    branches:
+      - fix/android-ios-parity
+    paths:
+      - .github/workflows/navotap-parity-rebuild-v2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: fix/android-ios-parity
+          fetch-depth: 0
+
+      - name: Apply parity transformation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import textwrap
+
+          wf = Path('.github/workflows/navotap-parity-rebuild.yml').read_text()
+          start = wf.index("          python3 - <<'PY'\n") + len("          python3 - <<'PY'\n")
+          end = wf.index("\n          PY\n", start)
+          script = textwrap.dedent(wf[start:end])
+          brittle = """if restore not in shop:\n    raise SystemExit('Shop restore button block not found')\nshop = shop.replace(restore, replacement, 1)"""
+          tolerant = """if restore in shop:\n    shop = shop.replace(restore, replacement, 1)"""
+          if brittle not in script:
+              raise SystemExit('Expected rebuild script block not found')
+          script = script.replace(brittle, tolerant)
+          exec(compile(script, 'navotap-parity-rebuild', 'exec'), {'__name__': '__main__'})
+          PY
+
+          file=android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
+          grep -Fq 'One tap. One chance. One more run.' "$file"
+          grep -Fq 'SHOP & THEMES' "$file"
+          grep -Fq 'Tap when the orb reaches the target' "$file"
+          grep -Fq 'enableEdgeToEdge' "$file"
+          grep -Fq 'SystemBarStyle.dark' "$file"
+          ! grep -Fq 'onSettings = {' "$file"
+          git diff --check
+
+      - name: Commit parity rebuild
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name Kamilunavo
+          git config user.email acciento89@gmail.com
+          git add android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
+          git commit -m 'feat(navotap): match Android shell to SwiftUI home and shop [parity-rebuild]'
+          git push origin HEAD:fix/android-ios-parity
