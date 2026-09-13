@@ -1,9 +1,8 @@
 package com.kamilunavo.onemoretap
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.weight
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,14 +16,17 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun ScreenHeader(title: String, onBack: () -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
         TextButton(
             onClick = onBack,
             colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary),
         ) {
             Text("BACK", fontWeight = FontWeight.Bold)
         }
-        Spacer(Modifier.weight(1f))
         Text(
             title,
             color = Color.White,
