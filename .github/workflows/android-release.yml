@@ -68,8 +68,10 @@ jobs:
           grep -Fq 'versionCode = 6' android/app/build.gradle.kts
           grep -Fq 'versionName = "1.0.5"' android/app/build.gradle.kts
           grep -Fq 'isMinifyEnabled = false' android/app/build.gradle.kts
-          grep -Fq 'android:icon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
-          test -s android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+          grep -Fq 'android:icon="@drawable/navotap_app_icon"' android/app/src/main/AndroidManifest.xml
+          ! grep -Fq 'android:roundIcon=' android/app/src/main/AndroidManifest.xml
+          test -z "$(find android/app/src/main/res -type f \( -path '*/mipmap-anydpi*' -o -iname '*adaptive*' -o -iname '*foreground*' -o -iname '*background*' \) -print -quit)"
+          cmp -s OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png android/app/build/generated/navotapIcon/res/drawable-nodpi/navotap_app_icon.png
           grep -Fq 'tools:node="remove"' android/app/src/main/AndroidManifest.xml
           grep -Fq 'buildConfigField("boolean", "USES_TEST_ADS", "false")' android/app/build.gradle.kts
           grep -Fq 'fun retryRewarded(activity: Activity)' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt

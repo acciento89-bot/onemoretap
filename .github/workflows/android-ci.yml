@@ -8,10 +8,12 @@ on:
       - fix/android-ios-parity
     paths:
       - 'android/**'
+      - 'OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png'
       - '.github/workflows/android-ci.yml'
   pull_request:
     paths:
       - 'android/**'
+      - 'OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png'
       - '.github/workflows/android-ci.yml'
   workflow_dispatch:
 
@@ -42,32 +44,15 @@ jobs:
         run: |
           set -euo pipefail
           manifest='android/app/src/main/AndroidManifest.xml'
-          adaptive='android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml'
-          foreground='android/app/src/main/res/drawable/navotap_launcher_foreground.xml'
-          background='android/app/src/main/res/drawable/navotap_launcher_background.xml'
-          canonical='android/app/src/main/res/drawable/navotap_launcher_icon.xml'
+          canonical='OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png'
           test -s "$manifest"
-          test -s "$adaptive"
-          test -s "$foreground"
-          test -s "$background"
           test -s "$canonical"
-          grep -Fq 'android:icon="@mipmap/ic_launcher"' "$manifest"
-          grep -Fq 'android:roundIcon="@mipmap/ic_launcher"' "$manifest"
-          grep -Fq '<background android:drawable="@drawable/navotap_launcher_background" />' "$adaptive"
-          grep -Fq '<foreground android:drawable="@drawable/navotap_launcher_foreground" />' "$adaptive"
-          grep -Fq '#00E7F0' "$foreground"
-          grep -Fq '#7C5CFF' "$foreground"
-          grep -Fq '#FFFFFF' "$foreground"
-          grep -Fq '#00E7F0' "$canonical"
-          grep -Fq '#7C5CFF' "$canonical"
-          grep -Fq '#FFFFFF' "$canonical"
-          grep -Fq 'M54,48a6,6' "$foreground"
-          grep -Fq 'M54,48a6,6' "$canonical"
-          if grep -R --line-number -E 'android:icon="@(drawable|mipmap)/(?!ic_launcher)' android/app/src/main/AndroidManifest.xml 2>/dev/null; then
-            echo 'Unexpected alternate launcher icon reference found.'
-            exit 1
-          fi
-          echo 'NavoTap launcher identity is locked to the cyan/violet target mark.'
+          grep -Fq 'android:icon="@drawable/navotap_app_icon"' "$manifest"
+          ! grep -Fq 'android:roundIcon=' "$manifest"
+          grep -Fq 'Assets.xcassets/AppIcon.appiconset/AppIcon.png' android/app/build.gradle.kts
+          grep -Fq 'rename { "navotap_app_icon.png" }' android/app/build.gradle.kts
+          test -z "$(find android/app/src/main/res -type f \( -path '*/mipmap-anydpi*' -o -iname '*adaptive*' -o -iname '*foreground*' -o -iname '*background*' \) -print -quit)"
+          echo 'NavoTap launcher identity is locked directly to the iOS AppIcon.'
       - name: Classic engine parity tests on release variant
         env:
           NAVOTAP_ADMOB_APP_ID: ca-app-pub-8944085355624754~8281696102
@@ -86,11 +71,9 @@ jobs:
           grep -q 'versionName = "1.0.5"' android/app/build.gradle.kts
           grep -q 'isMinifyEnabled = false' android/app/build.gradle.kts
           grep -q 'testBuildType = "release"' android/app/build.gradle.kts
-          grep -q 'android:icon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
-          grep -q 'android:roundIcon="@mipmap/ic_launcher"' android/app/src/main/AndroidManifest.xml
-          test -s android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
-          test -s android/app/src/main/res/drawable/navotap_launcher_background.xml
-          test -s android/app/src/main/res/drawable/navotap_launcher_foreground.xml
+          grep -q 'android:icon="@drawable/navotap_app_icon"' android/app/src/main/AndroidManifest.xml
+          ! grep -Fq 'android:roundIcon=' android/app/src/main/AndroidManifest.xml
+          cmp -s OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png android/app/build/generated/navotapIcon/res/drawable-nodpi/navotap_app_icon.png
           grep -q 'com.kamilunavo.onemoretap.removeads' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
           grep -q 'om.kamilunavo.onemoretap.theme.fire' android/app/src/main/java/com/kamilunavo/onemoretap/PlayerProfile.kt
           grep -q 'play-services-ads:25.4.0' android/app/build.gradle.kts

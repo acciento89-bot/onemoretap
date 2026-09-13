@@ -7,8 +7,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher"
+        android:icon="@drawable/navotap_app_icon"
         android:label="NavoTap"
         android:supportsRtl="true"
         android:usesCleartextTraffic="false"
