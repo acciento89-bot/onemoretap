@@ -58,8 +58,8 @@ jobs:
           settings = re.compile(r'\n@Composable\nprivate fun SettingsScreen\(.*\Z', re.S)
           if not settings.search(s):
               raise SystemExit('Dead Settings block not found')
-          s = settings.sub('\n', s, count=1)
-          p.write_text(s)
+          s = settings.sub('', s, count=1)
+          p.write_text(s.rstrip() + '\n')
           PY
           file=android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
           grep -Fq 'PRIVACY OPTIONS' "$file"
