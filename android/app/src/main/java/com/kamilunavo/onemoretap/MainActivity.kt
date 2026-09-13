@@ -728,6 +728,21 @@ private fun ShopScreen(
         ) {
             Text("RESTORE PURCHASES", fontWeight = FontWeight.Bold)
         }
+        if (ads.privacyOptionsRequired) {
+            OutlinedButton(
+                onClick = { ads.showPrivacyOptions(activity) },
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                shape = RoundedCornerShape(18.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White.copy(alpha = 0.72f)),
+            ) { Text("PRIVACY OPTIONS", fontWeight = FontWeight.Bold) }
+        }
+        Text(
+            "Themes are cosmetic only. Purchases never change hitboxes, scoring or difficulty.",
+            color = Color.White.copy(alpha = 0.35f),
+            textAlign = TextAlign.Center,
+            fontSize = 10.sp,
+            modifier = Modifier.fillMaxWidth(),
+        )
         billing.statusMessage?.let {
             Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
         }
@@ -771,124 +786,6 @@ private fun ProductCard(
                     Text(price ?: "BUY", fontWeight = FontWeight.Black)
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun SettingsScreen(
-    activity: MainActivity,
-    profile: PlayerProfile,
-    billing: BillingManager,
-    ads: AdManager,
-    onBack: () -> Unit,
-) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 18.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        Spacer(Modifier.height(6.dp))
-        ScreenHeader(title = "SETTINGS", onBack = onBack)
-        Text(
-            "Tune feedback and manage your purchases.",
-            color = Color.White.copy(alpha = 0.50f),
-            fontSize = 12.sp,
-        )
-
-        Spacer(Modifier.height(4.dp))
-        SettingToggle("Sound", "Audio feedback on every hit", profile.soundEnabled, profile::setSound)
-        SettingToggle("Haptics", "Tactile feedback for timing", profile.hapticsEnabled, profile::setHaptics)
-
-        OutlinedButton(
-            onClick = billing::restorePurchases,
-            modifier = Modifier.fillMaxWidth().height(54.dp),
-            shape = RoundedCornerShape(20.dp),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-        ) {
-            Text("RESTORE PURCHASES", fontWeight = FontWeight.Bold)
-        }
-        if (ads.privacyOptionsRequired) {
-            OutlinedButton(
-                onClick = { ads.showPrivacyOptions(activity) },
-                modifier = Modifier.fillMaxWidth().height(54.dp),
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-            ) {
-                Text("PRIVACY OPTIONS", fontWeight = FontWeight.Bold)
-            }
-        }
-
-        Spacer(Modifier.height(10.dp))
-        Text(
-            "NAVOTAP ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
-            color = Color.White.copy(alpha = 0.46f),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 0.7.sp,
-        )
-        Text(
-            "Themes are cosmetic only. Remove Ads disables automatic interstitials; optional rewarded Continue remains available.",
-            color = Color.White.copy(alpha = 0.42f),
-            fontSize = 12.sp,
-        )
-        if (BuildConfig.DEBUG) {
-            ads.consentErrorMessage?.let {
-                Text("Debug consent status: $it", color = Color.White.copy(alpha = 0.32f), fontSize = 10.sp)
-            }
-        }
-        Spacer(Modifier.height(24.dp))
-    }
-}
-
-@Composable
-private fun ScreenHeader(title: String, onBack: () -> Unit) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        TextButton(
-            onClick = onBack,
-            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary),
-        ) {
-            Text("BACK", fontWeight = FontWeight.Bold)
-        }
-        Spacer(Modifier.weight(1f))
-        Text(
-            title,
-            color = Color.White,
-            fontSize = 27.sp,
-            fontWeight = FontWeight.Black,
-            letterSpacing = 1.2.sp,
-        )
-    }
-}
-
-@Composable
-private fun SettingToggle(
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.075f),
-            contentColor = Color.White,
-        ),
-        shape = RoundedCornerShape(22.dp),
-    ) {
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text(title, color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
-                Spacer(Modifier.height(2.dp))
-                Text(subtitle, color = Color.White.copy(alpha = 0.48f), fontSize = 11.sp)
-            }
-            Switch(checked = checked, onCheckedChange = onCheckedChange)
         }
     }
 }
