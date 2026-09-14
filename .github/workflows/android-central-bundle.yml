@@ -78,8 +78,8 @@ jobs:
         grep -Fq 'buildConfigField("boolean", "USES_TEST_ADS", "false")' android/app/build.gradle.kts
         grep -Fq 'fun retryRewarded(activity: Activity)' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
         grep -Fq 'scheduleInterstitialRetry' android/app/src/main/java/com/kamilunavo/onemoretap/AdManager.kt
-        grep -Fq 'if (BuildConfig.DEBUG)' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
-        grep -Fq 'NAVOTAP ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
+        grep -Fq 'if (BuildConfig.USES_TEST_ADS)' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
+        grep -Fq 'Text("ANDROID QA · TEST ADS"' android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt
     - name: Stage bundle for isolated signing
       run: |-
         set -euo pipefail
