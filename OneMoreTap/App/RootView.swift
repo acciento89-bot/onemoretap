@@ -4,6 +4,7 @@ enum AppRoute {
   case home
   case classic
   case shop
+  case skillLab
 }
 
 struct RootView: View {
@@ -24,12 +25,15 @@ struct RootView: View {
       case .home:
         HomeView(
           onPlayClassic: { navigate(to: .classic) },
-          onOpenShop: { navigate(to: .shop) }
+          onOpenShop: { navigate(to: .shop) },
+          onOpenSkillLab: { navigate(to: .skillLab) }
         )
         .transition(.opacity.combined(with: .scale(scale: 0.98)))
       case .classic:
         ClassicGameView(onExit: { navigate(to: .home) })
           .transition(.opacity)
+      case .skillLab:
+        SkillLabView(onExit: { navigate(to: .home) }).transition(.opacity)
       case .shop:
         ShopView(onClose: { navigate(to: .home) })
           .transition(.opacity.combined(with: .move(edge: .bottom)))
