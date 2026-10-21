@@ -4,12 +4,13 @@ struct HomeView: View {
   @EnvironmentObject private var profile: PlayerProfile
   let onPlayClassic: () -> Void
   let onOpenShop: () -> Void
+  let onOpenSkillLab: () -> Void
 
   var body: some View {
     GeometryReader { proxy in
       ScrollView {
         VStack(spacing: 0) {
-          Spacer(minLength: max(28, proxy.safeAreaInsets.top + 16))
+          Spacer(minLength: 28)
 
           logo
             .padding(.top, 18)
@@ -59,6 +60,11 @@ struct HomeView: View {
               .foregroundStyle(.white.opacity(0.45))
           }
           .padding(.top, 30)
+
+          Button(action: onOpenSkillLab) {
+            Label("SKILL LAB", systemImage: "scope")
+              .font(.headline).frame(maxWidth: .infinity).padding(.vertical, 14)
+          }.buttonStyle(.bordered).tint(profile.selectedTheme.primary).padding(.top, 20)
 
           HStack(spacing: 12) {
             TogglePill(symbol: "speaker.wave.2.fill", isOn: $profile.soundEnabled, label: "Sound")

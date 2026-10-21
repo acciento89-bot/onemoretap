@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -64,6 +65,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.LifecycleEventObserver
 import com.kamilunavo.onemoretap.game.ClassicGameSession
 import com.kamilunavo.onemoretap.game.HitQuality
@@ -86,6 +88,7 @@ class MainActivity : ComponentActivity() {
             val billing = remember { BillingManager(applicationContext) }
             val ads = remember { AdManager(applicationContext) }
             val session = remember { ClassicGameSession(profile) }
+            val skillLab = remember { ViewModelProvider(this@MainActivity)[SkillLabSession::class.java] }
 
             LaunchedEffect(Unit) {
                 ads.requestConsentAndStart(this@MainActivity)
@@ -97,6 +100,7 @@ class MainActivity : ComponentActivity() {
                 billing = billing,
                 ads = ads,
                 session = session,
+                skillLab = skillLab,
             )
         }
     }
@@ -111,11 +115,12 @@ private fun NavoTapApp(
     billing: BillingManager,
     ads: AdManager,
     session: ClassicGameSession,
+    skillLab: SkillLabSession,
 ) {
     var screen by remember { mutableStateOf(AppScreen.HOME) }
     val theme = profile.selectedTheme
 
-    BackHandler(enabled = screen != AppScreen.HOME) {
+    BackHandler(enabled = screen != AppScreen.HOME && !skillLab.isVisible) {
         when (screen) {
             AppScreen.GAME -> {
                 if (session.isGameOver) session.commitRunIfNeeded() else session.pause()
@@ -149,7 +154,9 @@ private fun NavoTapApp(
                     .fillMaxSize()
                     .background(Brush.verticalGradient(listOf(theme.backgroundTop, theme.backgroundBottom)))
             ) {
-                when (screen) {
+                if (skillLab.isVisible) {
+                    SkillLabScreen(profile,skillLab) { skillLab.isVisible = false }
+                } else when (screen) {
                     AppScreen.HOME -> HomeScreen(
                         profile = profile,
                         billing = billing,
@@ -158,6 +165,7 @@ private fun NavoTapApp(
                             screen = AppScreen.GAME
                         },
                         onShop = { screen = AppScreen.SHOP },
+                        onSkillLab = { skillLab.isVisible = true },
                     )
                     AppScreen.GAME -> GameScreen(
                         activity = activity,
@@ -189,6 +197,7 @@ private fun HomeScreen(
     billing: BillingManager,
     onPlay: () -> Unit,
     onShop: () -> Unit,
+    onSkillLab: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -225,6 +234,8 @@ private fun HomeScreen(
         }
         Spacer(Modifier.height(12.dp))
         Text("Tap when the orb reaches the target", color = Color.White.copy(alpha = 0.45f), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.height(20.dp))
+        OutlinedButton(onClick = onSkillLab,modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("SKILL LAB") }
         Spacer(Modifier.height(34.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             TogglePill("Sound", profile.soundEnabled, Modifier.weight(1f)) { profile.setSound(!profile.soundEnabled) }
