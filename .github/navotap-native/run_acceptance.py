@@ -3,10 +3,10 @@ import datetime,hashlib,io,json,os,pathlib,re,subprocess,tarfile,time,xml.etree.
 from archive_contract import archive,profile
 from motion_contract import validate as validate_motion
 APP='com.kamilunavo.onemoretap';HOST=APP+'qa'
-FRAMES=['00-home','00-classic','01-drills','02-moving-a','02-moving-b','03-held-a','03-held-b','04-resumed-a','04-resumed-b','05-feedback','06-next-target','07-timing-result','08-repeat-a','08-repeat-b','09-precision-result','10-counterclockwise','11-clockwise','12-direction-result','13-cold-history','14-short-paused','15-protected-archive','16-save-failure','17-retry-saved','18-final-cold']
-NATIVE_FILES={n+e for n in FRAMES for e in ['.png','.xml','.time']}|{'audio-playback.txt'}
+FRAMES=['00-privacy-choice','00-home','00-classic','01-drills','02-moving-a','02-moving-b','03-held-a','03-held-b','04-resumed-a','04-resumed-b','05-feedback','06-next-target','07-timing-result','08-repeat-a','08-repeat-b','09-precision-result','10-counterclockwise','11-clockwise','12-direction-result','13-cold-history','14-short-paused','15-protected-archive','16-save-failure','17-retry-saved','18-final-cold']
+NATIVE_FILES={n+e for n in FRAMES for e in ['.png','.xml','.time']}|{'audio-playback.txt','privacy-choice.txt','scroll-observations.txt'}
 OPTIONAL_FILES={'failure-screen.png','failure-screen.xml','failure-screen.time'}
-GENERIC_FILES={'result.json','source-commit.txt','host-build.log','root-mode.txt','installed-identity.txt','preflight-anr.txt','final-anr.txt','window.txt','logcat.txt','final-screen.png','emulator-stop.txt','avd-delete.txt','remaining-avds.txt','remaining-devices.txt','cleanup.json','cleanup-failed.txt','fixture-manifest.json','fixture-profile.xml','failure-profile.xml','muted-profile.xml','mute-instrumentation.txt','motion-measurements.json','corrupt-archive.json'}|{f'phase{i}-{name}'for i in range(1,7)for name in ['instrumentation.txt','profile.xml','archive.json']}
+GENERIC_FILES={'result.json','source-commit.txt','host-build.log','root-mode.txt','installed-identity.txt','preflight-anr.txt','final-anr.txt','window.txt','logcat.txt','final-screen.png','emulator-stop.txt','avd-delete.txt','remaining-avds.txt','remaining-devices.txt','cleanup.json','cleanup-failed.txt','fixture-manifest.json','fixture-profile.xml','failure-profile.xml','muted-profile.xml','mute-instrumentation.txt','phase0-instrumentation.txt','privacy-consent-summary.json','motion-measurements.json','corrupt-archive.json'}|{f'phase{i}-{name}'for i in range(1,7)for name in ['instrumentation.txt','profile.xml','archive.json']}
 def reject_anr(data):
  if re.search(rb'ANR in|Application Not Responding|com.android.systemui|com.google.android.apps.nexuslauncher',data,re.I):raise RuntimeError('Observed system/launcher ANR; no dismissal')
 def reject_anr_window(data):
@@ -36,6 +36,25 @@ def run():
   uid=call(['shell','stat','-c','%u',root]).decode().strip();gid=call(['shell','stat','-c','%g',root]).decode().strip();assert uid.isdecimal()and gid.isdecimal()and int(uid)>=10000
   xml=b'<?xml version="1.0" encoding="utf-8"?><map><int name="classic.bestScore" value="17"/><int name="wallet.coins" value="23"/><boolean name="settings.soundEnabled" value="true"/><boolean name="settings.hapticsEnabled" value="false"/><string name="cosmetics.selectedTheme">neon</string><int name="ads.restartCount" value="1"/></map>'
   baseline=profile(xml);(proof/'fixture-profile.xml').write_bytes(xml);(proof/'fixture-manifest.json').write_text(json.dumps({'ownedFreshEmulatorOnly':True,'premiumFixture':False,'explicitFreeLegacyProfile':baseline,'shippingTestEndpoint':False})+'\n');call(['push',str(proof/'fixture-profile.xml'),'/data/local/tmp/navotap-owned-profile.xml']);call(['shell',f'mkdir -p {root}/shared_prefs && cat /data/local/tmp/navotap-owned-profile.xml > {pref} && chown {uid}:{gid} {root}/shared_prefs {pref} && chmod 700 {root}/shared_prefs && chmod 600 {pref} && restorecon -RF {root}/shared_prefs && rm /data/local/tmp/navotap-owned-profile.xml'])
+  # Complete the SDK's real first-run privacy UI before testing gameplay.
+  # No flags, entitlement or fabricated consent records are injected.
+  instrument('privacyChoicesBeforeGameplay',0)
+  choice=call(['exec-out','run-as',HOST,'cat','files/native-proof/privacy-choice.txt']).decode().strip()
+  assert choice in ['FORM_NOT_SHOWN','CONFIRMED_EXISTING_DEFAULTS_OFF']
+  result['privacyChoice']=choice
+  if choice=='CONFIRMED_EXISTING_DEFAULTS_OFF':
+   consent_file=root+'/shared_prefs/'+APP+'_preferences.xml'
+   until=time.monotonic()+5
+   while True:
+    raw=call(['exec-out','cat',consent_file]);fields={e.get('name'):e.text or ''for e in ET.fromstring(raw).iter('string')}
+    purpose=fields.get('IABTCF_PurposeConsents','');vendors=fields.get('IABTCF_VendorConsents','')
+    if purpose and vendors:break
+    assert time.monotonic()<until,'Actual declined consent did not become durable'
+    time.sleep(.05)
+   summary={'purposeConsentsPresent':True,'purposeConsentsAllZero':set(purpose)=={'0'},'vendorConsentsAllZero':set(vendors)=={'0'}}
+   assert summary['purposeConsentsAllZero']and summary['vendorConsentsAllZero'],'Acceptance must not grant ad consent'
+   (proof/'privacy-consent-summary.json').write_text(json.dumps(summary)+'\n')
+  call(['shell','am','force-stop',APP])
   # The immutable shipping APK is deliberately NOT debuggable. UiAutomation's
   # shell cannot use run-as to read it; only this already-rooted owned emulator
   # controller reads the exact six synthetic preferences before process death.
