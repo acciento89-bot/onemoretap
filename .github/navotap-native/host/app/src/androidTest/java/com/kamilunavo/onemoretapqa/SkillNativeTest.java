@@ -64,6 +64,7 @@ public final class SkillNativeTest {
  @Test public void threeDrillsWithRenderedMotion()throws Exception {
   audioCount(1);text("Sound");audioCount(0);text("Sound");audioCount(1);
   device.pressHome();assertTrue(device.wait(Until.gone(By.pkg(APP)),10000));audioCount(0);launch();audioCount(1);
+  top();capture("00-home");text("CLASSIC");capture("00-classic");device.pressBack();expect("SKILL LAB");
   text("SKILL LAB");expect("Practice only. Classic records, coins and ad continues stay separate. Only completed results are saved on this device.");capture("01-drills");
   start("Steady timing");pair("02-moving",250);
   text("Pause");expect("Paused. Resume when ready.");pair("03-held",500);
