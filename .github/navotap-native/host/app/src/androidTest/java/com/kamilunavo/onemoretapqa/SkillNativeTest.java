@@ -31,13 +31,13 @@ public final class SkillNativeTest {
   if(!APP.equals(device.getCurrentPackageName()))launch();
  }
  private void launch(){Intent i=host.getPackageManager().getLaunchIntentForPackage(APP);assertNotNull(i);host.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));assertTrue(device.wait(Until.hasObject(By.pkg(APP)),20000));}
- private void top(){for(int n=0;n<10;n++)device.swipe(device.getDisplayWidth()/2,(int)(device.getDisplayHeight()*.3),device.getDisplayWidth()/2,(int)(device.getDisplayHeight()*.8),15);}
+ private void top(){for(int n=0;n<10;n++)device.swipe(device.getDisplayWidth()/40,(int)(device.getDisplayHeight()*.3),device.getDisplayWidth()/40,(int)(device.getDisplayHeight()*.8),15);}
  private UiObject2 find(BySelector selector){
   // A successful hasObject followed by findObjects can span a Compose transition.
   // Poll the actual unique snapshot; absence is transient, ambiguity still fails.
   long until=SystemClock.elapsedRealtime()+1500;
   do {List<UiObject2> nodes=device.findObjects(selector);if(nodes.size()==1)return nodes.get(0);if(nodes.size()>1)fail("Ambiguous target "+selector);SystemClock.sleep(25);}while(SystemClock.elapsedRealtime()<until);
-  top();for(int n=0;n<25;n++){List<UiObject2> nodes=device.findObjects(selector);if(nodes.size()==1)return nodes.get(0);if(nodes.size()>1)fail("Ambiguous target "+selector);device.swipe(device.getDisplayWidth()/2,(int)(device.getDisplayHeight()*.78),device.getDisplayWidth()/2,(int)(device.getDisplayHeight()*.28),20);}
+  top();for(int n=0;n<25;n++){List<UiObject2> nodes=device.findObjects(selector);if(nodes.size()==1)return nodes.get(0);if(nodes.size()>1)fail("Ambiguous target "+selector);device.swipe(device.getDisplayWidth()/40,(int)(device.getDisplayHeight()*.78),device.getDisplayWidth()/40,(int)(device.getDisplayHeight()*.28),20);}
   fail("Target missing "+selector);return null;
  }
  private void click(BySelector selector){UiObject2 n=find(selector);assertTrue("Disabled target "+selector,n.isEnabled());n.click();}
@@ -48,7 +48,7 @@ public final class SkillNativeTest {
   for(int attempt=0;attempt<8;attempt++){
    android.graphics.Rect r=node.getVisibleBounds();if(r.height()>=r.width()-3)return;
    int h=device.getDisplayHeight();boolean clippedTop=r.top<h*.16;
-   device.swipe(device.getDisplayWidth()/2,(int)(h*(clippedTop?.3:.72)),device.getDisplayWidth()/2,(int)(h*(clippedTop?.62:.42)),20);node=find(By.desc(RING));
+   device.swipe(device.getDisplayWidth()/40,(int)(h*(clippedTop?.3:.72)),device.getDisplayWidth()/40,(int)(h*(clippedTop?.62:.42)),20);node=find(By.desc(RING));
   }
   fail("Whole ring must fit the real scrollable viewport");
  }
