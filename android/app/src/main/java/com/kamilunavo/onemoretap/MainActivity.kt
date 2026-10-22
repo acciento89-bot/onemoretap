@@ -127,7 +127,9 @@ private fun NavoTapApp(
 ) {
     var screen by remember { mutableStateOf(AppScreen.HOME) }
     val theme = profile.selectedTheme
-    SideEffect { activity.setSoundEnabled(profile.soundEnabled) }
+    // Read during composition so Sound changes invalidate this effect owner.
+    val musicEnabled = profile.soundEnabled
+    SideEffect { activity.setSoundEnabled(musicEnabled) }
 
     BackHandler(enabled = screen != AppScreen.HOME && !skillLab.isVisible) {
         when (screen) {
