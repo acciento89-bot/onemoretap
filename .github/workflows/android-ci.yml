@@ -136,6 +136,7 @@ jobs:
       - name: Build one immutable release bundle
         run: |
           gradle -p android --no-daemon --max-workers=1 bundleRelease
+          python3 .github/navotap-native/sdk_contract.py android/app/build/outputs/bundle/release/app-release.aab
           mkdir candidate
           cp android/app/build/outputs/bundle/release/app-release.aab candidate/app-release.aab
           printf '%s\n' "$GITHUB_SHA" > candidate/source-commit.txt

@@ -1,6 +1,8 @@
 """Independent actual certificate, manifest and payload verification before installation."""
 import hashlib,json,os,pathlib,re,subprocess,xml.etree.ElementTree as ET,zipfile
+from sdk_contract import verify_fragment
 folder=pathlib.Path('candidate');aab=folder/'app-release.aab';tool=pathlib.Path(os.environ['RUNNER_TEMP'])/'bundletool.jar'
+verify_fragment(aab)
 def cmd(*args):return subprocess.check_output(args,stderr=subprocess.STDOUT).decode()
 assert 'jar verified.'in cmd('jarsigner','-verify',str(aab))
 cert=cmd('keytool','-J-Duser.language=en','-printcert','-jarfile',str(aab));actual=re.search(r'SHA256:\s*([0-9A-F:]+)',cert)[1].replace(':','');assert actual=='7985BD6B33711BACA7E6BA722C2B3870EBBC802F7DB4A7BC1206BDAE51C4D5D6'

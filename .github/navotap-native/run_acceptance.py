@@ -3,7 +3,7 @@ import datetime,hashlib,io,json,os,pathlib,re,subprocess,tarfile,xml.etree.Eleme
 from archive_contract import archive,profile
 from motion_contract import validate as validate_motion
 APP='com.kamilunavo.onemoretap';HOST=APP+'qa'
-FRAMES=['01-drills','02-moving-a','02-moving-b','03-held-a','03-held-b','04-resumed-a','04-resumed-b','05-feedback','06-next-target','07-timing-result','08-repeat-a','08-repeat-b','09-precision-result','10-counterclockwise','11-clockwise','12-direction-result','13-cold-history','14-short-paused','15-protected-archive','16-save-failure','17-retry-saved','18-final-cold']
+FRAMES=['00-home','00-classic','01-drills','02-moving-a','02-moving-b','03-held-a','03-held-b','04-resumed-a','04-resumed-b','05-feedback','06-next-target','07-timing-result','08-repeat-a','08-repeat-b','09-precision-result','10-counterclockwise','11-clockwise','12-direction-result','13-cold-history','14-short-paused','15-protected-archive','16-save-failure','17-retry-saved','18-final-cold']
 NATIVE_FILES={n+e for n in FRAMES for e in ['.png','.xml','.time']}|{'audio-playback.txt'}
 OPTIONAL_FILES={'failure-screen.png','failure-screen.xml','failure-screen.time'}
 GENERIC_FILES={'result.json','source-commit.txt','host-build.log','root-mode.txt','installed-identity.txt','preflight-anr.txt','final-anr.txt','window.txt','logcat.txt','final-screen.png','emulator-stop.txt','avd-delete.txt','remaining-avds.txt','remaining-devices.txt','cleanup.json','cleanup-failed.txt','fixture-manifest.json','fixture-profile.xml','motion-measurements.json','corrupt-archive.json'}|{f'phase{i}-{name}'for i in range(1,7)for name in ['instrumentation.txt','profile.xml','archive.json']}

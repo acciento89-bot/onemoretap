@@ -58,7 +58,7 @@ jobs:
         with:
           api-level: 35
           arch: x86_64
-          profile: pixel_7
+          profile: pixel_2
           avd-name: NavoTapQualityAcceptance-35
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -memory 2048
           disk-size: 4096M
