@@ -27,6 +27,12 @@ class MotionContract(unittest.TestCase):
   with tempfile.TemporaryDirectory() as tmp:
    root=pathlib.Path(tmp);self.frame(root,'a',100,target=0);self.frame(root,'b',100,target=45)
    self.assertAlmostEqual(m.delta(m.geometry(root,'a')['target'],m.geometry(root,'b')['target']),45,delta=0.5)
+ def test_gray_marker_antialiasing_is_not_a_purple_target_endpoint(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=pathlib.Path(tmp);self.frame(root,'a',100);expected=m.geometry(root,'a')['target']
+   with Image.open(root/'a.png')as original:
+    im=original.convert('RGB');d=ImageDraw.Draw(im);d.ellipse((307,216,312,221),fill=(155,155,155));im.save(root/'a.png')
+   self.assertAlmostEqual(m.delta(expected,m.geometry(root,'a')['target']),0,delta=0.5)
  def test_missing_actual_marker_never_passes_as_movement(self):
   with tempfile.TemporaryDirectory() as tmp:
    root=pathlib.Path(tmp);self.frame(root,'a',100);Image.new('RGB',(700,900),(8,5,20)).save(root/'a.png')

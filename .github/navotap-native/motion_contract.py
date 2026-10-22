@@ -13,9 +13,9 @@ def geometry(folder:pathlib.Path,stem:str):
     if abs(distance-radius)>w*.035:continue
     r,g,b=image.getpixel((x,y))[:3]
     if min(r,g,b)>230:marker.append((x,y))
-    elif (g>100 and b>100 and r<60)or(b>130 and r>70 and g<160):
+    elif (g>100 and b>100 and r<60)or(b>130 and r>70 and g<160 and b-r>40 and b-g>60):
      target.append((x,y))
-     if b>130 and r>70 and g<160:perfect.append((x,y))
+     if b>130 and r>70 and g<160 and b-r>40 and b-g>60:perfect.append((x,y))
   assert len(marker)>40 and len(target)>40,'Actual bright marker and colored target pixels required'
   def centroid(points):return(sum(x for x,y in points)/len(points),sum(y for x,y in points)/len(points))
   def angle(point):return math.degrees(math.atan2(cy-point[1],point[0]-cx))%360
