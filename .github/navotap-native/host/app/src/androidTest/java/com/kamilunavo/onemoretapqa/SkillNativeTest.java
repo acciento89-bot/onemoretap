@@ -74,7 +74,9 @@ public final class SkillNativeTest {
   try(FileWriter out=new FileWriter(new File(proof,"audio-playback.txt"),true)){out.write("elapsed="+SystemClock.elapsedRealtime()+" expected="+expected+" actual="+count+"\n");}
  }
  @Test public void threeDrillsWithRenderedMotion()throws Exception {
-  audioCount(1);text("Sound");audioCount(0);text("Sound");audioCount(1);
+  audioCount(1);text("Sound");audioCount(0);
+  device.executeShellCommand("am force-stop "+APP);launch();expect("Sound");audioCount(0);
+  text("Sound");audioCount(1);
   device.pressHome();assertTrue(device.wait(Until.gone(By.pkg(APP)),10000));audioCount(0);launch();audioCount(1);
   top();capture("00-home");text("CLASSIC");capture("00-classic");device.pressBack();expect("SKILL LAB");
   text("SKILL LAB");expect("Practice only. Classic records, coins and ad continues stay separate. Only completed results are saved on this device.");capture("01-drills");
