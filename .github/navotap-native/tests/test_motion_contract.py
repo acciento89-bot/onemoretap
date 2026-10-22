@@ -14,6 +14,19 @@ class MotionContract(unittest.TestCase):
   with tempfile.TemporaryDirectory() as tmp:
    root=pathlib.Path(tmp);self.frame(root,'a',100);self.frame(root,'b',135);a=m.geometry(root,'a');b=m.geometry(root,'b');self.assertAlmostEqual(m.delta(a['marker'],b['marker']),35,delta=1);self.assertAlmostEqual(m.delta(a['target'],b['target']),0,delta=0.1)
    self.frame(root,'held',135);self.assertAlmostEqual(m.delta(b['marker'],m.geometry(root,'held')['marker']),0,delta=0.1)
+ def test_marker_overlap_does_not_make_the_stationary_target_move(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=pathlib.Path(tmp);self.frame(root,'clear',100);expected=m.geometry(root,'clear')['target']
+   for angle in [13,20]:
+    self.frame(root,'overlap',angle)
+    with Image.open(root/'overlap.png')as original:
+     im=original.convert('RGB');d=ImageDraw.Draw(im);d.arc((116,216,584,684),-8,8,fill=(130,70,230),width=20)
+     x,y=350+234*math.cos(math.radians(angle)),450-234*math.sin(math.radians(angle));d.ellipse((x-12,y-12,x+12,y+12),fill='white');im.save(root/'overlap.png')
+    self.assertAlmostEqual(m.delta(expected,m.geometry(root,'overlap')['target']),0,delta=0.5)
+ def test_actual_target_shift_is_not_mistaken_for_marker_occlusion(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=pathlib.Path(tmp);self.frame(root,'a',100,target=0);self.frame(root,'b',100,target=45)
+   self.assertAlmostEqual(m.delta(m.geometry(root,'a')['target'],m.geometry(root,'b')['target']),45,delta=0.5)
  def test_missing_actual_marker_never_passes_as_movement(self):
   with tempfile.TemporaryDirectory() as tmp:
    root=pathlib.Path(tmp);self.frame(root,'a',100);Image.new('RGB',(700,900),(8,5,20)).save(root/'a.png')
