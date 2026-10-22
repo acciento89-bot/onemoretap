@@ -40,8 +40,17 @@ public final class SkillNativeTest {
  private void click(BySelector selector){UiObject2 n=find(selector);assertTrue("Disabled target "+selector,n.isEnabled());n.click();}
  private void text(String s){click(By.text(s));}
  private void expect(String s){assertNotNull(find(By.text(s)));}
+ private void fullRing(){
+  UiObject2 node=find(By.desc(RING));
+  for(int attempt=0;attempt<8;attempt++){
+   android.graphics.Rect r=node.getVisibleBounds();if(r.height()>=r.width()-3)return;
+   int h=device.getDisplayHeight();boolean clippedTop=r.top<h*.16;
+   device.swipe(device.getDisplayWidth()/2,(int)(h*(clippedTop?.3:.72)),device.getDisplayWidth()/2,(int)(h*(clippedTop?.62:.42)),20);node=find(By.desc(RING));
+  }
+  fail("Whole ring must fit the real scrollable viewport");
+ }
  private void capture(String name)throws Exception {
-  if(!name.equals("failure-screen"))assertEquals(APP,device.getCurrentPackageName());
+  if(!name.equals("failure-screen")){assertEquals(APP,device.getCurrentPackageName());if(device.hasObject(By.desc(RING)))fullRing();}
   assertTrue(device.takeScreenshot(new File(proof,name+".png")));device.dumpWindowHierarchy(new File(proof,name+".xml"));
   try(FileWriter out=new FileWriter(new File(proof,name+".time"))){out.write(Long.toString(SystemClock.elapsedRealtime()));}
  }
