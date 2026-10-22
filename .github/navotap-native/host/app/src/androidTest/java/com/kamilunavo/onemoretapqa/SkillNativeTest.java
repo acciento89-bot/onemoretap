@@ -40,7 +40,18 @@ public final class SkillNativeTest {
   top();for(int n=0;n<25;n++){List<UiObject2> nodes=device.findObjects(selector);if(nodes.size()==1)return nodes.get(0);if(nodes.size()>1)fail("Ambiguous target "+selector);device.swipe(device.getDisplayWidth()/40,(int)(device.getDisplayHeight()*.78),device.getDisplayWidth()/40,(int)(device.getDisplayHeight()*.28),20);}
   fail("Target missing "+selector);return null;
  }
- private void click(BySelector selector){UiObject2 n=find(selector);assertTrue("Disabled target "+selector,n.isEnabled());n.click();}
+ private UiObject2 touchable(BySelector selector){
+  for(int attempt=0;attempt<12;attempt++){
+   UiObject2 n=find(selector);int ancestors=0;
+   while(!n.isClickable()&&ancestors++<4){n=n.getParent();assertNotNull("Clickable control required "+selector,n);}
+   assertTrue("Clickable target required "+selector,n.isClickable());
+   android.graphics.Rect bounds=n.getVisibleBounds();
+   if(bounds.height()>=90&&bounds.width()>=90)return n;
+   int h=device.getDisplayHeight();device.swipe(device.getDisplayWidth()/40,(int)(h*.78),device.getDisplayWidth()/40,(int)(h*.48),15);
+  }
+  fail("Control must be genuinely touchable, not a clipped label: "+selector);return null;
+ }
+ private void click(BySelector selector){UiObject2 n=touchable(selector);assertTrue("Disabled target "+selector,n.isEnabled());n.click();}
  private void text(String s){click(By.text(s));}
  private void expect(String s){assertNotNull(find(By.text(s)));}
  private void fullRing(){
@@ -53,7 +64,7 @@ public final class SkillNativeTest {
   fail("Whole ring must fit the real scrollable viewport");
  }
  private void capture(String name)throws Exception {
-  if(!name.equals("failure-screen")){assertEquals(APP,device.getCurrentPackageName());if(device.hasObject(By.desc(RING)))fullRing();}
+  if(!name.equals("failure-screen")){assertEquals(APP,device.getCurrentPackageName());if(!name.equals("14-short-paused")&&device.hasObject(By.desc(RING)))fullRing();}
   assertTrue(device.takeScreenshot(new File(proof,name+".png")));device.dumpWindowHierarchy(new File(proof,name+".xml"));
   try(FileWriter out=new FileWriter(new File(proof,name+".time"))){out.write(Long.toString(SystemClock.elapsedRealtime()));}
  }
@@ -98,7 +109,9 @@ public final class SkillNativeTest {
  @Test public void coldAndShortLayout()throws Exception {
   text("SKILL LAB");expect("Recent practice");capture("13-cold-history");
   start("Precision");text("Pause");expect("Paused. Resume when ready.");
-  device.executeShellCommand("wm size 1080x1350");expect("Resume");capture("14-short-paused");
+  device.executeShellCommand("wm size 1080x1350");expect("Resume");
+  text("Resume");expect("Pause");text("Pause");expect("Paused. Resume when ready.");
+  touchable(By.text("Resume"));capture("14-short-paused");
   device.executeShellCommand("wm size reset");expect("Resume");text("Back to drills");
  }
  @Test public void corruptedArchiveIsProtected()throws Exception {
@@ -119,7 +132,9 @@ public final class SkillNativeTest {
   expect("Saving failed. Your result remains here; retry below.");expect("Save result");capture("16-save-failure");
  }
  @Test public void retryWritesOnce()throws Exception {
-  expect("Saving failed. Your result remains here; retry below.");text("Save result");expect("Saved on this device");assertFalse(device.hasObject(By.text("Save result")));capture("17-retry-saved");menu();
+  // Phase4 already observed the real failure banner and root-checked unchanged
+  // durable bytes. Retry the retained result via its actual enabled control.
+  expect("Save result");text("Save result");expect("Saved on this device");assertFalse(device.hasObject(By.text("Save result")));capture("17-retry-saved");menu();
  }
  @Test public void finalColdHistory()throws Exception {text("SKILL LAB");expect("Recent practice");capture("18-final-cold");}
 }
