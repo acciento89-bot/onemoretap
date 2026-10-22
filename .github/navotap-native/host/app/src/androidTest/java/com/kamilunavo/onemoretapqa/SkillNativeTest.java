@@ -73,8 +73,24 @@ public final class SkillNativeTest {
   assertEquals("Actual active game music count",expected,count);
   try(FileWriter out=new FileWriter(new File(proof,"audio-playback.txt"),true)){out.write("elapsed="+SystemClock.elapsedRealtime()+" expected="+expected+" actual="+count+"\n");}
  }
+ private void soundPreferenceDurable(boolean value)throws Exception {
+  long until=SystemClock.elapsedRealtime()+5000;
+  do {
+   String xml=device.executeShellCommand("run-as "+APP+" cat shared_prefs/navotap_profile.xml");
+   String files=device.executeShellCommand("run-as "+APP+" ls shared_prefs");
+   try {
+    org.xmlpull.v1.XmlPullParser parser=android.util.Xml.newPullParser();parser.setInput(new StringReader(xml));
+    for(int event=parser.getEventType();event!=org.xmlpull.v1.XmlPullParser.END_DOCUMENT;event=parser.next()){
+     if(event==org.xmlpull.v1.XmlPullParser.START_TAG && "boolean".equals(parser.getName()) && "settings.soundEnabled".equals(parser.getAttributeValue(null,"name")) && Boolean.toString(value).equals(parser.getAttributeValue(null,"value")) && !files.contains("navotap_profile.xml.bak"))return;
+    }
+   }catch(org.xmlpull.v1.XmlPullParserException ignored){}
+   SystemClock.sleep(25);
+  }while(SystemClock.elapsedRealtime()<until);
+  fail("Sound preference must reach the actual durable XML before testing process restart");
+ }
  @Test public void threeDrillsWithRenderedMotion()throws Exception {
   audioCount(1);text("Sound");audioCount(0);
+  soundPreferenceDurable(false);
   device.executeShellCommand("am force-stop "+APP);launch();expect("Sound");audioCount(0);
   text("Sound");audioCount(1);
   device.pressHome();assertTrue(device.wait(Until.gone(By.pkg(APP)),10000));audioCount(0);launch();audioCount(1);
