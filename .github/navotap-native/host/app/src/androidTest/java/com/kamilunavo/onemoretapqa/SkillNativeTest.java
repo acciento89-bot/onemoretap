@@ -31,23 +31,44 @@ public final class SkillNativeTest {
   if(!APP.equals(device.getCurrentPackageName()))launch();
  }
  private void launch(){Intent i=host.getPackageManager().getLaunchIntentForPackage(APP);assertNotNull(i);host.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));assertTrue(device.wait(Until.hasObject(By.pkg(APP)),20000));}
- private void top(){for(int n=0;n<10;n++)device.swipe(device.getDisplayWidth()/40,(int)(device.getDisplayHeight()*.3),device.getDisplayWidth()/40,(int)(device.getDisplayHeight()*.8),15);}
+ private boolean scrollPage(boolean forward){
+  // Finger flings can move a different drill under a cached label coordinate.
+  // Navigate the real Compose ScrollView through its public accessibility action;
+  // all drill/button/Canvas interactions below remain actual injected touch taps.
+  android.view.accessibility.AccessibilityNodeInfo root=InstrumentationRegistry.getInstrumentation().getUiAutomation().getRootInActiveWindow();
+  assertNotNull("Actual foreground window required",root);
+  ArrayDeque<android.view.accessibility.AccessibilityNodeInfo> queue=new ArrayDeque<>();queue.add(root);
+  while(!queue.isEmpty()){
+   android.view.accessibility.AccessibilityNodeInfo node=queue.removeFirst();
+   if(APP.contentEquals(node.getPackageName()==null?"":node.getPackageName())&&node.isScrollable()){
+    boolean moved=node.performAction(forward?android.view.accessibility.AccessibilityNodeInfo.ACTION_SCROLL_FORWARD:android.view.accessibility.AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD);
+    SystemClock.sleep(100);return moved;
+   }
+   for(int i=0;i<node.getChildCount();i++){android.view.accessibility.AccessibilityNodeInfo child=node.getChild(i);if(child!=null)queue.addLast(child);}
+  }
+  return false;
+ }
+ private void top(){for(int n=0;n<20;n++)if(!scrollPage(false))break;}
  private UiObject2 find(BySelector selector){
   // A successful hasObject followed by findObjects can span a Compose transition.
   // Poll the actual unique snapshot; absence is transient, ambiguity still fails.
   long until=SystemClock.elapsedRealtime()+1500;
   do {List<UiObject2> nodes=device.findObjects(selector);if(nodes.size()==1)return nodes.get(0);if(nodes.size()>1)fail("Ambiguous target "+selector);SystemClock.sleep(25);}while(SystemClock.elapsedRealtime()<until);
-  top();for(int n=0;n<25;n++){List<UiObject2> nodes=device.findObjects(selector);if(nodes.size()==1)return nodes.get(0);if(nodes.size()>1)fail("Ambiguous target "+selector);device.swipe(device.getDisplayWidth()/40,(int)(device.getDisplayHeight()*.78),device.getDisplayWidth()/40,(int)(device.getDisplayHeight()*.28),20);}
+  top();for(int n=0;n<25;n++){List<UiObject2> nodes=device.findObjects(selector);if(nodes.size()==1)return nodes.get(0);if(nodes.size()>1)fail("Ambiguous target "+selector);if(!scrollPage(true))break;}
   fail("Target missing "+selector);return null;
  }
  private UiObject2 touchable(BySelector selector){
-  for(int attempt=0;attempt<12;attempt++){
+  android.graphics.Rect previous=null;int stable=0;
+  for(int attempt=0;attempt<24;attempt++){
    UiObject2 n=find(selector);int ancestors=0;
    while(!n.isClickable()&&ancestors++<4){n=n.getParent();assertNotNull("Clickable control required "+selector,n);}
    assertTrue("Clickable target required "+selector,n.isClickable());
    android.graphics.Rect bounds=n.getVisibleBounds();
-   if(bounds.height()>=90&&bounds.width()>=90)return n;
-   int h=device.getDisplayHeight();device.swipe(device.getDisplayWidth()/40,(int)(h*.78),device.getDisplayWidth()/40,(int)(h*.48),15);
+   if(bounds.height()>=90&&bounds.width()>=90){
+    stable=bounds.equals(previous)?stable+1:0;previous=new android.graphics.Rect(bounds);
+    if(stable>=2)return n;SystemClock.sleep(100);continue;
+   }
+   previous=null;stable=0;if(!scrollPage(true))break;
   }
   fail("Control must be genuinely touchable, not a clipped label: "+selector);return null;
  }
@@ -59,7 +80,7 @@ public final class SkillNativeTest {
   for(int attempt=0;attempt<8;attempt++){
    android.graphics.Rect r=node.getVisibleBounds();if(r.height()>=r.width()-3)return;
    int h=device.getDisplayHeight();boolean clippedTop=r.top<h*.16;
-   device.swipe(device.getDisplayWidth()/40,(int)(h*(clippedTop?.3:.72)),device.getDisplayWidth()/40,(int)(h*(clippedTop?.62:.42)),20);node=find(By.desc(RING));
+   scrollPage(!clippedTop);node=find(By.desc(RING));
   }
   fail("Whole ring must fit the real scrollable viewport");
  }
