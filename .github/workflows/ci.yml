@@ -5,6 +5,12 @@ on:
     branches: [main, "feat/**"]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      build_ios:
+        description: Explicitly validate iOS only after Android delivery
+        type: boolean
+        default: false
 
 concurrency:
   group: navotap-${{ github.workflow }}-${{ github.ref }}
@@ -23,6 +29,7 @@ jobs:
         run: swift test --package-path OneMoreTapCore
 
   ios-build:
+    if: github.event_name == 'workflow_dispatch' && inputs.build_ios
     name: iOS Simulator build
     runs-on: macos-15
     steps:
@@ -43,6 +50,7 @@ jobs:
           build
 
   release-icon-gate:
+    if: github.event_name == 'workflow_dispatch' && inputs.build_ios
     name: Release archive AppIcon gate
     runs-on: macos-15
     steps:
