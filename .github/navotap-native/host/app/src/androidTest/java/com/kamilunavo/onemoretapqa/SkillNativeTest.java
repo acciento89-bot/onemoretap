@@ -103,7 +103,15 @@ public final class SkillNativeTest {
  }
  @Test public void corruptedArchiveIsProtected()throws Exception {
   text("SKILL LAB");expect("Practice data could not be loaded. Its file is preserved; saving is blocked.");
-  for(String title:new String[]{"Steady timing","Precision","Direction changes"})assertFalse(find(By.desc("Start 12 attempts: "+title)).isEnabled());capture("15-protected-archive");
+  // Compose exposes the semantic label as an enabled child; the actual
+  // clickable Button ancestor carries Disabled. Verify that control itself.
+  for(String title:new String[]{"Steady timing","Precision","Direction changes"}){
+   UiObject2 button=find(By.desc("Start 12 attempts: "+title)).getParent();
+   assertTrue("Actual clickable drill control: "+title,button.isClickable());
+   assertFalse("Protected archive must disable the actual drill control: "+title,button.isEnabled());
+   button.click();assertFalse("Disabled control must not start a trial",device.hasObject(By.desc(RING)));
+  }
+  capture("15-protected-archive");
  }
  @Test public void writeFailureRetainsResult()throws Exception {
   text("SKILL LAB");start("Steady timing");

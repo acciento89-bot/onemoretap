@@ -1,0 +1,105 @@
+{
+  "nativeRun": 39765292983,
+  "productSource": "bf95ba52161faeeed4ebb03ab65c8feefec7933e",
+  "signedCandidateSha256": "41f43be6715ed1f2303429e1307dc662f365b5eda6844c51b7b960bf76121fa6",
+  "scope": "Actual phase1 native captures; all 36 attempts and mute/cold music test passed. Later phase2 QA navigation failed; these photographs are not a full acceptance claim.",
+  "method": "Code-native vector typography around entire unscaled/uncropped installed-game screenshot; all native pixels compared exactly. German headings accompany genuine English UI.",
+  "files": [
+    {
+      "locale": "de-DE",
+      "file": "01-classic.png",
+      "nativeFrame": "00-classic",
+      "sourceSha256": "7f8439113424710cb22ce8df2b19efbd637532807fc62183efdc02ef8d8ab69d",
+      "sha256": "c1b2980bfaa0f3e7ea123d59890843286da03b351b98dbe5ec7de969209d6caa",
+      "nativeUiPixelsUnchanged": true,
+      "width": 1440,
+      "height": 2560,
+      "channels": 3,
+      "bytes": 117230
+    },
+    {
+      "locale": "de-DE",
+      "file": "02-training.png",
+      "nativeFrame": "01-drills",
+      "sourceSha256": "4ff33b24048dd6313e3312cb68a596dacc762d913f6d7b9c55ba18d782afc9a0",
+      "sha256": "3327eca651fe3086441a1299748b104554fd55388257de8f242733e545df4605",
+      "nativeUiPixelsUnchanged": true,
+      "width": 1440,
+      "height": 2560,
+      "channels": 3,
+      "bytes": 161013
+    },
+    {
+      "locale": "de-DE",
+      "file": "03-ergebnisse.png",
+      "nativeFrame": "07-timing-result",
+      "sourceSha256": "fb2e72bfa5a9bc94309bc41687b57ce360b157e86b14f53133c6e048d5ad558c",
+      "sha256": "5627fd96866f72387638c103634b442f30ba04a35e21b484d46bd6dd2dc35476",
+      "nativeUiPixelsUnchanged": true,
+      "width": 1440,
+      "height": 2560,
+      "channels": 3,
+      "bytes": 163601
+    },
+    {
+      "locale": "de-DE",
+      "file": "04-auswahl.png",
+      "nativeFrame": "00-home",
+      "sourceSha256": "ec5ffa630b8f4a869bd9fe5d8b09c11b6236f0d65907f5acada1c21c2c6080c1",
+      "sha256": "390dd763601859b6245a558048a8ab63006b4dc36a1499235622051c51daba17",
+      "nativeUiPixelsUnchanged": true,
+      "width": 1440,
+      "height": 2560,
+      "channels": 3,
+      "bytes": 152883
+    },
+    {
+      "locale": "en-US",
+      "file": "01-classic.png",
+      "nativeFrame": "00-classic",
+      "sourceSha256": "7f8439113424710cb22ce8df2b19efbd637532807fc62183efdc02ef8d8ab69d",
+      "sha256": "0f2235fc222ecf27111fe8ec76b2eeda725cd3ce058e294f8d242446562c6ba4",
+      "nativeUiPixelsUnchanged": true,
+      "width": 1440,
+      "height": 2560,
+      "channels": 3,
+      "bytes": 118940
+    },
+    {
+      "locale": "en-US",
+      "file": "02-practice.png",
+      "nativeFrame": "01-drills",
+      "sourceSha256": "4ff33b24048dd6313e3312cb68a596dacc762d913f6d7b9c55ba18d782afc9a0",
+      "sha256": "05b13e60fe04ebc135da0b71b5c8605335e7a96d3f024aaec723135c35e3a8e3",
+      "nativeUiPixelsUnchanged": true,
+      "width": 1440,
+      "height": 2560,
+      "channels": 3,
+      "bytes": 160560
+    },
+    {
+      "locale": "en-US",
+      "file": "03-results.png",
+      "nativeFrame": "07-timing-result",
+      "sourceSha256": "fb2e72bfa5a9bc94309bc41687b57ce360b157e86b14f53133c6e048d5ad558c",
+      "sha256": "46cda1557df12b93e437b79e8c116afafc86880fcde673cc2f68037ea23c0a4f",
+      "nativeUiPixelsUnchanged": true,
+      "width": 1440,
+      "height": 2560,
+      "channels": 3,
+      "bytes": 157599
+    },
+    {
+      "locale": "en-US",
+      "file": "04-modes.png",
+      "nativeFrame": "00-home",
+      "sourceSha256": "ec5ffa630b8f4a869bd9fe5d8b09c11b6236f0d65907f5acada1c21c2c6080c1",
+      "sha256": "5e5853c297fba00d6552194a36219de7d5e672b036fb1d6a1ff8e56795085cc4",
+      "nativeUiPixelsUnchanged": true,
+      "width": 1440,
+      "height": 2560,
+      "channels": 3,
+      "bytes": 158297
+    }
+  ]
+}
