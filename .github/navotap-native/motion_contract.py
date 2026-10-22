@@ -6,18 +6,31 @@ def geometry(folder:pathlib.Path,stem:str):
  root=ET.parse(folder/(stem+'.xml')).getroot();nodes=[e for e in root.iter('node')if e.get('content-desc')==RING];assert len(nodes)==1,'Unique actual Canvas accessibility bounds required'
  x0,y0,x1,y1=map(int,re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]',nodes[0].get('bounds')) .groups());w=x1-x0;h=y1-y0;assert w>300 and abs(w-h)<=2,'Whole square Canvas must be visible'
  with Image.open(folder/(stem+'.png'))as image:
-  cx,cy=(x0+x1)/2,(y0+y1)/2;radius=w*.39;marker=[];target=[]
+  cx,cy=(x0+x1)/2,(y0+y1)/2;radius=w*.39;marker=[];target=[];perfect=[]
   for y in range(y0,y1):
    for x in range(x0,x1):
     distance=math.hypot(x-cx,y-cy)
     if abs(distance-radius)>w*.035:continue
     r,g,b=image.getpixel((x,y))[:3]
     if min(r,g,b)>230:marker.append((x,y))
-    elif (g>100 and b>100 and r<60)or(b>130 and r>70 and g<160):target.append((x,y))
+    elif (g>100 and b>100 and r<60)or(b>130 and r>70 and g<160 and b-r>40 and b-g>60):
+     target.append((x,y))
+     if b>130 and r>70 and g<160 and b-r>40 and b-g>60:perfect.append((x,y))
   assert len(marker)>40 and len(target)>40,'Actual bright marker and colored target pixels required'
   def centroid(points):return(sum(x for x,y in points)/len(points),sum(y for x,y in points)/len(points))
   def angle(point):return math.degrees(math.atan2(cy-point[1],point[0]-cx))%360
-  return {'marker':angle(centroid(marker)),'target':angle(centroid(target)),'markerPixels':len(marker),'targetPixels':len(target),'bounds':[x0,y0,x1,y1]}
+  def arc(points):
+   # The midpoint of the visible arc endpoints is stable when a white marker
+   # occludes its interior. A colored-pixel centroid is biased by that occlusion.
+   values=sorted(angle(point)for point in points);gaps=[(values[(i+1)%len(values)]-values[i])%360 for i in range(len(values))];i=max(range(len(gaps)),key=gaps.__getitem__);start=values[(i+1)%len(values)];span=360-gaps[i];assert 0<span<150,'Distinct target arc required';return (start+span/2)%360,start,(start+span)%360,span
+  center,start,end,span=arc(target);markerAngle=angle(centroid(marker));markerSpan=arc(marker)[3]
+  # If the marker hides an outer endpoint, the separate purple inner arc is
+  # unobscured there and supplies its center instead. Neither engine telemetry
+  # nor model angles are used.
+  method='outer endpoints'
+  if len(perfect)>40 and min(abs(delta(markerAngle,start)),abs(delta(markerAngle,end)))<markerSpan/2+1:
+   center=arc(perfect)[0];method='inner endpoints outside marker occlusion'
+  return {'marker':markerAngle,'target':center,'targetMethod':method,'markerPixels':len(marker),'targetPixels':len(target),'bounds':[x0,y0,x1,y1]}
 def delta(a,b):return(b-a+180)%360-180
 def validate(folder:pathlib.Path):
  result={}
