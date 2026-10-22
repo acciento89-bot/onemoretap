@@ -42,6 +42,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import com.kamilunavo.onemoretap.audio.BackgroundMusic
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -77,14 +79,20 @@ import kotlin.math.min
 import kotlin.math.sin
 
 class MainActivity : ComponentActivity() {
+    private lateinit var music: BackgroundMusic
+    override fun onResume() { super.onResume(); if (::music.isInitialized) music.setForeground(true) }
+    override fun onPause() { if (::music.isInitialized) music.setForeground(false); super.onPause() }
+    override fun onDestroy() { if (::music.isInitialized) music.close(); super.onDestroy() }
+    fun setSoundEnabled(value: Boolean) { if (::music.isInitialized) music.setEnabled(value) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(AndroidColor.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(AndroidColor.TRANSPARENT),
         )
+        val profile = PlayerProfile(applicationContext)
+        music = BackgroundMusic(applicationContext).also { it.setEnabled(profile.soundEnabled) }
         setContent {
-            val profile = remember { PlayerProfile(applicationContext) }
             val billing = remember { BillingManager(applicationContext) }
             val ads = remember { AdManager(applicationContext) }
             val session = remember { ClassicGameSession(profile) }
@@ -119,6 +127,7 @@ private fun NavoTapApp(
 ) {
     var screen by remember { mutableStateOf(AppScreen.HOME) }
     val theme = profile.selectedTheme
+    SideEffect { activity.setSoundEnabled(profile.soundEnabled) }
 
     BackHandler(enabled = screen != AppScreen.HOME && !skillLab.isVisible) {
         when (screen) {

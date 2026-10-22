@@ -183,7 +183,7 @@ private fun metrics(de: Boolean,result: SkillLabSummary) = "${result.hits}/12 ${
                                 SkillDrill.DIRECTIONS -> labText(de,"Movement alternates after every attempt. Early and late follow the current direction.","Die Bewegung wechselt nach jedem Versuch die Richtung. Früh und spät beziehen sich auf die aktuelle Richtung.")
                             })
                             storage.progress.best(drill)?.let { Text(labText(de,"Personal best: ","Eigener Bestwert: ")+metrics(de,it)) }
-                            Button(enabled = !storage.loadFailed,onClick = { session.start(drill) }) { Text(labText(de,"Start 12 attempts","12 Versuche starten")) }
+                            Button(modifier = Modifier.semantics { contentDescription = labText(de,"Start 12 attempts","12 Versuche starten")+": "+labTitle(de,drill) },enabled = !storage.loadFailed,onClick = { session.start(drill) }) { Text(labText(de,"Start 12 attempts","12 Versuche starten")) }
                         }
                     }
                 }

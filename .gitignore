@@ -13,3 +13,12 @@ android/.kotlin/
 android/build/
 android/app/build/
 android/local.properties
+
+# Owned Android native validation outputs
+.github/navotap-native/host/.gradle/
+.github/navotap-native/host/build/
+.github/navotap-native/host/app/build/
+__pycache__/
+candidate/
+prepared/
+release/
