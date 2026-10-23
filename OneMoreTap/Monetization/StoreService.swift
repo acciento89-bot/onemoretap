@@ -8,9 +8,19 @@ final class StoreService: ObservableObject {
   @Published private(set) var isLoading = false
   @Published var lastErrorMessage: String?
 
+  // Explicit native QA isolation. This switch is absent from shipping Release builds.
+  static var providerDisabledForQA: Bool {
+    #if DEBUG
+    ProcessInfo.processInfo.arguments.contains("--navoTapProviderDisabledQA")
+    #else
+    false
+    #endif
+  }
+
   private var transactionUpdatesTask: Task<Void, Never>?
 
   init() {
+    guard !Self.providerDisabledForQA else { return }
     transactionUpdatesTask = Task { [weak self] in
       for await update in Transaction.updates {
         guard let self else { return }
@@ -44,6 +54,7 @@ final class StoreService: ObservableObject {
   }
 
   func reload() async {
+    guard !Self.providerDisabledForQA else { return }
     isLoading = true
     defer { isLoading = false }
 
@@ -58,6 +69,7 @@ final class StoreService: ObservableObject {
 
   @discardableResult
   func purchase(_ product: Product) async -> Bool {
+    guard !Self.providerDisabledForQA else { return false }
     do {
       let result = try await product.purchase()
       switch result {
@@ -78,6 +90,7 @@ final class StoreService: ObservableObject {
   }
 
   func restorePurchases() async {
+    guard !Self.providerDisabledForQA else { return }
     do {
       try await AppStore.sync()
       await refreshEntitlements()
@@ -87,6 +100,7 @@ final class StoreService: ObservableObject {
   }
 
   private func refreshEntitlements() async {
+    guard !Self.providerDisabledForQA else { return }
     var ids = Set<String>()
     for await entitlement in Transaction.currentEntitlements {
       guard let transaction = try? verified(entitlement) else { continue }

@@ -38,12 +38,14 @@ final class AdService: NSObject, ObservableObject, FullScreenContentDelegate {
   }
 
   func configure() {
+    guard !StoreService.providerDisabledForQA else { return }
     Task { [weak self] in
       await self?.collectConsentAndStartAds()
     }
   }
 
   func presentPrivacyOptions() {
+    guard !StoreService.providerDisabledForQA else { return }
     Task { [weak self] in
       do {
         try await ConsentForm.presentPrivacyOptionsForm(from: nil)
@@ -64,6 +66,7 @@ final class AdService: NSObject, ObservableObject, FullScreenContentDelegate {
   }
 
   func retryRewarded() {
+    guard !StoreService.providerDisabledForQA else { return }
     rewardedRetryTask?.cancel()
     rewardedRetryTask = nil
 
@@ -84,6 +87,7 @@ final class AdService: NSObject, ObservableObject, FullScreenContentDelegate {
   }
 
   func showRewardedContinue(completion: @escaping (Bool) -> Void) {
+    guard !StoreService.providerDisabledForQA else { completion(false); return }
     guard let rewardedAd else {
       completion(false)
       retryRewarded()
@@ -102,6 +106,7 @@ final class AdService: NSObject, ObservableObject, FullScreenContentDelegate {
   }
 
   func showInterstitialOnRestartIfEligible(adsRemoved: Bool, completion: @escaping () -> Void) {
+    guard !StoreService.providerDisabledForQA else { completion(); return }
     restartCount += 1
 
     guard !adsRemoved else {
