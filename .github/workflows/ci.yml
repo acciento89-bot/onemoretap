@@ -38,6 +38,10 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
       - name: Validate source AppIcon
         run: bash ci/check-app-icon.sh OneMoreTap/Assets.xcassets/AppIcon.appiconset/AppIcon.png source
+      - name: Verify isolated QA never invokes purchase or advertising providers
+        run: |
+          bash ci/provider-isolation-smoke.sh
+          bash ci/ads-isolation-smoke.sh
       - name: Build NavoTap
         run: >-
           xcodebuild
