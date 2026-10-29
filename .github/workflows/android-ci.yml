@@ -74,8 +74,8 @@ jobs:
           ui='android/app/src/main/java/com/kamilunavo/onemoretap/MainActivity.kt'
           grep -q 'applicationId = "com.kamilunavo.onemoretap"' android/app/build.gradle.kts
           grep -q 'targetSdk = 36' android/app/build.gradle.kts
-          grep -q 'versionCode = 8' android/app/build.gradle.kts
-          grep -q 'versionName = "1.1.0"' android/app/build.gradle.kts
+          grep -q 'versionCode = 9' android/app/build.gradle.kts
+          grep -q 'versionName = "1.2.0"' android/app/build.gradle.kts
           grep -q 'isMinifyEnabled = false' android/app/build.gradle.kts
           grep -q 'testBuildType = "release"' android/app/build.gradle.kts
           grep -q 'android:icon="@drawable/navotap_app_icon"' android/app/src/main/AndroidManifest.xml
@@ -143,7 +143,7 @@ jobs:
           (cd candidate && sha256sum app-release.aab > app-release.aab.sha256)
       - uses: actions/upload-artifact@v4
         with:
-          name: NavoTap-1.1.0-8-unsigned-aab
+          name: NavoTap-1.2.0-9-unsigned-aab
           path: candidate/
           if-no-files-found: error
           retention-days: 30

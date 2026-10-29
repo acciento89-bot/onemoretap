@@ -14,7 +14,7 @@ def reject_anr_window(data):
  assert not re.search(rb'ANR in|Application Not Responding|isn.t responding',data,re.I),'Observed ANR window'
 def run():
  runtime=pathlib.Path(os.environ['RUNNER_TEMP']).resolve();proof=runtime/'navotap-native-acceptance/navotap';assert not proof.is_symlink()and not proof.parent.is_symlink();proof.mkdir(parents=True,exist_ok=True,mode=0o700)
- result={'status':'STARTED','package':APP,'version':'1.1.0(8)','realTransactions':False,'fixtureScope':'Fresh workflow-owned emulator only: explicit legacy free-play best17/coins23/neon and normal sound/haptics preferences; no purchased entitlement. Only new practice archive gets controlled future-version and write-failure fixtures.'};validated=False
+ result={'status':'STARTED','package':APP,'version':'1.2.0(8)','realTransactions':False,'fixtureScope':'Fresh workflow-owned emulator only: explicit legacy free-play best17/coins23/neon and normal sound/haptics preferences; no purchased entitlement. Only new practice archive gets controlled future-version and write-failure fixtures.'};validated=False
  def call(args,timeout=20):
   p=subprocess.run(['adb','-s','emulator-5554',*args],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=timeout)
   if p.returncode:raise RuntimeError('Owned adb command failed: '+args[0])
@@ -32,7 +32,7 @@ def run():
   (proof/'root-mode.txt').write_bytes(call(['root']));call(['wait-for-device'],30);owned();assert call(['shell','id','-u']).strip()==b'0'
   apks=[pathlib.Path('candidate/universal.apk'),pathlib.Path('.github/navotap-native/host/app/build/outputs/apk/debug/app-debug.apk'),pathlib.Path('.github/navotap-native/host/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk')];result['apkSha256']={str(p):hashlib.sha256(p.read_bytes()).hexdigest()for p in apks}
   for apk in apks:call(['install','-r',str(apk)],180)
-  identity=call(['shell','dumpsys','package',APP]);(proof/'installed-identity.txt').write_bytes(identity);assert re.search(rb'\bversionCode=8(?=\s|$)',identity)and re.search(rb'\bversionName=1\.1\.0(?=\s|$)',identity)
+  identity=call(['shell','dumpsys','package',APP]);(proof/'installed-identity.txt').write_bytes(identity);assert re.search(rb'\bversionCode=9(?=\s|$)',identity)and re.search(rb'\bversionName=1\.2\.0(?=\s|$)',identity)
   uid=call(['shell','stat','-c','%u',root]).decode().strip();gid=call(['shell','stat','-c','%g',root]).decode().strip();assert uid.isdecimal()and gid.isdecimal()and int(uid)>=10000
   xml=b'<?xml version="1.0" encoding="utf-8"?><map><int name="classic.bestScore" value="17"/><int name="wallet.coins" value="23"/><boolean name="settings.soundEnabled" value="true"/><boolean name="settings.hapticsEnabled" value="false"/><string name="cosmetics.selectedTheme">neon</string><int name="ads.restartCount" value="1"/></map>'
   baseline=profile(xml);(proof/'fixture-profile.xml').write_bytes(xml);(proof/'fixture-manifest.json').write_text(json.dumps({'ownedFreshEmulatorOnly':True,'premiumFixture':False,'explicitFreeLegacyProfile':baseline,'shippingTestEndpoint':False})+'\n');call(['push',str(proof/'fixture-profile.xml'),'/data/local/tmp/navotap-owned-profile.xml']);call(['shell',f'mkdir -p {root}/shared_prefs && cat /data/local/tmp/navotap-owned-profile.xml > {pref} && chown {uid}:{gid} {root}/shared_prefs {pref} && chmod 700 {root}/shared_prefs && chmod 600 {pref} && restorecon -RF {root}/shared_prefs && rm /data/local/tmp/navotap-owned-profile.xml'])
