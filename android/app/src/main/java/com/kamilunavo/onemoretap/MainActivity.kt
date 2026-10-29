@@ -12,6 +12,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -142,6 +143,7 @@ private fun NavoTapApp(
     }
 
     MaterialTheme(
+        typography = brandedTypography(),
         colorScheme = darkColorScheme(
             primary = theme.primary,
             onPrimary = Color(0xFF041014),
@@ -220,8 +222,6 @@ private fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(44.dp))
-        NavoMark(profile.selectedTheme)
-        Spacer(Modifier.height(24.dp))
         Text("NAVOTAP", color = Color.White, fontSize = 38.sp, fontWeight = FontWeight.Black, letterSpacing = 2.2.sp)
         Spacer(Modifier.height(8.dp))
         Text("One tap. One chance. One more run.", color = Color.White.copy(alpha = 0.55f), fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
@@ -229,22 +229,20 @@ private fun HomeScreen(
             Spacer(Modifier.height(8.dp))
             Text("ANDROID QA · TEST ADS", color = MaterialTheme.colorScheme.primary, fontSize = 10.sp)
         }
-        Spacer(Modifier.height(38.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Spacer(Modifier.height(26.dp))
+        Button(onClick = onPlay, modifier = Modifier.size(210.dp), shape = androidx.compose.foundation.shape.CircleShape, colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = .035f), contentColor = Color.White), border = androidx.compose.foundation.BorderStroke(1.dp, profile.selectedTheme.primary.copy(alpha = .65f)), contentPadding = androidx.compose.foundation.layout.PaddingValues(8.dp)) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                NavoMark(profile.selectedTheme)
+                Text("CLASSIC", fontSize = 18.sp, letterSpacing = 2.sp)
+            }
+        }
+        Spacer(Modifier.height(14.dp))
+        Text("Tap when the orb reaches the target", color = Color.White.copy(alpha = 0.65f), fontSize = 14.sp, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(24.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
             StatCard("BEST", profile.bestScore.toString(), Modifier.weight(1f))
             StatCard("COINS", profile.coins.toString(), Modifier.weight(1f))
         }
-        Spacer(Modifier.height(30.dp))
-        Button(
-            onClick = onPlay,
-            modifier = Modifier.fillMaxWidth().height(62.dp),
-            shape = RoundedCornerShape(22.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
-        ) {
-            Text("CLASSIC", fontWeight = FontWeight.Black, fontSize = 19.sp, letterSpacing = 0.5.sp)
-        }
-        Spacer(Modifier.height(12.dp))
-        Text("Tap when the orb reaches the target", color = Color.White.copy(alpha = 0.45f), fontSize = 13.sp, fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(20.dp))
         OutlinedButton(onClick = onSkillLab,modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("SKILL LAB") }
         Spacer(Modifier.height(34.dp))
@@ -256,7 +254,7 @@ private fun HomeScreen(
         OutlinedButton(
             onClick = onShop,
             modifier = Modifier.fillMaxWidth().height(48.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = androidx.compose.foundation.shape.CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White.copy(alpha = 0.72f)),
         ) {
             Text("SHOP & THEMES", modifier = Modifier.weight(1f), fontWeight = FontWeight.Black, fontSize = 13.sp)
@@ -291,17 +289,9 @@ private fun NavoMark(theme: GameTheme) {
 
 @Composable
 private fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
-    Card(modifier = modifier, colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.045f), contentColor = Color.White), shape = RoundedCornerShape(20.dp)) {
-        Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(38.dp).background(Color.White.copy(alpha = 0.055f), RoundedCornerShape(19.dp)), contentAlignment = Alignment.Center) {
-                Text(if (label == "BEST") "*" else "+", color = MaterialTheme.colorScheme.primary, fontSize = 17.sp, fontWeight = FontWeight.Bold)
-            }
-            Spacer(Modifier.size(12.dp))
-            Column {
-                Text(label, color = Color.White.copy(alpha = 0.42f), fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.1.sp)
-                Text(value, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Black)
-            }
-        }
+    Column(modifier.border(1.dp, Color.White.copy(alpha = .18f), androidx.compose.foundation.shape.CircleShape).padding(horizontal = 10.dp, vertical = 22.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(label, color = Color.White.copy(alpha = .65f), fontSize = 12.sp, letterSpacing = 1.1.sp)
+        Text(value, color = MaterialTheme.colorScheme.primary, fontSize = 27.sp, textAlign = TextAlign.Center)
     }
 }
 
@@ -309,7 +299,7 @@ private fun StatCard(label: String, value: String, modifier: Modifier = Modifier
 private fun TogglePill(label: String, enabled: Boolean, modifier: Modifier = Modifier, onToggle: () -> Unit) {
     Button(
         onClick = onToggle,
-        modifier = modifier.height(44.dp),
+        modifier = modifier.heightIn(min = 50.dp),
         shape = RoundedCornerShape(22.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.White.copy(alpha = if (enabled) 0.09f else 0.035f),
